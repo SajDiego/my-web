@@ -13,6 +13,18 @@ router.get('/', async (req, res) => {
     }
 });
 
+// obtener producto por ID
+router.get('/:id', async (req, res) => {
+    try {
+        const producto = await Product.findById(req.params.id);
+        if (!producto) return res.status(404).json({ error: "Juego no encontrado." });
+        res.json(producto);
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener el juego." });
+    }
+});
+
+
 //crear nuevo producto
 router.post('/', auth, async (req, res) => {
     try {

@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
+
+:root {
+  /* Paleta Dark Premium */
+  --bg-dark: #09090b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #6d28d9;
+  /* Tono morado para gaming */
+
+  /* Sistema Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(12px);
+
+  /* Fuentes */
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  /* Gradiente radial sutil de fondo */
+  background-image: radial-gradient(circle at 15% 50%, rgba(109, 40, 217, 0.15), transparent 25%);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}

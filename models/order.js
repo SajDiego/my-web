@@ -5,8 +5,14 @@ const orderSchema = new mongoose.Schema({
     usuario: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
     },
+    // Datos del invitado (si compra sin cuenta)
+    usuarioInvitado: {
+        nombre: { type: String },
+        contacto: { type: String }
+    },
+
 
     // Producto comprado
     juegoNombre: { type: String, required: true },       // Ej: "Free Fire"
@@ -15,7 +21,7 @@ const orderSchema = new mongoose.Schema({
 
     // ID
     uidJugador: { type: String, required: true },
-    // Opcional por si juegas algunos títulos que piden Región
+    // region 
     regionJugador: { type: String, default: "" },
 
     // Etado del pedidos
