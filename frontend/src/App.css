@@ -23,7 +23,7 @@
   border-radius: 16px;
 }
 
-/* frontend/src/App.css */
+/* titulo de pagina de inicio */
 .home-title {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
@@ -163,7 +163,7 @@
   padding-left: 12px;
 }
 
-/* ===== NAVBAR ===== */
+/* navbar */
 .navbar {
   position: sticky;
   top: 0;
@@ -244,9 +244,9 @@
   outline: none;
 }
 
+/*fondo de las opciones */
 .currency-selector option {
   background: #18181b;
-  /* Un gris muy oscuro para el fondo de las opciones */
   color: #fff;
 }
 
@@ -295,7 +295,7 @@
   flex: 1;
 }
 
-/* ===== CAROUSEL ===== */
+/* carrusell de pagina de inicio */
 .carousel {
   position: relative;
   height: 400px;
@@ -424,7 +424,7 @@
   font-size: 0.95rem;
 }
 
-/* ===== GAME DETAIL ===== */
+/* tarjetas de juegos */
 .btn-back {
   background: none;
   border: none;
@@ -482,7 +482,7 @@
   }
 }
 
-/* ===== CART ===== */
+/* carrito */
 .cart-list {
   display: flex;
   flex-direction: column;
@@ -558,7 +558,7 @@
   border-bottom: var(--glass-border);
 }
 
-/* ===== CHECKOUT ===== */
+/* checkout */
 .checkout-layout {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
@@ -624,7 +624,7 @@
   }
 }
 
-/* ===== FOOTER ===== */
+/* footer */
 .footer {
   background: rgba(9, 9, 11, 0.95);
   border-top: var(--glass-border);
@@ -682,7 +682,7 @@
   }
 }
 
-/* ===== WHATSAPP FLOAT ===== */
+/*boton de whatsapp*/
 .whatsapp-float {
   position: fixed;
   bottom: 30px;
