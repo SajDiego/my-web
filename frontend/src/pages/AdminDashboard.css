@@ -75,4 +75,27 @@
         flex-direction: column;
         gap: 10px;
     }
+    
+    .admin-table {
+        min-width: 600px;
+        font-size: 0.85rem;
+    }
+
+    .admin-table th, .admin-table td {
+        padding: 10px 8px;
+    }
+
+    .admin-table th {
+        font-size: 0.75rem;
+    }
+
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+
+    .order-actions-cell {
+        flex-direction: column;
+        gap: 5px;
+    }
 }

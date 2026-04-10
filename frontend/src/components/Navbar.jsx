@@ -17,6 +17,17 @@ function Navbar({ usuario, onLogout }) {
             <div className="navbar-inner">
                 <Link to="/" className="navbar-logo" onClick={closeMenu}>IntegralPro</Link>
 
+                <div className="mobile-quick-actions">
+                    <select className="currency-selector" value={moneda} onChange={(e) => setMoneda(e.target.value)}>
+                        <option value="ARS">🇦🇷 ARS</option>
+                        <option value="USD">🇺🇸 USD</option>
+                    </select>
+                    <Link to="/cart" className="navbar-cart-link" onClick={closeMenu}>
+                        <FiShoppingCart size={22} />
+                        {carrito.length > 0 && <span className="cart-badge">{carrito.length}</span>}
+                    </Link>
+                </div>
+
                 <button className="mobile-menu-toggle" onClick={toggleMenu}>
                     {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
                 </button>
@@ -24,7 +35,7 @@ function Navbar({ usuario, onLogout }) {
                 <div className={`navbar-collapse ${isMobileMenuOpen ? 'open' : ''}`}>
                     <nav className="navbar-links">
                         <Link to="/" onClick={closeMenu}>Inicio</Link>
-                        <Link to="/cart" className="navbar-cart-link" onClick={closeMenu}>
+                        <Link to="/cart" className="navbar-cart-link desktop-only" onClick={closeMenu}>
                         <FiShoppingCart size={22} />
                         {carrito.length > 0 && (
                             <span className="cart-badge">{carrito.length}</span>
@@ -34,7 +45,7 @@ function Navbar({ usuario, onLogout }) {
 
                 <div className="navbar-right">
                     <select
-                        className="currency-selector"
+                        className="currency-selector desktop-only"
                         value={moneda}
                         onChange={(e) => setMoneda(e.target.value)}
                     >

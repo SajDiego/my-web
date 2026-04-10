@@ -53,6 +53,7 @@ function Checkout() {
                     regionJugador: item.regionJugador || '',
                     moneda: moneda,
                     tipoDatoEntrega: item.tipoDatoEntrega || 'ID',
+                    datosEntrega: item.datosEntrega || {},
                     ...(esInvitado && {
                         nombreInvitado: nombre,
                         contactoInvitado: `${email} | WA: ${whatsapp}`

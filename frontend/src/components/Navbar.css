@@ -136,6 +136,10 @@
   flex: 1;
 }
 
+.mobile-quick-actions {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .mobile-menu-toggle {
     display: flex;
@@ -177,13 +181,25 @@
     gap: 15px;
   }
   
-  .navbar-account {
+.navbar-account {
     flex-direction: column;
     width: 100%;
   }
 
-  .btn-nav, .currency-selector {
+  .btn-nav {
     width: 100%;
     text-align: center;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-quick-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: auto;
+    margin-right: 15px;
   }
 }

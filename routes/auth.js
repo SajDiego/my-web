@@ -4,9 +4,10 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/authMiddleware');
+const { authLimiter } = require('../middleware/rateLimit');
 
 // Ruta de Registro
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
     try {
         const { nombre, email, password } = req.body;
 
@@ -28,7 +29,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Ruta de Inicio de Sesión
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
