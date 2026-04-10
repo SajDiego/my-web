@@ -44,11 +44,17 @@ router.post('/', auth, async (req, res) => {
 
         await nuevaOrden.save();
 
-        // Enviar correos
-        const usuarioFull = await User.findById(req.usuario.id);
-        if (usuarioFull) {
-            enviarEmailAdmin(nuevaOrden, { nombre: usuarioFull.nombre, email: usuarioFull.email });
-            enviarEmailCliente(nuevaOrden, usuarioFull.email);
+        // Enviar correos (con await para que Google Cloud no cierre el proceso antes de tiempo)
+        try {
+            const usuarioFull = await User.findById(req.usuario.id);
+            if (usuarioFull) {
+                await Promise.all([
+                    enviarEmailAdmin(nuevaOrden, { nombre: usuarioFull.nombre, email: usuarioFull.email }),
+                    enviarEmailCliente(nuevaOrden, usuarioFull.email)
+                ]);
+            }
+        } catch (mailErr) {
+            console.error("Error al disparar la secuencia de correos:", mailErr);
         }
 
         res.status(201).json({ mensaje: "¡Pedido registrado con éxito!", orden: nuevaOrden });
@@ -88,14 +94,18 @@ router.post('/guest', async (req, res) => {
 
         await nuevaOrden.save();
 
-        // Enviar correos
-        enviarEmailAdmin(nuevaOrden, { 
-            nombre: req.body.nombreInvitado, 
-            email: req.body.emailInvitado, 
-            contacto: req.body.whatsappInvitado 
-        });
-        if (req.body.emailInvitado) {
-            enviarEmailCliente(nuevaOrden, req.body.emailInvitado);
+        // Enviar correos (con await para que Google Cloud no cierre el proceso antes de tiempo)
+        try {
+            await Promise.all([
+                enviarEmailAdmin(nuevaOrden, { 
+                    nombre: req.body.nombreInvitado, 
+                    email: req.body.emailInvitado, 
+                    contacto: req.body.whatsappInvitado 
+                }),
+                req.body.emailInvitado ? enviarEmailCliente(nuevaOrden, req.body.emailInvitado) : Promise.resolve()
+            ]);
+        } catch (mailErr) {
+            console.error("Error al disparar la secuencia de correos (Invitado):", mailErr);
         }
 
         res.status(201).json({ mensaje: "¡Pedido registrado con éxito!", orden: nuevaOrden });
