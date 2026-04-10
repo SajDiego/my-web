@@ -6,14 +6,6 @@ export function CartProvider({ children }) {
     const [carrito, setCarrito] = useState([]);
     const [moneda, setMoneda] = useState('ARS');
 
-    // Tipo de cambio fijo (actualizar cuando sea necesario)
-    const tipoCambio = { ARS: 1, USD: 0.001 };
-
-    const convertirPrecio = (precioARS) => {
-        const valor = precioARS * tipoCambio[moneda];
-        return moneda === 'USD' ? valor.toFixed(2) : Math.round(valor);
-    };
-
     const agregarAlCarrito = (item) => {
         setCarrito((prev) => [...prev, { ...item, id: Date.now() }]);
     };
@@ -24,13 +16,16 @@ export function CartProvider({ children }) {
 
     const vaciarCarrito = () => setCarrito([]);
 
-    const totalCarrito = carrito.reduce((acc, item) => acc + item.precioFinal, 0);
+    const totalCarrito = carrito.reduce((acc, item) => {
+        const precio = moneda === 'USD' ? item.precioUSD : item.precioARS;
+        return acc + (Number(precio) || 0);
+    }, 0);
 
     return (
         <CartContext.Provider value={{
             carrito, moneda, setMoneda,
             agregarAlCarrito, eliminarDelCarrito, vaciarCarrito,
-            convertirPrecio, totalCarrito
+            totalCarrito
         }}>
             {children}
         </CartContext.Provider>

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/product');
 const auth = require('../middleware/authMiddleware');
+const admin = require('../middleware/adminMiddleware');
 
 // listar productos
 router.get('/', async (req, res) => {
@@ -26,7 +27,7 @@ router.get('/:id', async (req, res) => {
 
 
 //crear nuevo producto
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, admin, async (req, res) => {
     try {
         const nuevoProducto = new Product(req.body);
         await nuevoProducto.save();
@@ -39,7 +40,7 @@ router.post('/', auth, async (req, res) => {
 
 
 // EDITAR un Producto por ID
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', auth, admin, async (req, res) => {
     try {
         const productoActualizado = await Product.findByIdAndUpdate(
             req.params.id,
@@ -56,7 +57,7 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // ELIMINAR un Juego del catálogo completo
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', auth, admin, async (req, res) => {
     try {
         const productoEliminado = await Product.findByIdAndDelete(req.params.id);
         if (!productoEliminado) {

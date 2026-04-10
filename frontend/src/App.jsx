@@ -8,6 +8,10 @@ import Login from './pages/Login';
 import GameDetail from './pages/GameDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminProducts from './pages/AdminProducts';
+import Perfil from './pages/Perfil';
+import Register from './pages/Register';
 import './index.css';
 import './App.css';
 
@@ -38,6 +42,10 @@ function App() {
             <Route path="/game/:id" element={<GameDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/cuenta" element={<Perfil />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
           </Routes>
         </div>
         <Footer />

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import './Checkout.css';
 
 // Métodos de pago según moneda
 const metodosPorMoneda = {
@@ -9,7 +10,7 @@ const metodosPorMoneda = {
 };
 
 function Checkout() {
-    const { carrito, moneda, convertirPrecio, totalCarrito, vaciarCarrito } = useCart();
+    const { carrito, moneda, totalCarrito, vaciarCarrito } = useCart();
     const navigate = useNavigate();
 
     const [nombre, setNombre] = useState('');
@@ -50,6 +51,8 @@ function Checkout() {
                     paqueteElegido: item.paqueteElegido,
                     uidJugador: item.uidJugador,
                     regionJugador: item.regionJugador || '',
+                    moneda: moneda,
+                    tipoDatoEntrega: item.tipoDatoEntrega || 'ID',
                     ...(esInvitado && {
                         nombreInvitado: nombre,
                         contactoInvitado: `${email} | WA: ${whatsapp}`
@@ -96,12 +99,12 @@ function Checkout() {
                     {carrito.map((item) => (
                         <div key={item.id} className="checkout-item">
                             <span>{item.juegoNombre} — {item.paqueteElegido}</span>
-                            <strong>{moneda === 'USD' ? 'U$D' : '$'} {convertirPrecio(item.precioFinal)}</strong>
+                            <strong>{moneda === 'USD' ? `U$D ${item.precioUSD}` : `$ ${item.precioARS}`}</strong>
                         </div>
                     ))}
                     <div className="checkout-total">
                         <span>Total</span>
-                        <strong>{moneda === 'USD' ? 'U$D' : '$'} {convertirPrecio(totalCarrito)}</strong>
+                        <strong>{moneda === 'USD' ? `U$D ${totalCarrito}` : `$ ${totalCarrito}`}</strong>
                     </div>
                 </div>
 

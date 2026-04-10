@@ -1,22 +1,31 @@
 const mongoose = require('mongoose');
 
-//sub paquetes
 const paqueteSchema = new mongoose.Schema({
     nombre: { type: String, required: true },
-    monedasTotal: { type: Number, required: true },
-    precio: { type: Number, required: true },
-    bonoDetalle: { type: String, default: "" }
+    precioARS: { type: Number },
+    precioUSD: { type: Number },
+    bonoDetalle: { type: String, default: "" },
+    descripcion: { type: String, default: "" }
 });
 
-//principal
 
 const productSchema = new mongoose.Schema({
     juego: { type: String, required: true, unique: true },
     descripcion: { type: String },
     imagenUrl: { type: String },
+    requiereDato: { 
+        type: String, 
+        enum: ['ID', 'Email'], 
+        default: 'ID' 
+    },
 
-    //array de variables
     paquetes: [paqueteSchema],
+
+    categoria: {
+        type: String,
+        enum: ['Recargas Directas', 'Pines', 'PC', 'Consolas'],
+        default: 'Recargas Directas'
+    },
 
     fechaCreacion: { type: Date, default: Date.now }
 });

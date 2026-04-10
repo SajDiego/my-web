@@ -1,0 +1,57 @@
+.profile-container {
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.profile-title {
+    text-align: center;
+}
+
+.profile-card {
+    padding: 2.5rem;
+}
+
+.profile-update-msg {
+    color: var(--accent);
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.profile-section {
+    margin-bottom: 2.5rem;
+}
+
+.profile-section-title {
+    margin-bottom: 1rem;
+    color: var(--accent);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-email-label {
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.profile-email-value {
+    font-size: 1.1rem;
+    margin-top: 5px;
+    color: #fff;
+    font-weight: 500;
+}
+
+.password-input {
+    font-size: 0.9rem;
+}
+
+.profile-help-text {
+    display: block;
+    margin-top: 8px;
+    opacity: 0.5;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}

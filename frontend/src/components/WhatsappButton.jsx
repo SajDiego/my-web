@@ -1,7 +1,8 @@
 import { FaWhatsapp } from 'react-icons/fa';
+import './WhatsappButton.css';
 
 function WhatsappButton() {
-  const numero = "5491133148649"; // Reemplaza con tu número real
+  const numero = "5491133148649";
   const mensaje = "Hola IntegralPro! Necesito ayuda con una recarga.";
   const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
 

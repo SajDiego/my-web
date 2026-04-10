@@ -56,7 +56,8 @@ router.post('/login', async (req, res) => {
             usuario: {
                 id: usuario._id,
                 nombre: usuario.nombre,
-                email: usuario.email
+                email: usuario.email,
+                rol: usuario.rol
             }
         });
 
@@ -68,7 +69,7 @@ router.post('/login', async (req, res) => {
 // Ruta Protegida: ejecusion del middleware
 router.get('/perfil', auth, async (req, res) => {
     try {
-        // Buscamos al usuario en la base de datos .
+
         const usuario = await User.findById(req.usuario.id).select('-password');
         res.json(usuario);
     } catch (error) {

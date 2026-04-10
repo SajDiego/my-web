@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import './GameDetail.css';
 
 function GameDetail() {
     const { id } = useParams();
@@ -38,9 +39,11 @@ function GameDetail() {
         agregarAlCarrito({
             juegoNombre: juego.juego,
             paqueteElegido: paqueteSeleccionado.nombre,
-            precioFinal: paqueteSeleccionado.precio,
+            precioARS: paqueteSeleccionado.precioARS,
+            precioUSD: paqueteSeleccionado.precioUSD,
             uidJugador: uid,
-            regionJugador: region
+            regionJugador: (juego.requiereDato === 'ID') ? region : "",
+            tipoDatoEntrega: juego.requiereDato || 'ID'
         });
         setMensaje('¡Agregado al carrito!');
         setUid('');
@@ -63,66 +66,74 @@ function GameDetail() {
                 </div>
             </div>
 
-            <div className="game-detail-body">
-                {/* Lista de paquetes */}
-                <div className="packages-panel card-glass">
-                    <h3 className="section-title">Selecciona un paquete</h3>
-                    <div className="package-list">
+            <div className="game-detail-body single-panel card-glass">
+                <div className="step-section">
+                    <h3 className="minimal-step-title">1. Elige tu recarga</h3>
+                    <div className="package-grid">
                         {juego.paquetes.map((paquete) => (
                             <div
                                 key={paquete._id}
-                                className={`package-item ${paqueteSeleccionado?._id === paquete._id ? 'package-active' : ''}`}
-                                style={{ cursor: 'pointer' }}
+                                className={`package-minimal-item ${paqueteSeleccionado?._id === paquete._id ? 'active' : ''}`}
                                 onClick={() => { setPaqueteSeleccionado(paquete); setMensaje(''); }}
                             >
-                                <span>
-                                    {paquete.nombre}
-                                    {paquete.bonoDetalle && <small className="package-badge">{paquete.bonoDetalle}</small>}
-                                </span>
-                                <strong>{moneda === 'USD' ? 'U$D' : '$'} {convertirPrecio(paquete.precio)}</strong>
+                                <div className="pack-info">
+                                    <span className="pack-name">{paquete.nombre}</span>
+                                    {paquete.bonoDetalle && <span className="pack-badge">{paquete.bonoDetalle}</span>}
+                                </div>
+                                <div className="pack-price">
+                                    {moneda === 'USD' ? `U$D ${paquete.precioUSD}` : `$ ${paquete.precioARS}`}
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Formulario de UID */}
-                <form className="uid-panel card-glass" onSubmit={handleAgregarAlCarrito}>
-                    <h3 className="section-title">Datos de entrega</h3>
+                {paqueteSeleccionado && (
+                    <div className="step-section fade-in">
+                        <hr className="minimal-divider" />
+                        <h3 className="minimal-step-title">2. Datos de entrega</h3>
+                        
+                        <form className="minimal-uid-form" onSubmit={handleAgregarAlCarrito}>
+                            <div className="input-group-row">
+                                <input
+                                    type={juego.requiereDato === 'Email' ? 'email' : 'text'}
+                                    className="minimal-input"
+                                    placeholder={
+                                        juego.requiereDato === 'Email' ? 'Recibirás tu PIN en este Email' : 
+                                        'UID del Jugador'
+                                    }
+                                    value={uid}
+                                    onChange={(e) => setUid(e.target.value)}
+                                    required
+                                />
 
-                    {paqueteSeleccionado && (
-                        <p className="home-subtitle">
-                            Paquete: <strong style={{ color: 'var(--accent)' }}>{paqueteSeleccionado.nombre}</strong>
-                            {' — '}{moneda === 'USD' ? 'U$D' : '$'} {convertirPrecio(paqueteSeleccionado.precio)}
-                        </p>
-                    )}
+                                {juego.requiereDato === 'ID' && (
+                                    <input
+                                        type="text"
+                                        className="minimal-input"
+                                        placeholder="Región (Opcional)"
+                                        value={region}
+                                        onChange={(e) => setRegion(e.target.value)}
+                                    />
+                                )}
+                            </div>
 
-                    <div className="form-group">
-                        <label>UID del Jugador</label>
-                        <input
-                            type="text"
-                            placeholder="ID en el juego"
-                            value={uid}
-                            onChange={(e) => setUid(e.target.value)}
-                            required
-                        />
+                            {mensaje && (
+                                <p className={mensaje.includes('!') ? 'order-success fade-in' : 'error-msg fade-in'}>{mensaje}</p>
+                            )}
+
+                            <button type="submit" className="btn-select btn-minimal-submit">
+                                Agregar al Carrito ( {moneda === 'USD' ? `U$D ${paqueteSeleccionado.precioUSD}` : `$ ${paqueteSeleccionado.precioARS}`} )
+                            </button>
+
+                            {paqueteSeleccionado.descripcion && (
+                                <div className="package-description-note fade-in">
+                                    {paqueteSeleccionado.descripcion}
+                                </div>
+                            )}
+                        </form>
                     </div>
-
-                    <div className="form-group">
-                        <label>Región (opcional)</label>
-                        <input
-                            type="text"
-                            placeholder="Ej: Sudamérica"
-                            value={region}
-                            onChange={(e) => setRegion(e.target.value)}
-                        />
-                    </div>
-
-                    {mensaje && (
-                        <p className={mensaje.includes('!') ? 'order-success' : 'error-msg'}>{mensaje}</p>
-                    )}
-
-                    <button type="submit" className="btn-select">Agregar al Carrito</button>
-                </form>
+                )}
             </div>
         </div>
     );

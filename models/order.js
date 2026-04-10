@@ -1,30 +1,26 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    // usuario que compra
     usuario: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: false
     },
-    // Datos del invitado (si compra sin cuenta)
     usuarioInvitado: {
         nombre: { type: String },
         contacto: { type: String }
     },
 
 
-    // Producto comprado
-    juegoNombre: { type: String, required: true },       // Ej: "Free Fire"
-    paqueteElegido: { type: String, required: true },    // Ej: "100+10 Diamantes"
-    precioFinal: { type: Number, required: true },       // Lo que le tenemos que cobrar
+    juegoNombre: { type: String, required: true },
+    paqueteElegido: { type: String, required: true },
+    precioFinal: { type: Number, required: true },
+    moneda: { type: String, default: 'ARS' },
 
-    // ID
     uidJugador: { type: String, required: true },
-    // region 
     regionJugador: { type: String, default: "" },
+    tipoDatoEntrega: { type: String, default: "ID" },
 
-    // Etado del pedidos
     estado: {
         type: String,
         enum: ['Pendiente', 'Completada', 'Cancelada'],

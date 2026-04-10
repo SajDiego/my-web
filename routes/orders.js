@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/order');
 const auth = require('../middleware/authMiddleware');
+const admin = require('../middleware/adminMiddleware');
 const Product = require('../models/product');
 
 // Orden para usuario registrado
@@ -17,9 +18,11 @@ router.post('/', auth, async (req, res) => {
             usuario: req.usuario.id,
             juegoNombre: producto.juego,
             paqueteElegido: paquete.nombre,
-            precioFinal: paquete.precio,
+            moneda: req.body.moneda || 'ARS',
+            precioFinal: req.body.moneda === 'USD' ? paquete.precioUSD : paquete.precioARS,
             uidJugador: req.body.uidJugador,
-            regionJugador: req.body.regionJugador || ""
+            regionJugador: req.body.regionJugador || "",
+            tipoDatoEntrega: req.body.tipoDatoEntrega || "ID"
         });
 
         await nuevaOrden.save();
@@ -45,9 +48,11 @@ router.post('/guest', async (req, res) => {
             },
             juegoNombre: producto.juego,
             paqueteElegido: paquete.nombre,
-            precioFinal: paquete.precio,
+            moneda: req.body.moneda || 'ARS',
+            precioFinal: req.body.moneda === 'USD' ? paquete.precioUSD : paquete.precioARS,
             uidJugador: req.body.uidJugador,
-            regionJugador: req.body.regionJugador || ""
+            regionJugador: req.body.regionJugador || "",
+            tipoDatoEntrega: req.body.tipoDatoEntrega || "ID"
         });
 
         await nuevaOrden.save();
@@ -58,7 +63,7 @@ router.post('/guest', async (req, res) => {
 });
 
 // Listado de órdenes (panel admin)
-router.get('/', auth, async (req, res) => {
+router.get('/', auth, admin, async (req, res) => {
     try {
         const ordenes = await Order.find().populate('usuario', 'nombre email');
         res.json(ordenes);
@@ -68,7 +73,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Cambio de estado de orden
-router.patch('/:id/estado', auth, async (req, res) => {
+router.patch('/:id/estado', auth, admin, async (req, res) => {
     try {
         const { estado } = req.body;
         const ordenActualizada = await Order.findByIdAndUpdate(

@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import './Auth.css';
 
-function Login({ onLoginSuccess }) {
+function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
         setError('');
 
         try {
@@ -19,16 +20,17 @@ function Login({ onLoginSuccess }) {
             });
 
             const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Error al iniciar sesión');
 
-            if (!resp.ok) {
-                throw new Error(data.error || 'Error al iniciar sesión');
-            }
-
+            // Guardar token y datos
             localStorage.setItem('token', data.token);
-            localStorage.setItem('usuario', JSON.stringify(data.usuario));
+            localStorage.setItem('user', JSON.stringify(data.user));
 
-            if (onLoginSuccess) onLoginSuccess(data.usuario);
-            navigate('/');
+            if (data.user.rol === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/perfil');
+            }
         } catch (err) {
             setError(err.message);
         }
@@ -37,35 +39,36 @@ function Login({ onLoginSuccess }) {
     return (
         <div className="main-content auth-container">
             <div className="card-glass">
-                <h2 className="product-title" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Iniciar Sesión</h2>
-
+                <h2 className="auth-title">Iniciar Sesión</h2>
                 {error && <p className="error-msg">{error}</p>}
 
                 <form className="auth-form" onSubmit={handleLogin}>
                     <div className="form-group">
                         <label>Correo Electrónico</label>
-                        <input
-                            type="email"
-                            placeholder="tu@correo.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
+                        <input 
+                            type="email" 
+                            placeholder="tu@correo.com" 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
+                            required 
                         />
                     </div>
-
                     <div className="form-group">
                         <label>Contraseña</label>
-                        <input
-                            type="password"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
+                        <input 
+                            type="password" 
+                            placeholder="Tu contraseña" 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            required 
                         />
                     </div>
-
-                    <button type="submit" className="btn-select">Ingresar a mi Cuenta</button>
+                    <button type="submit" className="btn-select">Ingresar</button>
                 </form>
+
+                <p className="auth-footer">
+                    ¿No tenés cuenta? <Link to="/register" className="auth-link">Registrate acá</Link>
+                </p>
             </div>
         </div>
     );

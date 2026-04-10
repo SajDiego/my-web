@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { FiShoppingCart } from 'react-icons/fi';
+import './Navbar.css';
 
 function Navbar({ usuario, onLogout }) {
     const { carrito, moneda, setMoneda } = useCart();
@@ -33,6 +34,9 @@ function Navbar({ usuario, onLogout }) {
 
                     {usuario ? (
                         <div className="navbar-account">
+                            {usuario.rol === 'admin' && (
+                                <Link to="/admin" className="btn-nav">Panel Admin</Link>
+                            )}
                             <Link to="/cuenta" className="btn-nav">Mi Cuenta</Link>
                             <button onClick={onLogout} className="btn-nav btn-logout">Salir</button>
                         </div>
