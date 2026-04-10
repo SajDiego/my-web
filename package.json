@@ -1,4 +1,13 @@
 {
+  "name": "integralpro",
+  "version": "1.0.0",
+  "description": "Full-stack application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "frontend": "cd frontend && npm run dev"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",

@@ -40,8 +40,8 @@ function Checkout() {
             // Enviamos una orden por cada item del carrito
             for (const item of carrito) {
                 const url = esInvitado
-                    ? 'http://localhost:3000/api/orders/guest'
-                    : 'http://localhost:3000/api/orders';
+                    ? `${import.meta.env.VITE_API_URL}/orders/guest`
+                    : `${import.meta.env.VITE_API_URL}/orders`;
 
                 const headers = { 'Content-Type': 'application/json' };
                 if (!esInvitado) headers['x-auth-token'] = token;

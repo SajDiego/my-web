@@ -14,7 +14,7 @@ function AdminDashboard() {
 
     const fetchOrdenes = async () => {
         try {
-            const res = await fetch('/api/orders', {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/orders`, {
                 headers: { 'x-auth-token': localStorage.getItem('token') }
             });
             if (!res.ok) throw new Error('No autorizado');
@@ -29,7 +29,7 @@ function AdminDashboard() {
 
     const handleUpdateStatus = async (id, nuevoEstado) => {
         try {
-            const res = await fetch(`/api/orders/${id}/estado`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/orders/${id}/estado`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ function AdminDashboard() {
                 <table className="admin-table">
                     <thead>
                         <tr>
-                            <th>Nº Orden</th>
+                            <th>N° Orden</th>
                             <th>Fecha</th>
                             <th>Cliente</th>
                             <th>Juego / Paquete</th>
@@ -73,7 +73,7 @@ function AdminDashboard() {
                     <tbody>
                         {ordenes.map((ord, idx) => (
                             <tr key={ord._id}>
-                                <td className="order-number">#{ord._id.slice(-6).toUpperCase()}</td>
+                                <td className="admin-order-id">#{ord.numeroOrden || ord._id.slice(-6).toUpperCase()}</td>
                                 <td>{new Date(ord.fechaCompra).toLocaleDateString()}</td>
                                 <td>
                                     {ord.usuario ? (
@@ -93,9 +93,15 @@ function AdminDashboard() {
                                     {ord.paqueteElegido}
                                 </td>
                                 <td>
-                                    {ord.tipoDatoEntrega || 'ID'}: {ord.uidJugador}<br/>
-                                    {(ord.tipoDatoEntrega === 'ID' || !ord.tipoDatoEntrega) && ord.regionJugador && (
-                                        <small>Región: {ord.regionJugador}</small>
+                                    {ord.datosEntrega && Object.keys(ord.datosEntrega).length > 0 ? (
+                                        Object.entries(ord.datosEntrega).map(([key, val]) => (
+                                            <div key={key}><small><strong>{key}:</strong> {val}</small></div>
+                                        ))
+                                    ) : (
+                                        <>
+                                            {ord.tipoDatoEntrega || 'ID'}: {ord.uidJugador}<br/>
+                                            {ord.regionJugador && <small>Región: {ord.regionJugador}</small>}
+                                        </>
                                     )}
                                 </td>
                                 <td>{ord.moneda === 'USD' ? 'U$D' : '$'} {ord.precioFinal}</td>

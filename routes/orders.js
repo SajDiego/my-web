@@ -4,6 +4,16 @@ const Order = require('../models/order');
 const auth = require('../middleware/authMiddleware');
 const admin = require('../middleware/adminMiddleware');
 const Product = require('../models/product');
+const Counter = require('../models/counter');
+
+async function getNextSequenceValue(sequenceName) {
+    const sequenceDocument = await Counter.findOneAndUpdate(
+        { id: sequenceName },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+    );
+    return sequenceDocument.seq;
+}
 
 // Orden para usuario registrado
 router.post('/', auth, async (req, res) => {
@@ -14,15 +24,19 @@ router.post('/', auth, async (req, res) => {
         const paquete = producto.paquetes.find(p => p.nombre === req.body.paqueteElegido);
         if (!paquete) return res.status(404).json({ error: "Paquete no encontrado." });
 
+        const numeroOrden = await getNextSequenceValue('ordenes');
+
         const nuevaOrden = new Order({
+            numeroOrden,
             usuario: req.usuario.id,
             juegoNombre: producto.juego,
             paqueteElegido: paquete.nombre,
             moneda: req.body.moneda || 'ARS',
             precioFinal: req.body.moneda === 'USD' ? paquete.precioUSD : paquete.precioARS,
-            uidJugador: req.body.uidJugador,
-            regionJugador: req.body.regionJugador || "",
-            tipoDatoEntrega: req.body.tipoDatoEntrega || "ID"
+            uidJugador: req.body.uidJugador || '',
+            regionJugador: req.body.regionJugador || '',
+            tipoDatoEntrega: req.body.tipoDatoEntrega || '',
+            datosEntrega: req.body.datosEntrega || {}
         });
 
         await nuevaOrden.save();
@@ -41,7 +55,10 @@ router.post('/guest', async (req, res) => {
         const paquete = producto.paquetes.find(p => p.nombre === req.body.paqueteElegido);
         if (!paquete) return res.status(404).json({ error: "Paquete no encontrado." });
 
+        const numeroOrden = await getNextSequenceValue('ordenes');
+
         const nuevaOrden = new Order({
+            numeroOrden,
             usuarioInvitado: {
                 nombre: req.body.nombreInvitado,
                 contacto: req.body.contactoInvitado
@@ -50,9 +67,10 @@ router.post('/guest', async (req, res) => {
             paqueteElegido: paquete.nombre,
             moneda: req.body.moneda || 'ARS',
             precioFinal: req.body.moneda === 'USD' ? paquete.precioUSD : paquete.precioARS,
-            uidJugador: req.body.uidJugador,
-            regionJugador: req.body.regionJugador || "",
-            tipoDatoEntrega: req.body.tipoDatoEntrega || "ID"
+            uidJugador: req.body.uidJugador || '',
+            regionJugador: req.body.regionJugador || '',
+            tipoDatoEntrega: req.body.tipoDatoEntrega || '',
+            datosEntrega: req.body.datosEntrega || {}
         });
 
         await nuevaOrden.save();

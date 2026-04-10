@@ -1,20 +1,30 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { FiShoppingCart } from 'react-icons/fi';
+import { FiShoppingCart, FiMenu, FiX } from 'react-icons/fi';
+import { useState } from 'react';
 import './Navbar.css';
 
 function Navbar({ usuario, onLogout }) {
     const { carrito, moneda, setMoneda } = useCart();
     const navigate = useNavigate();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+    const closeMenu = () => setIsMobileMenuOpen(false);
 
     return (
         <header className="navbar">
             <div className="navbar-inner">
-                <Link to="/" className="navbar-logo">IntegralPro</Link>
+                <Link to="/" className="navbar-logo" onClick={closeMenu}>IntegralPro</Link>
 
-                <nav className="navbar-links">
-                    <Link to="/">Inicio</Link>
-                    <Link to="/cart" className="navbar-cart-link">
+                <button className="mobile-menu-toggle" onClick={toggleMenu}>
+                    {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+                </button>
+
+                <div className={`navbar-collapse ${isMobileMenuOpen ? 'open' : ''}`}>
+                    <nav className="navbar-links">
+                        <Link to="/" onClick={closeMenu}>Inicio</Link>
+                        <Link to="/cart" className="navbar-cart-link" onClick={closeMenu}>
                         <FiShoppingCart size={22} />
                         {carrito.length > 0 && (
                             <span className="cart-badge">{carrito.length}</span>
@@ -35,14 +45,15 @@ function Navbar({ usuario, onLogout }) {
                     {usuario ? (
                         <div className="navbar-account">
                             {usuario.rol === 'admin' && (
-                                <Link to="/admin" className="btn-nav">Panel Admin</Link>
+                                <Link to="/admin" className="btn-nav" onClick={closeMenu}>Panel Admin</Link>
                             )}
-                            <Link to="/cuenta" className="btn-nav">Mi Cuenta</Link>
-                            <button onClick={onLogout} className="btn-nav btn-logout">Salir</button>
+                            <Link to="/cuenta" className="btn-nav" onClick={closeMenu}>Mi Cuenta</Link>
+                            <button onClick={() => { onLogout(); closeMenu(); }} className="btn-nav btn-logout">Salir</button>
                         </div>
                     ) : (
-                        <Link to="/login" className="btn-nav btn-accent">Ingresar</Link>
+                        <Link to="/login" className="btn-nav btn-accent" onClick={closeMenu}>Ingresar</Link>
                     )}
+                </div>
                 </div>
             </div>
         </header>

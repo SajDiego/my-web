@@ -9,7 +9,7 @@ function Perfil() {
     useEffect(() => {
         const fetchPerfil = async () => {
             const token = localStorage.getItem('token');
-            const resp = await fetch('http://localhost:3000/api/auth/perfil', {
+            const resp = await fetch(`${import.meta.env.VITE_API_URL}/auth/perfil`, {
                 headers: { 'x-auth-token': token }
             });
             const data = await resp.json();
@@ -22,7 +22,7 @@ function Perfil() {
         e.preventDefault();
         const token = localStorage.getItem('token');
         try {
-            const resp = await fetch('http://localhost:3000/api/auth/perfil', {
+            const resp = await fetch(`${import.meta.env.VITE_API_URL}/auth/perfil`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                 body: JSON.stringify({ nombre: user.nombre, password })

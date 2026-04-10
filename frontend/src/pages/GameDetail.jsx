@@ -6,19 +6,18 @@ import './GameDetail.css';
 function GameDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { agregarAlCarrito, convertirPrecio, moneda } = useCart();
+    const { agregarAlCarrito, moneda } = useCart();
 
     const [juego, setJuego] = useState(null);
     const [cargando, setCargando] = useState(true);
     const [paqueteSeleccionado, setPaqueteSeleccionado] = useState(null);
-    const [uid, setUid] = useState('');
-    const [region, setRegion] = useState('');
+    const [datosEntrega, setDatosEntrega] = useState({});
     const [mensaje, setMensaje] = useState('');
 
     useEffect(() => {
         const cargarJuego = async () => {
             try {
-                const resp = await fetch(`http://localhost:3000/api/products/${id}`);
+                const resp = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`);
                 const data = await resp.json();
                 setJuego(data);
             } catch (error) {
@@ -36,18 +35,27 @@ function GameDetail() {
             setMensaje('Selecciona un paquete primero.');
             return;
         }
+        // Validar campos requeridos
+        const camposRequeridos = (juego.camposEntrega || []).filter(c => c.requerido);
+        for (const campo of camposRequeridos) {
+            if (!datosEntrega[campo.label] || datosEntrega[campo.label].trim() === '') {
+                setMensaje(`El campo "${campo.label}" es requerido.`);
+                return;
+            }
+        }
+        // Tomar el primer campo como uidJugador para compatibilidad
+        const primerCampo = juego.camposEntrega && juego.camposEntrega.length > 0 ? juego.camposEntrega[0].label : 'UID';
         agregarAlCarrito({
             juegoNombre: juego.juego,
             paqueteElegido: paqueteSeleccionado.nombre,
             precioARS: paqueteSeleccionado.precioARS,
             precioUSD: paqueteSeleccionado.precioUSD,
-            uidJugador: uid,
-            regionJugador: (juego.requiereDato === 'ID') ? region : "",
-            tipoDatoEntrega: juego.requiereDato || 'ID'
+            uidJugador: datosEntrega[primerCampo] || '',
+            datosEntrega: { ...datosEntrega },
+            tipoDatoEntrega: primerCampo
         });
         setMensaje('¡Agregado al carrito!');
-        setUid('');
-        setRegion('');
+        setDatosEntrega({});
         setPaqueteSeleccionado(null);
     };
 
@@ -59,7 +67,11 @@ function GameDetail() {
             <button className="btn-back" onClick={() => navigate('/')}>← Volver</button>
 
             <div className="game-detail-header">
-                <div className="game-detail-icon">{juego.juego[0]}</div>
+                {juego.imagenUrl ? (
+                    <img src={juego.imagenUrl} alt={juego.juego} className="game-detail-img" />
+                ) : (
+                    <div className="game-detail-icon">{juego.juego[0]}</div>
+                )}
                 <div>
                     <h1 className="hero-title" style={{ fontSize: '2rem', textAlign: 'left' }}>{juego.juego}</h1>
                     <p className="home-subtitle">{juego.descripcion || 'Recarga directa a tu cuenta.'}</p>
@@ -94,29 +106,29 @@ function GameDetail() {
                         <h3 className="minimal-step-title">2. Datos de entrega</h3>
                         
                         <form className="minimal-uid-form" onSubmit={handleAgregarAlCarrito}>
-                            <div className="input-group-row">
-                                <input
-                                    type={juego.requiereDato === 'Email' ? 'email' : 'text'}
-                                    className="minimal-input"
-                                    placeholder={
-                                        juego.requiereDato === 'Email' ? 'Recibirás tu PIN en este Email' : 
-                                        'UID del Jugador'
-                                    }
-                                    value={uid}
-                                    onChange={(e) => setUid(e.target.value)}
-                                    required
-                                />
-
-                                {juego.requiereDato === 'ID' && (
-                                    <input
-                                        type="text"
-                                        className="minimal-input"
-                                        placeholder="Región (Opcional)"
-                                        value={region}
-                                        onChange={(e) => setRegion(e.target.value)}
-                                    />
-                                )}
-                            </div>
+                            {(juego.camposEntrega && juego.camposEntrega.length > 0) ? (
+                                <div className="dynamic-fields-grid">
+                                    {juego.camposEntrega.map((campo, idx) => (
+                                        <div key={idx} className="input-group-col" style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+                                            <label style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '5px', marginLeft: '5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {campo.label} {campo.requerido && <span style={{color: 'var(--accent)'}}>*</span>}
+                                            </label>
+                                            <input
+                                                type={campo.tipo || 'text'}
+                                                className="minimal-input"
+                                                placeholder={campo.placeholder || `Ej: Ingresa tu ${campo.label}`}
+                                                value={datosEntrega[campo.label] || ''}
+                                                onChange={(e) => setDatosEntrega({ ...datosEntrega, [campo.label]: e.target.value })}
+                                                required={campo.requerido !== false}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="input-group-row">
+                                    <input type="text" className="minimal-input" placeholder="UID del Jugador" value={datosEntrega['UID'] || ''} onChange={(e) => setDatosEntrega({ ...datosEntrega, UID: e.target.value })} required />
+                                </div>
+                            )}
 
                             {mensaje && (
                                 <p className={mensaje.includes('!') ? 'order-success fade-in' : 'error-msg fade-in'}>{mensaje}</p>

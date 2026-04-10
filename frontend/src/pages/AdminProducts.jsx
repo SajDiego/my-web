@@ -17,8 +17,8 @@ function AdminProducts() {
         juego: '',
         descripcion: '',
         imagenUrl: '',
-        requiereDato: 'ID',
         categoria: 'Recargas Directas',
+        camposEntrega: [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
         paquetes: [{ nombre: '', precioARS: '', precioUSD: '', bonoDetalle: '', descripcion: '' }]
     });
 
@@ -28,7 +28,7 @@ function AdminProducts() {
 
     const fetchProductos = async () => {
         try {
-            const res = await fetch('/api/products');
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/products`);
             const data = await res.json();
             setProductos(data);
             setLoading(false);
@@ -45,8 +45,10 @@ function AdminProducts() {
                 juego: prod.juego,
                 descripcion: prod.descripcion || '',
                 imagenUrl: prod.imagenUrl || '',
-                requiereDato: prod.requiereDato || 'ID',
                 categoria: prod.categoria || 'Recargas Directas',
+                camposEntrega: prod.camposEntrega && prod.camposEntrega.length > 0
+                    ? prod.camposEntrega.map(c => ({ label: c.label || '', tipo: c.tipo || 'text', requerido: c.requerido !== false, placeholder: c.placeholder || '' }))
+                    : [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
                 paquetes: prod.paquetes.length > 0 ? prod.paquetes.map(p => ({
                     nombre: p.nombre || '',
                     precioARS: p.precioARS || '',
@@ -61,8 +63,8 @@ function AdminProducts() {
                 juego: '',
                 descripcion: '',
                 imagenUrl: '',
-                requiereDato: 'ID',
                 categoria: 'Recargas Directas',
+                camposEntrega: [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
                 paquetes: [{ nombre: '', precioARS: '', precioUSD: '', bonoDetalle: '', descripcion: '' }]
             });
         }
@@ -75,8 +77,10 @@ function AdminProducts() {
             juego: `${prod.juego} (Copia)`,
             descripcion: prod.descripcion || '',
             imagenUrl: prod.imagenUrl || '',
-            requiereDato: prod.requiereDato || 'ID',
             categoria: prod.categoria || 'Recargas Directas',
+            camposEntrega: prod.camposEntrega && prod.camposEntrega.length > 0
+                ? prod.camposEntrega.map(c => ({ label: c.label || '', tipo: c.tipo || 'text', requerido: c.requerido !== false, placeholder: c.placeholder || '' }))
+                : [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
             paquetes: prod.paquetes.map(p => ({
                 nombre: p.nombre || '',
                 precioARS: p.precioARS || '',
@@ -108,10 +112,22 @@ function AdminProducts() {
     };
 
     const handleAddPackage = () => {
-        setFormData({
-            ...formData,
-            paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', bonoDetalle: '', descripcion: '' }]
-        });
+        setFormData({ ...formData, paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', bonoDetalle: '', descripcion: '' }] });
+    };
+
+    const handleCampoChange = (index, field, value) => {
+        const newCampos = [...formData.camposEntrega];
+        newCampos[index][field] = value;
+        setFormData({ ...formData, camposEntrega: newCampos });
+    };
+
+    const handleAddCampo = () => {
+        setFormData({ ...formData, camposEntrega: [...formData.camposEntrega, { label: '', tipo: 'text', requerido: true, placeholder: '' }] });
+    };
+
+    const handleRemoveCampo = (index) => {
+        const newCampos = formData.camposEntrega.filter((_, i) => i !== index);
+        setFormData({ ...formData, camposEntrega: newCampos.length > 0 ? newCampos : [{ label: '', tipo: 'text', requerido: true, placeholder: '' }] });
     };
 
     const handlePackageChange = (index, field, value) => {
@@ -127,7 +143,7 @@ function AdminProducts() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const url = editingId ? `/api/products/${editingId}` : '/api/products';
+        const url = editingId ? `${import.meta.env.VITE_API_URL}/products/${editingId}` : `${import.meta.env.VITE_API_URL}/products`;
         const method = editingId ? 'PUT' : 'POST';
 
         try {
@@ -153,15 +169,16 @@ function AdminProducts() {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('¿Estás seguro de eliminar este juego?')) return;
-        try {
-            const res = await fetch(`/api/products/${id}`, {
-                method: 'DELETE',
-                headers: { 'x-auth-token': localStorage.getItem('token') }
-            });
-            if (res.ok) fetchProductos();
-        } catch (err) {
-            setError('No se pudo eliminar');
+        if (window.confirm('¿Seguro que quieres borrar este juego?')) {
+            try {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-auth-token': localStorage.getItem('token') }
+                });
+                if (res.ok) fetchProductos();
+            } catch (err) {
+                setError('No se pudo eliminar');
+            }
         }
     };
 
@@ -208,18 +225,44 @@ function AdminProducts() {
                                     required 
                                 />
                             </div>
-                            <div className="form-group">
-                                <label>¿Qué dato requiere este juego?</label>
-                                <select 
-                                    value={formData.requiereDato} 
-                                    onChange={(e) => setFormData({...formData, requiereDato: e.target.value})}
-                                    className="admin-form-textarea"
-                                    style={{ minHeight: 'auto', padding: '10px' }}
-                                >
-                                    <option value="ID">UID Jugador + Región</option>
-                                    <option value="Email">Email (Entrega PIN)</option>
-                                </select>
+                            <div className="packages-header" style={{ marginTop: '1rem' }}>
+                                <h3>Campos de Entrega</h3>
+                                <button type="button" className="btn-action" onClick={handleAddCampo}>+ Añadir Campo</button>
                             </div>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                                Define qué datos le pedirás al cliente (ej: "UID del Jugador", "Email", "Servidor")
+                            </p>
+                            {formData.camposEntrega.map((campo, idx) => (
+                                <div key={idx} style={{ display: 'flex', gap: '6px', marginBottom: '8px', alignItems: 'center' }}>
+                                    <input
+                                        style={{ flex: 2 }}
+                                        placeholder="Nombre del campo (ej: UID del Jugador)"
+                                        value={campo.label}
+                                        onChange={(e) => handleCampoChange(idx, 'label', e.target.value)}
+                                        required
+                                    />
+                                    <input
+                                        style={{ flex: 2 }}
+                                        placeholder="Placeholder (ej: Ej: 12345678)"
+                                        value={campo.placeholder}
+                                        onChange={(e) => handleCampoChange(idx, 'placeholder', e.target.value)}
+                                    />
+                                    <select
+                                        style={{ width: '90px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '8px', borderRadius: '8px' }}
+                                        value={campo.tipo}
+                                        onChange={(e) => handleCampoChange(idx, 'tipo', e.target.value)}
+                                    >
+                                        <option value="text">Texto</option>
+                                        <option value="email">Email</option>
+                                        <option value="number">Número</option>
+                                    </select>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+                                        <input type="checkbox" checked={campo.requerido} onChange={(e) => handleCampoChange(idx, 'requerido', e.target.checked)} />
+                                        Req.
+                                    </label>
+                                    <button type="button" className="btn-action btn-cancel" onClick={() => handleRemoveCampo(idx)}>X</button>
+                                </div>
+                            ))}
                             <div className="form-group">
                                 <label>Categoría</label>
                                 <select 

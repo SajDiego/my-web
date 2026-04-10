@@ -10,7 +10,10 @@ app.use(cors());
 app.use(express.json());
 
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, {
+    maxPoolSize: 10, // para Google Cloud Run
+    serverSelectionTimeoutMS: 5000,
+})
     .then(() => console.log('Conectado a MongoDB Atlas'))
     .catch(err => console.error('Error de conexión:', err));
 

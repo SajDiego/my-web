@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Auth.css';
 
-function Login() {
+function Login({ onLoginSuccess }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -13,7 +13,7 @@ function Login() {
         setError('');
 
         try {
-            const resp = await fetch('http://localhost:3000/api/auth/login', {
+            const resp = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -24,12 +24,16 @@ function Login() {
 
             // Guardar token y datos
             localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('usuario', JSON.stringify(data.usuario));
 
-            if (data.user.rol === 'admin') {
+            if (onLoginSuccess) {
+                onLoginSuccess(data.usuario);
+            }
+
+            if (data.usuario.rol === 'admin') {
                 navigate('/admin');
             } else {
-                navigate('/perfil');
+                navigate('/cuenta');
             }
         } catch (err) {
             setError(err.message);

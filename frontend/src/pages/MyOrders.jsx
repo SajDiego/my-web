@@ -12,7 +12,7 @@ function MyOrders() {
             const token = localStorage.getItem('token');
             if (!token) { navigate('/login'); return; }
             try {
-                const resp = await fetch('http://localhost:3000/api/orders/me', {
+                const resp = await fetch(`${import.meta.env.VITE_API_URL}/orders/me`, {
                     headers: { 'x-auth-token': token }
                 });
                 const data = await resp.json();
@@ -32,7 +32,7 @@ function MyOrders() {
                         <div key={o._id} className="card-glass order-card-my">
                             <div className="order-header-my">
                                 <h3 className="order-title-my">
-                                    {o.numPedido ? `#${o.numPedido} - ` : ''} {o.juegoNombre}
+                                    #{o.numeroOrden || o._id.substring(o._id.length - 6).toUpperCase()} - {o.juegoNombre}
                                 </h3>
                                 <span className={`status-badge status-${o.estado.toLowerCase()}`}>{o.estado}</span>
                             </div>

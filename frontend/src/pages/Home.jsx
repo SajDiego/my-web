@@ -14,7 +14,7 @@ function Home() {
     useEffect(() => {
         const obtenerCatalogo = async () => {
             try {
-                const respuesta = await fetch('http://localhost:3000/api/products');
+                const respuesta = await fetch(`${import.meta.env.VITE_API_URL}/products`);
                 const datos = await respuesta.json();
                 setProductos(datos);
             } catch (error) {

@@ -1,11 +1,18 @@
 const mongoose = require('mongoose');
 
+const campoEntregaSchema = new mongoose.Schema({
+    label: { type: String, required: true },   // Ej: "UID del Jugador", "Email", "Servidor"
+    tipo: { type: String, default: 'text' },    // 'text' o 'email'
+    requerido: { type: Boolean, default: true },
+    placeholder: { type: String, default: '' } // Texto de ayuda dentro del input
+});
+
 const paqueteSchema = new mongoose.Schema({
     nombre: { type: String, required: true },
     precioARS: { type: Number },
     precioUSD: { type: Number },
-    bonoDetalle: { type: String, default: "" },
-    descripcion: { type: String, default: "" }
+    bonoDetalle: { type: String, default: '' },
+    descripcion: { type: String, default: '' }
 });
 
 
@@ -13,13 +20,8 @@ const productSchema = new mongoose.Schema({
     juego: { type: String, required: true, unique: true },
     descripcion: { type: String },
     imagenUrl: { type: String },
-    requiereDato: { 
-        type: String, 
-        enum: ['ID', 'Email'], 
-        default: 'ID' 
-    },
-
     paquetes: [paqueteSchema],
+    camposEntrega: [campoEntregaSchema],
 
     categoria: {
         type: String,

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
+    numeroOrden: { type: Number, unique: true },
     usuario: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -17,9 +18,10 @@ const orderSchema = new mongoose.Schema({
     precioFinal: { type: Number, required: true },
     moneda: { type: String, default: 'ARS' },
 
-    uidJugador: { type: String, required: true },
-    regionJugador: { type: String, default: "" },
-    tipoDatoEntrega: { type: String, default: "ID" },
+    uidJugador: { type: String, default: '' },
+    regionJugador: { type: String, default: '' },
+    tipoDatoEntrega: { type: String, default: 'ID' },
+    datosEntrega: { type: Map, of: String, default: {} }, // sistema flexible
 
     estado: {
         type: String,
