@@ -26,9 +26,9 @@ function Home() {
         obtenerCatalogo();
     }, []);
 
-    const productosFiltrados = categoriaActiva === 'Todas' 
-        ? productos 
-        : productos.filter(p => p.categoria === categoriaActiva);
+    const productosFiltrados = Array.isArray(productos) 
+        ? (categoriaActiva === 'Todas' ? productos : productos.filter(p => p.categoria === categoriaActiva))
+        : [];
 
     return (
         <div className="main-content">

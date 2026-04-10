@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
         const productos = await Product.find();
         res.json(productos);
     } catch (error) {
-        res.status(500).json({ error: "Error al obtener el catálogo de juegos" });
+        res.status(500).json({ error: "Error al obtener el catálogo", detalle: error.message });
     }
 });
 
