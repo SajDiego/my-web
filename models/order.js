@@ -9,7 +9,8 @@ const orderSchema = new mongoose.Schema({
     },
     usuarioInvitado: {
         nombre: { type: String },
-        contacto: { type: String }
+        email: { type: String },
+        whatsapp: { type: String }
     },
 
 
@@ -17,6 +18,7 @@ const orderSchema = new mongoose.Schema({
     paqueteElegido: { type: String, required: true },
     precioFinal: { type: Number, required: true },
     moneda: { type: String, default: 'ARS' },
+    metodoPago: { type: String, default: 'No especificado' },
 
     uidJugador: { type: String, default: '' },
     regionJugador: { type: String, default: '' },

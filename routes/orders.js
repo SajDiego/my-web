@@ -5,6 +5,8 @@ const auth = require('../middleware/authMiddleware');
 const admin = require('../middleware/adminMiddleware');
 const Product = require('../models/product');
 const Counter = require('../models/counter');
+const User = require('../models/user');
+const { enviarEmailAdmin, enviarEmailCliente } = require('../utils/emailService');
 
 async function getNextSequenceValue(sequenceName) {
     const sequenceDocument = await Counter.findOneAndUpdate(
@@ -36,10 +38,19 @@ router.post('/', auth, async (req, res) => {
             uidJugador: req.body.uidJugador || '',
             regionJugador: req.body.regionJugador || '',
             tipoDatoEntrega: req.body.tipoDatoEntrega || '',
-            datosEntrega: req.body.datosEntrega || {}
+            datosEntrega: req.body.datosEntrega || {},
+            metodoPago: req.body.metodoPago || 'No especificado'
         });
 
         await nuevaOrden.save();
+
+        // Enviar correos
+        const usuarioFull = await User.findById(req.usuario.id);
+        if (usuarioFull) {
+            enviarEmailAdmin(nuevaOrden, { nombre: usuarioFull.nombre, email: usuarioFull.email });
+            enviarEmailCliente(nuevaOrden, usuarioFull.email);
+        }
+
         res.status(201).json({ mensaje: "¡Pedido registrado con éxito!", orden: nuevaOrden });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -61,7 +72,8 @@ router.post('/guest', async (req, res) => {
             numeroOrden,
             usuarioInvitado: {
                 nombre: req.body.nombreInvitado,
-                contacto: req.body.contactoInvitado
+                email: req.body.emailInvitado,
+                whatsapp: req.body.whatsappInvitado
             },
             juegoNombre: producto.juego,
             paqueteElegido: paquete.nombre,
@@ -70,10 +82,22 @@ router.post('/guest', async (req, res) => {
             uidJugador: req.body.uidJugador || '',
             regionJugador: req.body.regionJugador || '',
             tipoDatoEntrega: req.body.tipoDatoEntrega || '',
-            datosEntrega: req.body.datosEntrega || {}
+            datosEntrega: req.body.datosEntrega || {},
+            metodoPago: req.body.metodoPago || 'No especificado'
         });
 
         await nuevaOrden.save();
+
+        // Enviar correos
+        enviarEmailAdmin(nuevaOrden, { 
+            nombre: req.body.nombreInvitado, 
+            email: req.body.emailInvitado, 
+            contacto: req.body.whatsappInvitado 
+        });
+        if (req.body.emailInvitado) {
+            enviarEmailCliente(nuevaOrden, req.body.emailInvitado);
+        }
+
         res.status(201).json({ mensaje: "¡Pedido registrado con éxito!", orden: nuevaOrden });
     } catch (error) {
         res.status(500).json({ error: error.message });

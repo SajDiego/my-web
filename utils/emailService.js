@@ -12,20 +12,22 @@ const enviarEmailAdmin = async (orden, clienteInfo) => {
     const mailOptions = {
         from: `"IntegralPro Order" <${process.env.SMTP_USER}>`,
         to: process.env.ADMIN_EMAIL,
-        subject: `🚨 ¡NUEVO PEDIDO! #${orden.numPedido} - ${orden.juegoNombre}`,
+        subject: `🚨 ¡NUEVO PEDIDO! #${orden.numeroOrden} - ${orden.juegoNombre}`,
         html: `
-            <h2>Nuevo pedido recibido</h2>
-            <p><strong>Cliente:</strong> ${clienteInfo.nombre}</p>
-            <p><strong>Email:</strong> ${clienteInfo.email}</p>
-            <p><strong>WhatsApp:</strong> ${clienteInfo.whatsapp || 'No especificado'}</p>
-            <hr>
-            <p><strong>Juego:</strong> ${orden.juegoNombre}</p>
-            <p><strong>Paquete:</strong> ${orden.paqueteElegido}</p>
-            <p><strong>UID/ID Jugador:</strong> ${orden.uidJugador}</p>
-            <p><strong>Método de Pago:</strong> ${orden.metodoPago}</p>
-            <p><strong>Total:</strong> ${orden.moneda} ${orden.precioEnMoneda}</p>
-            <br>
-            <p><em>Ingresá al panel de administración para gestionar este pedido.</em></p>
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2 style="color: #6366f1;">Nuevo pedido recibido</h2>
+                <p><strong>Cliente:</strong> ${clienteInfo.nombre}</p>
+                <p><strong>Email:</strong> ${clienteInfo.email}</p>
+                <p><strong>Contacto:</strong> ${clienteInfo.contacto || 'No especificado'}</p>
+                <hr style="border: 0; border-top: 1px solid #eee;">
+                <p><strong>Juego:</strong> ${orden.juegoNombre}</p>
+                <p><strong>Paquete:</strong> ${orden.paqueteElegido}</p>
+                <p><strong>ID Jugador:</strong> ${orden.uidJugador}</p>
+                <p><strong>Método de Pago:</strong> ${orden.metodoPago}</p>
+                <p><strong>Total:</strong> ${orden.moneda} ${orden.precioFinal}</p>
+                <br>
+                <p style="font-size: 0.9em; color: #666;"><em>Ingresá al panel de administración para gestionar este pedido.</em></p>
+            </div>
         `
     };
 
@@ -40,21 +42,24 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
     const mailOptions = {
         from: `"IntegralPro Gaming" <${process.env.SMTP_USER}>`,
         to: clienteEmail,
-        subject: `Orden #${orden.numPedido} - ${orden.estado}`,
+        subject: `Orden #${orden.numeroOrden} - ${orden.estado}`,
         html: `
-            <h2>Hola ${orden.usuarioInvitado?.nombre || 'Jugador'},</h2>
-            <p>${mensajePersonalizado || `Hemos recibido tu pedido de <strong>${orden.juegoNombre}</strong>.`}</p>
-            <p><strong>Estado Actual:</strong> <span style="color: #var(--accent); font-weight: bold;">${orden.estado}</span></p>
-            <hr>
-            <p><strong>Detalles de tu compra:</strong></p>
-            <ul>
-                <li>Pack: ${orden.paqueteElegido}</li>
-                <li>ID Jugador: ${orden.uidJugador}</li>
-                <li>Total: ${orden.moneda} ${orden.precioEnMoneda}</li>
-            </ul>
-            <p>Si aún no realizaste el pago por <strong>${orden.metodoPago}</strong>, por favor hazlo para que podamos procesar tu recarga.</p>
-            <br>
-            <p>¡Gracias por elegir IntegralPro!</p>
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2 style="color: #6366f1;">Hola ${orden.usuarioInvitado?.nombre || 'Jugador'},</h2>
+                <p>${mensajePersonalizado || `Hemos recibido tu pedido de <strong>${orden.juegoNombre}</strong>.`}</p>
+                <p><strong>Estado Actual:</strong> <span style="color: #6366f1; font-weight: bold;">${orden.estado}</span></p>
+                <hr style="border: 0; border-top: 1px solid #eee;">
+                <p><strong>Detalles de tu compra:</strong></p>
+                <ul>
+                    <li>Pack: ${orden.paqueteElegido}</li>
+                    <li>ID Jugador: ${orden.uidJugador}</li>
+                    <li>Total: ${orden.moneda} ${orden.precioFinal}</li>
+                    <li>Método elegido: ${orden.metodoPago}</li>
+                </ul>
+                <p>Si aún no realizaste el pago, por favor hazlo para que podamos procesar tu recarga.</p>
+                <br>
+                <p>¡Gracias por elegir IntegralPro!</p>
+            </div>
         `
     };
 

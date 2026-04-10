@@ -54,9 +54,11 @@ function Checkout() {
                     moneda: moneda,
                     tipoDatoEntrega: item.tipoDatoEntrega || 'ID',
                     datosEntrega: item.datosEntrega || {},
+                    metodoPago: metodoPago,
                     ...(esInvitado && {
                         nombreInvitado: nombre,
-                        contactoInvitado: `${email} | WA: ${whatsapp}`
+                        emailInvitado: email,
+                        whatsappInvitado: whatsapp
                     })
                 };
 
