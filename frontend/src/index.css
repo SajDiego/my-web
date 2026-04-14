@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&display=swap');
 
-/* VARIABLES GLOBALES*/
 :root {
     --accent: #6d28d9;
     --accent-light: #8b5cf6;
@@ -17,7 +16,6 @@
     --transition: 0.2s ease;
 }
 
-/* RESET & BASE*/
 *,
 *::before,
 *::after {
@@ -62,7 +60,6 @@ select {
     font-family: var(--font-body);
 }
 
-/* LAYOUT*/
 .app-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -79,7 +76,6 @@ select {
     min-height: calc(100vh - 64px - 80px);
 }
 
-/* GLASSMORPHISM CARD*/
 .card-glass {
     background: var(--glass-bg);
     border: var(--glass-border);
@@ -88,7 +84,6 @@ select {
     -webkit-backdrop-filter: blur(12px);
 }
 
-/* TIPOGRAFÍA*/
 .section-title,
 .home-title {
     font-family: var(--font-heading);
@@ -104,7 +99,6 @@ select {
     line-height: 1.6;
 }
 
-/* BOTONES*/
 .btn-select {
     display: inline-block;
     width: 100%;
@@ -172,7 +166,6 @@ select {
     background: rgba(239, 68, 68, 0.2);
 }
 
-/* FORMULARIOS*/
 .auth-container {
     max-width: 420px;
     margin: 60px auto;
@@ -223,7 +216,6 @@ select {
     color: var(--text-muted);
 }
 
-/* MENSAJES DE ERROR*/
 .error-msg {
     color: #ef4444;
     font-size: 0.9rem;
@@ -234,7 +226,6 @@ select {
     border-radius: 8px;
 }
 
-/* LOADING*/
 .loading-text {
     text-align: center;
     padding: 60px 20px;
@@ -242,7 +233,6 @@ select {
     font-size: 1rem;
 }
 
-/* STATUS BADGES (ÓRDENES)*/
 .status-badge {
     display: inline-block;
     padding: 4px 10px;
@@ -270,7 +260,6 @@ select {
     border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* SCROLLBAR PERSONALIZADA*/
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -289,7 +278,6 @@ select {
     background: rgba(255, 255, 255, 0.25);
 }
 
-/* RESPONSIVE*/
 @media (max-width: 768px) {
     .main-content {
         padding: 24px 16px;
@@ -301,7 +289,6 @@ select {
     }
 }
 
-/* ELIMINAR FLECHAS DE INPUTS DE NÚMERO */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;

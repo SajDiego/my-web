@@ -22,7 +22,6 @@ function GameDetail() {
                 const data = await resp.json();
                 setJuego(data);
                 
-                // Establecer región inicial
                 if(data.paquetes && data.paquetes.length > 0) {
                     const uniqueRegions = [...new Set(data.paquetes.map(p => p.region || 'Global'))];
                     setRegionSeleccionada(uniqueRegions[0]);
@@ -42,7 +41,7 @@ function GameDetail() {
             setMensaje('Selecciona un paquete primero.');
             return;
         }
-        // Validar campos requeridos
+
         const camposRequeridos = (juego.camposEntrega || []).filter(c => c.requerido);
         for (const campo of camposRequeridos) {
             if (!datosEntrega[campo.label] || datosEntrega[campo.label].trim() === '') {
@@ -50,7 +49,7 @@ function GameDetail() {
                 return;
             }
         }
-        // Tomar el primer campo como uidJugador para compatibilidad
+
         const primerCampo = juego.camposEntrega && juego.camposEntrega.length > 0 ? juego.camposEntrega[0].label : 'UID';
         agregarAlCarrito({
             juegoNombre: juego.juego,
@@ -58,7 +57,7 @@ function GameDetail() {
             precioARS: paqueteSeleccionado.precioARS,
             precioUSD: paqueteSeleccionado.precioUSD,
             uidJugador: datosEntrega[primerCampo] || '',
-            regionJugador: regionSeleccionada, // Pasar la región seleccionada
+            regionJugador: regionSeleccionada,
             datosEntrega: { ...datosEntrega },
             tipoDatoEntrega: primerCampo
         });
@@ -90,7 +89,6 @@ function GameDetail() {
                 <div className="step-section">
                     <h3 className="minimal-step-title">1. Elige tu recarga</h3>
                     
-                    {/* Selector de Regiones (si hay más de una) */}
                     {juego.paquetes && [...new Set(juego.paquetes.map(p => p.region || 'Global'))].length > 1 && (
                         <div className="region-selector-container" style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             {[...new Set(juego.paquetes.map(p => p.region || 'Global'))].map(reg => (
@@ -100,7 +98,7 @@ function GameDetail() {
                                     className={`region-chip ${regionSeleccionada === reg ? 'active' : ''}`}
                                     onClick={() => {
                                         setRegionSeleccionada(reg);
-                                        setPaqueteSeleccionado(null); // Resetear selección al cambiar región
+                                        setPaqueteSeleccionado(null);
                                     }}
                                 >
                                     {reg}
@@ -112,21 +110,26 @@ function GameDetail() {
                     <div className="package-grid">
                         {juego.paquetes
                             .filter(p => (p.region || 'Global') === regionSeleccionada)
-                            .map((paquete) => (
-                                <div
-                                    key={paquete._id}
-                                    className={`package-minimal-item ${paqueteSeleccionado?._id === paquete._id ? 'active' : ''}`}
-                                    onClick={() => { setPaqueteSeleccionado(paquete); setMensaje(''); }}
-                                >
-                                    <div className="pack-info">
-                                        <span className="pack-name">{paquete.nombre}</span>
-                                        {paquete.bonoDetalle && <span className="pack-badge">{paquete.bonoDetalle}</span>}
+                            .map((paquete) => {
+                                const sinStock = paquete.stock !== null && paquete.stock !== undefined && paquete.stock <= 0;
+                                return (
+                                    <div
+                                        key={paquete._id}
+                                        className={`package-minimal-item ${paqueteSeleccionado?._id === paquete._id ? 'active' : ''} ${sinStock ? 'out-of-stock' : ''}`}
+                                        onClick={() => { if (!sinStock) { setPaqueteSeleccionado(paquete); setMensaje(''); } }}
+                                        style={sinStock ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
+                                    >
+                                        <div className="pack-info">
+                                            <span className="pack-name">{paquete.nombre}</span>
+                                            {paquete.bonoDetalle && <span className="pack-badge">{paquete.bonoDetalle}</span>}
+                                            {sinStock && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600 }}>Sin stock</span>}
+                                        </div>
+                                        <div className="pack-price">
+                                            {moneda === 'USD' ? `U$D ${paquete.precioUSD}` : `$ ${paquete.precioARS}`}
+                                        </div>
                                     </div>
-                                    <div className="pack-price">
-                                        {moneda === 'USD' ? `U$D ${paquete.precioUSD}` : `$ ${paquete.precioARS}`}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                     </div>
                 </div>
 

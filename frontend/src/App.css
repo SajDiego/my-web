@@ -17,13 +17,11 @@
   padding: 30px;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
-  /* Efecto cristal */
   -webkit-backdrop-filter: var(--glass-blur);
   border: var(--glass-border);
   border-radius: 16px;
 }
 
-/* titulo de pagina de inicio */
 .home-title {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
@@ -38,37 +36,6 @@
   color: var(--accent);
   margin-top: 2rem;
   font-weight: 500;
-}
-
-.product-card {
-  margin-bottom: 2rem;
-}
-
-.product-title {
-  color: var(--accent);
-  margin-bottom: 0.5rem;
-}
-
-.package-list {
-  margin: 1.5rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.package-item {
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.package-badge {
-  color: var(--accent);
-  margin-left: 10px;
-  font-size: 0.8rem;
-  font-weight: 600;
 }
 
 .btn-select {
@@ -87,9 +54,6 @@
   opacity: 0.9;
 }
 
-
-
-/* Estilos para Formularios */
 .auth-container {
   max-width: 400px;
   margin: 40px auto;
@@ -136,7 +100,6 @@
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
-/* Formulario de Orden */
 .order-form {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -163,19 +126,9 @@
   padding-left: 12px;
 }
 
-
-
-.app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
 .content-wrapper {
   flex: 1;
 }
-
-
 
 .hero-subtitle {
   color: var(--text-muted);
@@ -188,7 +141,6 @@
   padding-bottom: 0.5rem;
   border-bottom: var(--glass-border);
 }
-
 
 .btn-back {
   background: none;

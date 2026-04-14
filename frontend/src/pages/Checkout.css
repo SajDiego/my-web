@@ -1,7 +1,3 @@
-/* ==========================================
-   ESTILOS DEL FORMULARIO DE CHECKOUT
-   ========================================== */
-
 .checkout-layout {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
@@ -66,10 +62,6 @@
     border-color: var(--accent);
     color: var(--accent);
 }
-
-/* ==========================================
-   ESTILOS DE LA PANTALLA DE ÉXITO (BANCOS)
-   ========================================== */
 
 .checkout-success-card {
     padding: 40px !important;
@@ -194,10 +186,6 @@
 .btn-back-home:hover {
     background: rgba(255, 255, 255, 0.05);
 }
-
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
 
 @media (max-width: 640px) {
     .checkout-layout {

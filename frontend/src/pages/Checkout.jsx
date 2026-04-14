@@ -66,6 +66,7 @@ function Checkout() {
             setMontoFinal(totalCarrito);
             vaciarCarrito();
             setExito(true);
+            window.scrollTo(0, 0);
         } catch (err) {
             setError(err.message);
         } finally {

@@ -8,7 +8,6 @@ function Home() {
     const [cargando, setCargando] = useState(true);
     const navigate = useNavigate();
 
-    // Orden de categorías deseado por el usuario
     const categoriasVisibles = ['TopUp', 'Pines', 'PC', 'Consolas'];
 
     useEffect(() => {
@@ -26,10 +25,8 @@ function Home() {
         obtenerCatalogo();
     }, []);
 
-    // Función para obtener productos por categoría (con mapeo de nombres)
     const getProductosPorCategoria = (nombreCategoria) => {
-        const catReal = nombreCategoria === 'TopUp' ? 'Recargas Directas' : nombreCategoria;
-        return productos.filter(p => p.categoria === catReal);
+        return productos.filter(p => p.categoria === nombreCategoria);
     };
 
     if (cargando) {
@@ -40,21 +37,41 @@ function Home() {
         );
     }
 
+    const scrollToSection = (cat) => {
+        const el = document.getElementById(`section-${cat}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    const categoriasConProductos = categoriasVisibles.filter(
+        cat => getProductosPorCategoria(cat).length > 0
+    );
+
     return (
         <div className="main-content">
-            {/* Carrusel de Novedades */}
             <Carousel />
 
-            {/* Renderizado de Secciones por Categoría */}
+            {categoriasConProductos.length > 0 && (
+                <div className="categories-bar">
+                    {categoriasConProductos.map(cat => (
+                        <button
+                            key={cat}
+                            className="category-chip"
+                            onClick={() => scrollToSection(cat)}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+            )}
+
             <div className="home-sections">
                 {categoriasVisibles.map(cat => {
                     const productosSeccion = getProductosPorCategoria(cat);
                     
-                    // Si no hay productos en esta categoría, no mostramos la sección
                     if (productosSeccion.length === 0) return null;
 
                     return (
-                        <section key={cat} className="category-section" style={{ marginBottom: '60px' }}>
+                        <section key={cat} id={`section-${cat}`} className="category-section" style={{ marginBottom: '60px' }}>
                             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
                                 <h2 className="section-title" style={{ margin: 0 }}>{cat}</h2>
                                 <span className="cat-count" style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>

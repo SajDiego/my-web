@@ -4,32 +4,22 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const { apiLimiter } = require('./middleware/rateLimit');
 
-
 const app = express();
 
-//middlewares
 app.use(cors());
 app.use(express.json());
 app.use('/api/', apiLimiter);
 
-
 mongoose.connect(process.env.MONGO_URI, {
-    maxPoolSize: 10, // para Google Cloud Run
+    maxPoolSize: 10,
     serverSelectionTimeoutMS: 5000,
 })
     .then(() => console.log('Conectado a MongoDB Atlas'))
     .catch(err => console.error('Error de conexión:', err));
 
-//rutas
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
-
-//ruta de prueba
-app.get('/', (req, res) => {
-    res.send('Servidor funcionando');
-});
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

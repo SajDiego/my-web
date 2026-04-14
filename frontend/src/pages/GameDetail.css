@@ -161,6 +161,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -178,17 +179,21 @@
     .single-panel {
         padding: 20px;
     }
+
     .package-grid {
         grid-template-columns: 1fr 1fr;
         gap: 10px;
     }
+
     .input-group-row {
         grid-template-columns: 1fr;
     }
+
     .game-detail-header {
         flex-direction: column;
         text-align: center;
     }
+
     .hero-title-detail {
         text-align: center;
         font-size: 2rem;

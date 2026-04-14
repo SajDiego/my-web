@@ -58,18 +58,17 @@
     margin: 0;
 }
 
-/* Categorías */
 .categories-bar {
     display: flex;
     gap: 12px;
     margin-bottom: 30px;
     padding: 5px 0;
     overflow-x: auto;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
 }
 
 .categories-bar::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+    display: none;
 }
 
 .category-chip {

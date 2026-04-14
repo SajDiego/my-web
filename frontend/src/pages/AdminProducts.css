@@ -58,7 +58,6 @@
     margin-top: 1.5rem;
 }
 
-/* Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -110,12 +109,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.package-input-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
 }
 
 .preview-container {

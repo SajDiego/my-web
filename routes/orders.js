@@ -17,126 +17,122 @@ async function getNextSequenceValue(sequenceName) {
     return sequenceDocument.seq;
 }
 
-// Orden para usuario registrado
+async function procesarCreacionOrden(datos, usuarioReq = null) {
+    const producto = await Product.findOne({ juego: datos.juegoNombre });
+    if (!producto) throw new Error("Juego no encontrado.");
+
+    const paquete = producto.paquetes.find(p => p.nombre === datos.paqueteElegido);
+    if (!paquete) throw new Error("Paquete no encontrado.");
+
+    if (paquete.stock !== null && paquete.stock !== undefined && paquete.stock <= 0) {
+        throw new Error("Este paquete no tiene stock disponible.");
+    }
+
+    if (paquete.stock !== null && paquete.stock !== undefined && paquete.stock > 0) {
+        await Product.findOneAndUpdate(
+            { _id: producto._id, 'paquetes._id': paquete._id },
+            { $inc: { 'paquetes.$.stock': -1 } }
+        );
+    }
+
+    const numeroOrden = await getNextSequenceValue('ordenes');
+
+    const configOrden = {
+        numeroOrden,
+        juegoNombre: producto.juego,
+        paqueteElegido: paquete.nombre,
+        moneda: datos.moneda || 'ARS',
+        precioFinal: datos.moneda === 'USD' ? paquete.precioUSD : paquete.precioARS,
+        uidJugador: datos.uidJugador || '',
+        regionJugador: datos.regionJugador || '',
+        tipoDatoEntrega: datos.tipoDatoEntrega || '',
+        datosEntrega: datos.datosEntrega || {},
+        metodoPago: datos.metodoPago || 'No especificado'
+    };
+
+    if (usuarioReq) {
+        configOrden.usuario = usuarioReq.id;
+    } else {
+        configOrden.usuarioInvitado = {
+            nombre: datos.nombreInvitado,
+            email: datos.emailInvitado,
+            whatsapp: datos.whatsappInvitado
+        };
+    }
+
+    const nuevaOrden = new Order(configOrden);
+    await nuevaOrden.save();
+
+    try {
+        let emailCliente = '';
+        let infoUsuarioAdmin = {};
+
+        if (usuarioReq) {
+            const usuarioFull = await User.findById(usuarioReq.id);
+            if (usuarioFull) {
+                emailCliente = usuarioFull.email;
+                infoUsuarioAdmin = { nombre: usuarioFull.nombre, email: usuarioFull.email };
+            }
+        } else {
+            emailCliente = datos.emailInvitado;
+            infoUsuarioAdmin = { 
+                nombre: datos.nombreInvitado, 
+                email: datos.emailInvitado, 
+                contacto: datos.whatsappInvitado 
+            };
+        }
+
+        if (emailCliente || infoUsuarioAdmin.email) {
+            const promesas = [enviarEmailAdmin(nuevaOrden, infoUsuarioAdmin)];
+            if (emailCliente) promesas.push(enviarEmailCliente(nuevaOrden, emailCliente));
+            await Promise.all(promesas);
+        }
+    } catch (mailErr) {
+        console.error("Error envío correos:", mailErr);
+    }
+
+    return nuevaOrden;
+}
+
 router.post('/', auth, async (req, res) => {
     try {
-        const producto = await Product.findOne({ juego: req.body.juegoNombre });
-        if (!producto) return res.status(404).json({ error: "Juego no encontrado." });
-
-        const paquete = producto.paquetes.find(p => p.nombre === req.body.paqueteElegido);
-        if (!paquete) return res.status(404).json({ error: "Paquete no encontrado." });
-
-        const numeroOrden = await getNextSequenceValue('ordenes');
-
-        const nuevaOrden = new Order({
-            numeroOrden,
-            usuario: req.usuario.id,
-            juegoNombre: producto.juego,
-            paqueteElegido: paquete.nombre,
-            moneda: req.body.moneda || 'ARS',
-            precioFinal: req.body.moneda === 'USD' ? paquete.precioUSD : paquete.precioARS,
-            uidJugador: req.body.uidJugador || '',
-            regionJugador: req.body.regionJugador || '',
-            tipoDatoEntrega: req.body.tipoDatoEntrega || '',
-            datosEntrega: req.body.datosEntrega || {},
-            metodoPago: req.body.metodoPago || 'No especificado'
-        });
-
-        await nuevaOrden.save();
-
-        // Enviar correos (con await para que Google Cloud no cierre el proceso antes de tiempo)
-        try {
-            const usuarioFull = await User.findById(req.usuario.id);
-            if (usuarioFull) {
-                await Promise.all([
-                    enviarEmailAdmin(nuevaOrden, { nombre: usuarioFull.nombre, email: usuarioFull.email }),
-                    enviarEmailCliente(nuevaOrden, usuarioFull.email)
-                ]);
-            }
-        } catch (mailErr) {
-            console.error("Error al disparar la secuencia de correos:", mailErr);
-        }
-
-        res.status(201).json({ mensaje: "¡Pedido registrado con éxito!", orden: nuevaOrden });
+        const orden = await procesarCreacionOrden(req.body, req.usuario);
+        res.status(201).json({ mensaje: "¡Pedido registrado con éxito!", orden });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ error: error.message });
     }
 });
 
-// Orden para invitado (sin token)
 router.post('/guest', async (req, res) => {
     try {
-        const producto = await Product.findOne({ juego: req.body.juegoNombre });
-        if (!producto) return res.status(404).json({ error: "Juego no encontrado." });
-
-        const paquete = producto.paquetes.find(p => p.nombre === req.body.paqueteElegido);
-        if (!paquete) return res.status(404).json({ error: "Paquete no encontrado." });
-
-        const numeroOrden = await getNextSequenceValue('ordenes');
-
-        const nuevaOrden = new Order({
-            numeroOrden,
-            usuarioInvitado: {
-                nombre: req.body.nombreInvitado,
-                email: req.body.emailInvitado,
-                whatsapp: req.body.whatsappInvitado
-            },
-            juegoNombre: producto.juego,
-            paqueteElegido: paquete.nombre,
-            moneda: req.body.moneda || 'ARS',
-            precioFinal: req.body.moneda === 'USD' ? paquete.precioUSD : paquete.precioARS,
-            uidJugador: req.body.uidJugador || '',
-            regionJugador: req.body.regionJugador || '',
-            tipoDatoEntrega: req.body.tipoDatoEntrega || '',
-            datosEntrega: req.body.datosEntrega || {},
-            metodoPago: req.body.metodoPago || 'No especificado'
-        });
-
-        await nuevaOrden.save();
-
-        // Enviar correos (con await para que Google Cloud no cierre el proceso antes de tiempo)
-        try {
-            await Promise.all([
-                enviarEmailAdmin(nuevaOrden, { 
-                    nombre: req.body.nombreInvitado, 
-                    email: req.body.emailInvitado, 
-                    contacto: req.body.whatsappInvitado 
-                }),
-                req.body.emailInvitado ? enviarEmailCliente(nuevaOrden, req.body.emailInvitado) : Promise.resolve()
-            ]);
-        } catch (mailErr) {
-            console.error("Error al disparar la secuencia de correos (Invitado):", mailErr);
-        }
-
-        res.status(201).json({ mensaje: "¡Pedido registrado con éxito!", orden: nuevaOrden });
+        const orden = await procesarCreacionOrden(req.body);
+        res.status(201).json({ mensaje: "¡Pedido registrado con éxito!", orden });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ error: error.message });
     }
 });
 
-// Listado de órdenes (panel admin)
 router.get('/', auth, admin, async (req, res) => {
     try {
         const ordenes = await Order.find().populate('usuario', 'nombre email');
         res.json(ordenes);
     } catch (error) {
-        res.status(500).json({ error: "Error al intentar obtener los pedidos." });
+        res.status(500).json({ error: "Error al obtener pedidos." });
     }
 });
 
-// Cambio de estado de orden
 router.patch('/:id/estado', auth, admin, async (req, res) => {
     try {
         const { estado } = req.body;
         const ordenActualizada = await Order.findByIdAndUpdate(
             req.params.id,
-            { estado: estado },
+            { estado },
             { returnDocument: 'after' }
         );
-        if (!ordenActualizada) return res.status(404).json({ error: "Boleto no encontrado" });
-        res.json({ mensaje: `El estado de la orden ahora es: ${estado}`, orden: ordenActualizada });
+        if (!ordenActualizada) return res.status(404).json({ error: "Orden no encontrada" });
+        res.json({ mensaje: `Estado actualizado: ${estado}`, orden: ordenActualizada });
     } catch (error) {
-        res.status(400).json({ error: "Hubo un error al intentar cambiar el estado." });
+        res.status(400).json({ error: "Error al cambiar estado." });
     }
 });
 

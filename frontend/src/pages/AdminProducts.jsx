@@ -17,9 +17,9 @@ function AdminProducts() {
         juego: '',
         descripcion: '',
         imagenUrl: '',
-        categoria: 'Recargas Directas',
-        camposEntrega: [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
-        paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', bonoDetalle: '', descripcion: '' }]
+        categoria: 'TopUp',
+        camposEntrega: [],
+        paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }]
     });
 
     useEffect(() => {
@@ -45,18 +45,22 @@ function AdminProducts() {
                 juego: prod.juego,
                 descripcion: prod.descripcion || '',
                 imagenUrl: prod.imagenUrl || '',
-                categoria: prod.categoria || 'Recargas Directas',
-                camposEntrega: prod.camposEntrega && prod.camposEntrega.length > 0
-                    ? prod.camposEntrega.map(c => ({ label: c.label || '', tipo: c.tipo || 'text', requerido: c.requerido !== false, placeholder: c.placeholder || '' }))
-                    : [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
+                categoria: prod.categoria || 'TopUp',
+                camposEntrega: prod.camposEntrega ? prod.camposEntrega.map(c => ({ 
+                    label: c.label || '', 
+                    tipo: c.tipo || 'text', 
+                    requerido: c.requerido !== false, 
+                    placeholder: c.placeholder || '' 
+                })) : [],
                 paquetes: prod.paquetes.length > 0 ? prod.paquetes.map(p => ({
                     nombre: p.nombre || '',
                     precioARS: p.precioARS || '',
                     precioUSD: p.precioUSD || '',
                     region: p.region || 'Global',
+                    stock: p.stock != null ? p.stock : '',
                     bonoDetalle: p.bonoDetalle || '',
                     descripcion: p.descripcion || ''
-                })) : [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', bonoDetalle: '', descripcion: '' }]
+                })) : [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }]
             });
         } else {
             setEditingId(null);
@@ -64,33 +68,11 @@ function AdminProducts() {
                 juego: '',
                 descripcion: '',
                 imagenUrl: '',
-                categoria: 'Recargas Directas',
-                camposEntrega: [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
-                paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', bonoDetalle: '', descripcion: '' }]
+                categoria: 'TopUp',
+                camposEntrega: [],
+                paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }]
             });
         }
-        setShowModal(true);
-    };
-
-    const handleDuplicate = (prod) => {
-        setEditingId(null);
-        setFormData({
-            juego: `${prod.juego} (Copia)`,
-            descripcion: prod.descripcion || '',
-            imagenUrl: prod.imagenUrl || '',
-            categoria: prod.categoria || 'Recargas Directas',
-            camposEntrega: prod.camposEntrega && prod.camposEntrega.length > 0
-                ? prod.camposEntrega.map(c => ({ label: c.label || '', tipo: c.tipo || 'text', requerido: c.requerido !== false, placeholder: c.placeholder || '' }))
-                : [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
-            paquetes: prod.paquetes.map(p => ({
-                nombre: p.nombre || '',
-                precioARS: p.precioARS || '',
-                precioUSD: p.precioUSD || '',
-                region: p.region || 'Global',
-                bonoDetalle: p.bonoDetalle || '',
-                descripcion: p.descripcion || ''
-            }))
-        });
         setShowModal(true);
     };
 
@@ -114,7 +96,7 @@ function AdminProducts() {
     };
 
     const handleAddPackage = () => {
-        setFormData({ ...formData, paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', region: 'Global', bonoDetalle: '', descripcion: '' }] });
+        setFormData({ ...formData, paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }] });
     };
 
     const handleCampoChange = (index, field, value) => {
@@ -129,7 +111,7 @@ function AdminProducts() {
 
     const handleRemoveCampo = (index) => {
         const newCampos = formData.camposEntrega.filter((_, i) => i !== index);
-        setFormData({ ...formData, camposEntrega: newCampos.length > 0 ? newCampos : [{ label: '', tipo: 'text', requerido: true, placeholder: '' }] });
+        setFormData({ ...formData, camposEntrega: newCampos });
     };
 
     const handlePackageChange = (index, field, value) => {
@@ -141,6 +123,14 @@ function AdminProducts() {
     const handleRemovePackage = (index) => {
         const newPaquetes = formData.paquetes.filter((_, i) => i !== index);
         setFormData({ ...formData, paquetes: newPaquetes });
+    };
+
+    const handleDuplicatePackage = (index) => {
+        const pkgToDuplicate = { ...formData.paquetes[index] };
+        setFormData({ 
+            ...formData, 
+            paquetes: [...formData.paquetes, pkgToDuplicate] 
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -206,7 +196,6 @@ function AdminProducts() {
                         <p className="product-admin-info">{prod.paquetes.length} paquetes activos</p>
                         <div className="product-admin-actions">
                             <button className="btn-action" onClick={() => handleOpenModal(prod)}>Editar</button>
-                            <button className="btn-action" style={{ background: 'rgba(255,255,255,0.05)' }} onClick={() => handleDuplicate(prod)}>Duplicar</button>
                             <button className="btn-action btn-cancel" onClick={() => handleDelete(prod._id)}>Borrar</button>
                         </div>
                     </div>
@@ -238,14 +227,14 @@ function AdminProducts() {
                                 <div key={idx} style={{ display: 'flex', gap: '6px', marginBottom: '8px', alignItems: 'center' }}>
                                     <input
                                         style={{ flex: 2 }}
-                                        placeholder="Nombre del campo (ej: UID del Jugador)"
+                                        placeholder="Nombre del campo"
                                         value={campo.label}
                                         onChange={(e) => handleCampoChange(idx, 'label', e.target.value)}
                                         required
                                     />
                                     <input
                                         style={{ flex: 2 }}
-                                        placeholder="Placeholder (ej: Ej: 12345678)"
+                                        placeholder="Placeholder"
                                         value={campo.placeholder}
                                         onChange={(e) => handleCampoChange(idx, 'placeholder', e.target.value)}
                                     />
@@ -273,7 +262,7 @@ function AdminProducts() {
                                     className="admin-form-textarea"
                                     style={{ minHeight: 'auto', padding: '10px' }}
                                 >
-                                    <option value="Recargas Directas">Recargas Directas</option>
+                                    <option value="TopUp">TopUp</option>
                                     <option value="Pines">Pines</option>
                                     <option value="PC">PC</option>
                                     <option value="Consolas">Consolas</option>
@@ -313,15 +302,17 @@ function AdminProducts() {
                                     <div key={idx} className="package-input-row-block" style={{ marginBottom: '15px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px' }}>
                                         <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
                                             <input style={{flex: 1}} placeholder="Nombre" value={pkg.nombre} onChange={(e) => handlePackageChange(idx, 'nombre', e.target.value)} required />
-                                            <button type="button" className="btn-action btn-cancel" onClick={() => handleRemovePackage(idx)}>X</button>
+                                            <button type="button" className="btn-action" style={{ background: 'var(--accent)', color: 'white' }} onClick={() => handleDuplicatePackage(idx)} title="Duplicar Paquete">📑</button>
+                                            <button type="button" className="btn-action btn-cancel" onClick={() => handleRemovePackage(idx)} title="Eliminar Paquete">X</button>
                                         </div>
                                         <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
                                             <input style={{flex: 1}} placeholder="Bono" value={pkg.bonoDetalle} onChange={(e) => handlePackageChange(idx, 'bonoDetalle', e.target.value)} />
                                             <input style={{width: '90px'}} placeholder="Región" value={pkg.region} onChange={(e) => handlePackageChange(idx, 'region', e.target.value)} />
+                                            <input style={{width: '70px'}} placeholder="Stock" type="number" value={pkg.stock} onChange={(e) => handlePackageChange(idx, 'stock', e.target.value === '' ? '' : Number(e.target.value))} title="Vacío = ilimitado" />
                                             <input style={{width: '90px'}} placeholder="$ ARS" type="number" value={pkg.precioARS} onChange={(e) => handlePackageChange(idx, 'precioARS', e.target.value)} required />
                                             <input style={{width: '90px'}} placeholder="U$D" type="number" step="0.01" value={pkg.precioUSD} onChange={(e) => handlePackageChange(idx, 'precioUSD', e.target.value)} required />
                                         </div>
-                                        <input style={{width: '100%'}} placeholder="Descripción corta (Opcional)" value={pkg.descripcion || ''} onChange={(e) => handlePackageChange(idx, 'descripcion', e.target.value)} />
+                                        <input style={{width: '100%'}} placeholder="Descripción corta" value={pkg.descripcion || ''} onChange={(e) => handlePackageChange(idx, 'descripcion', e.target.value)} />
                                     </div>
                                 ))}
                             </div>
