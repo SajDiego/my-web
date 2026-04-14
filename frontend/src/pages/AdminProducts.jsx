@@ -19,7 +19,7 @@ function AdminProducts() {
         imagenUrl: '',
         categoria: 'Recargas Directas',
         camposEntrega: [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
-        paquetes: [{ nombre: '', precioARS: '', precioUSD: '', bonoDetalle: '', descripcion: '' }]
+        paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', bonoDetalle: '', descripcion: '' }]
     });
 
     useEffect(() => {
@@ -53,9 +53,10 @@ function AdminProducts() {
                     nombre: p.nombre || '',
                     precioARS: p.precioARS || '',
                     precioUSD: p.precioUSD || '',
+                    region: p.region || 'Global',
                     bonoDetalle: p.bonoDetalle || '',
                     descripcion: p.descripcion || ''
-                })) : [{ nombre: '', precioARS: '', precioUSD: '', bonoDetalle: '', descripcion: '' }]
+                })) : [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', bonoDetalle: '', descripcion: '' }]
             });
         } else {
             setEditingId(null);
@@ -65,7 +66,7 @@ function AdminProducts() {
                 imagenUrl: '',
                 categoria: 'Recargas Directas',
                 camposEntrega: [{ label: '', tipo: 'text', requerido: true, placeholder: '' }],
-                paquetes: [{ nombre: '', precioARS: '', precioUSD: '', bonoDetalle: '', descripcion: '' }]
+                paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', bonoDetalle: '', descripcion: '' }]
             });
         }
         setShowModal(true);
@@ -85,6 +86,7 @@ function AdminProducts() {
                 nombre: p.nombre || '',
                 precioARS: p.precioARS || '',
                 precioUSD: p.precioUSD || '',
+                region: p.region || 'Global',
                 bonoDetalle: p.bonoDetalle || '',
                 descripcion: p.descripcion || ''
             }))
@@ -112,7 +114,7 @@ function AdminProducts() {
     };
 
     const handleAddPackage = () => {
-        setFormData({ ...formData, paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', bonoDetalle: '', descripcion: '' }] });
+        setFormData({ ...formData, paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', region: 'Global', bonoDetalle: '', descripcion: '' }] });
     };
 
     const handleCampoChange = (index, field, value) => {
@@ -315,6 +317,7 @@ function AdminProducts() {
                                         </div>
                                         <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
                                             <input style={{flex: 1}} placeholder="Bono" value={pkg.bonoDetalle} onChange={(e) => handlePackageChange(idx, 'bonoDetalle', e.target.value)} />
+                                            <input style={{width: '90px'}} placeholder="Región" value={pkg.region} onChange={(e) => handlePackageChange(idx, 'region', e.target.value)} />
                                             <input style={{width: '90px'}} placeholder="$ ARS" type="number" value={pkg.precioARS} onChange={(e) => handlePackageChange(idx, 'precioARS', e.target.value)} required />
                                             <input style={{width: '90px'}} placeholder="U$D" type="number" step="0.01" value={pkg.precioUSD} onChange={(e) => handlePackageChange(idx, 'precioUSD', e.target.value)} required />
                                         </div>

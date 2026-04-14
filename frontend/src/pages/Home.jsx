@@ -6,17 +6,17 @@ import './Home.css';
 function Home() {
     const [productos, setProductos] = useState([]);
     const [cargando, setCargando] = useState(true);
-    const [categoriaActiva, setCategoriaActiva] = useState('Todas');
     const navigate = useNavigate();
 
-    const categorias = ['Todas', 'Recargas Directas', 'Pines', 'PC', 'Consolas'];
+    // Orden de categorías deseado por el usuario
+    const categoriasVisibles = ['TopUp', 'Pines', 'PC', 'Consolas'];
 
     useEffect(() => {
         const obtenerCatalogo = async () => {
             try {
                 const respuesta = await fetch(`${import.meta.env.VITE_API_URL}/products`);
                 const datos = await respuesta.json();
-                setProductos(datos);
+                setProductos(Array.isArray(datos) ? datos : []);
             } catch (error) {
                 console.error("Error en la comunicación:", error);
             } finally {
@@ -26,58 +26,68 @@ function Home() {
         obtenerCatalogo();
     }, []);
 
-    const productosFiltrados = Array.isArray(productos) 
-        ? (categoriaActiva === 'Todas' ? productos : productos.filter(p => p.categoria === categoriaActiva))
-        : [];
+    // Función para obtener productos por categoría (con mapeo de nombres)
+    const getProductosPorCategoria = (nombreCategoria) => {
+        const catReal = nombreCategoria === 'TopUp' ? 'Recargas Directas' : nombreCategoria;
+        return productos.filter(p => p.categoria === catReal);
+    };
+
+    if (cargando) {
+        return (
+            <div className="main-content">
+                <p className="loading-text">Cargando catálogo...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="main-content">
             {/* Carrusel de Novedades */}
             <Carousel />
-            
-            {/* Barra de Categorías */}
-            <div className="categories-bar">
-                {categorias.map(cat => (
-                    <button 
-                        key={cat} 
-                        className={`category-chip ${categoriaActiva === cat ? 'active' : ''}`}
-                        onClick={() => setCategoriaActiva(cat)}
-                    >
-                        {cat}
-                    </button>
-                ))}
-            </div>
 
-            {/* Grilla de juegos */}
-            <section style={{ marginTop: '20px' }}>
-                <h2 className="section-title">
-                    {categoriaActiva === 'Todas' ? 'Catálogo' : categoriaActiva}
-                </h2>
-                {cargando ? (
-                    <p className="loading-text">Cargando catálogo...</p>
-                ) : productos.length === 0 ? (
-                    <p className="loading-text">No hay productos disponibles.</p>
-                ) : (
-                    <div className="games-grid">
-                        {productosFiltrados.map((juego) => (
-                            <div
-                                key={juego._id}
-                                className="game-card"
-                                onClick={() => navigate(`/game/${juego._id}`)}
-                            >
-                                <div className="game-card-img">
-                                    {juego.imagenUrl ? (
-                                        <img src={juego.imagenUrl} alt={juego.juego} />
-                                    ) : (
-                                        <span className="game-card-placeholder">{juego.juego[0]}</span>
-                                    )}
-                                </div>
-                                <p className="game-card-name">{juego.juego}</p>
+            {/* Renderizado de Secciones por Categoría */}
+            <div className="home-sections">
+                {categoriasVisibles.map(cat => {
+                    const productosSeccion = getProductosPorCategoria(cat);
+                    
+                    // Si no hay productos en esta categoría, no mostramos la sección
+                    if (productosSeccion.length === 0) return null;
+
+                    return (
+                        <section key={cat} className="category-section" style={{ marginBottom: '60px' }}>
+                            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+                                <h2 className="section-title" style={{ margin: 0 }}>{cat}</h2>
+                                <span className="cat-count" style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                    {productosSeccion.length} {productosSeccion.length === 1 ? 'Producto' : 'Productos'}
+                                </span>
                             </div>
-                        ))}
-                    </div>
+
+                            <div className="games-grid">
+                                {productosSeccion.map((juego) => (
+                                    <div
+                                        key={juego._id}
+                                        className="game-card"
+                                        onClick={() => navigate(`/game/${juego._id}`)}
+                                    >
+                                        <div className="game-card-img">
+                                            {juego.imagenUrl ? (
+                                                <img src={juego.imagenUrl} alt={juego.juego} loading="lazy" />
+                                            ) : (
+                                                <span className="game-card-placeholder">{juego.juego[0]}</span>
+                                            )}
+                                        </div>
+                                        <p className="game-card-name">{juego.juego}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    );
+                })}
+
+                {productos.length === 0 && !cargando && (
+                    <p className="loading-text">No hay productos disponibles actualmente.</p>
                 )}
-            </section>
+            </div>
         </div>
     );
 }

@@ -11,6 +11,7 @@ const paqueteSchema = new mongoose.Schema({
     nombre: { type: String, required: true },
     precioARS: { type: Number },
     precioUSD: { type: Number },
+    region: { type: String, default: 'Global' }, // Nuevo campo
     bonoDetalle: { type: String, default: '' },
     descripcion: { type: String, default: '' }
 });

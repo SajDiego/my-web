@@ -206,3 +206,34 @@
     border-radius: 8px;
     border: 1px dashed rgba(255, 255, 255, 0.1);
 }
+
+/* REGION SELECTOR */
+.region-selector-container {
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+}
+
+.region-chip {
+    padding: 8px 20px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.region-chip:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
+}
+
+.region-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 12px var(--accent-glow);
+}

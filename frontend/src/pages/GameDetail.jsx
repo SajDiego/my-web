@@ -11,6 +11,7 @@ function GameDetail() {
     const [juego, setJuego] = useState(null);
     const [cargando, setCargando] = useState(true);
     const [paqueteSeleccionado, setPaqueteSeleccionado] = useState(null);
+    const [regionSeleccionada, setRegionSeleccionada] = useState('');
     const [datosEntrega, setDatosEntrega] = useState({});
     const [mensaje, setMensaje] = useState('');
 
@@ -20,6 +21,12 @@ function GameDetail() {
                 const resp = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`);
                 const data = await resp.json();
                 setJuego(data);
+                
+                // Establecer región inicial
+                if(data.paquetes && data.paquetes.length > 0) {
+                    const uniqueRegions = [...new Set(data.paquetes.map(p => p.region || 'Global'))];
+                    setRegionSeleccionada(uniqueRegions[0]);
+                }
             } catch (error) {
                 console.error("Error cargando el juego:", error);
             } finally {
@@ -51,6 +58,7 @@ function GameDetail() {
             precioARS: paqueteSeleccionado.precioARS,
             precioUSD: paqueteSeleccionado.precioUSD,
             uidJugador: datosEntrega[primerCampo] || '',
+            regionJugador: regionSeleccionada, // Pasar la región seleccionada
             datosEntrega: { ...datosEntrega },
             tipoDatoEntrega: primerCampo
         });
@@ -81,22 +89,44 @@ function GameDetail() {
             <div className="game-detail-body single-panel card-glass">
                 <div className="step-section">
                     <h3 className="minimal-step-title">1. Elige tu recarga</h3>
+                    
+                    {/* Selector de Regiones (si hay más de una) */}
+                    {juego.paquetes && [...new Set(juego.paquetes.map(p => p.region || 'Global'))].length > 1 && (
+                        <div className="region-selector-container" style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            {[...new Set(juego.paquetes.map(p => p.region || 'Global'))].map(reg => (
+                                <button
+                                    key={reg}
+                                    type="button"
+                                    className={`region-chip ${regionSeleccionada === reg ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setRegionSeleccionada(reg);
+                                        setPaqueteSeleccionado(null); // Resetear selección al cambiar región
+                                    }}
+                                >
+                                    {reg}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
                     <div className="package-grid">
-                        {juego.paquetes.map((paquete) => (
-                            <div
-                                key={paquete._id}
-                                className={`package-minimal-item ${paqueteSeleccionado?._id === paquete._id ? 'active' : ''}`}
-                                onClick={() => { setPaqueteSeleccionado(paquete); setMensaje(''); }}
-                            >
-                                <div className="pack-info">
-                                    <span className="pack-name">{paquete.nombre}</span>
-                                    {paquete.bonoDetalle && <span className="pack-badge">{paquete.bonoDetalle}</span>}
+                        {juego.paquetes
+                            .filter(p => (p.region || 'Global') === regionSeleccionada)
+                            .map((paquete) => (
+                                <div
+                                    key={paquete._id}
+                                    className={`package-minimal-item ${paqueteSeleccionado?._id === paquete._id ? 'active' : ''}`}
+                                    onClick={() => { setPaqueteSeleccionado(paquete); setMensaje(''); }}
+                                >
+                                    <div className="pack-info">
+                                        <span className="pack-name">{paquete.nombre}</span>
+                                        {paquete.bonoDetalle && <span className="pack-badge">{paquete.bonoDetalle}</span>}
+                                    </div>
+                                    <div className="pack-price">
+                                        {moneda === 'USD' ? `U$D ${paquete.precioUSD}` : `$ ${paquete.precioARS}`}
+                                    </div>
                                 </div>
-                                <div className="pack-price">
-                                    {moneda === 'USD' ? `U$D ${paquete.precioUSD}` : `$ ${paquete.precioARS}`}
-                                </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 </div>
 

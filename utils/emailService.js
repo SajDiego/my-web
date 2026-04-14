@@ -56,7 +56,74 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
                     <li>Total: ${orden.moneda} ${orden.precioFinal}</li>
                     <li>Método elegido: ${orden.metodoPago}</li>
                 </ul>
-                <p>Si aún no realizaste el pago, por favor hazlo para que podamos procesar tu recarga.</p>
+
+                ${['Transferencia Bancaria', 'Mercado Pago'].includes(orden.metodoPago) ? `
+                <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px;">
+                    <h3 style="color: #6366f1; margin-top: 0;">Datos para Transferencia (Diego Fernando Saj)</h3>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <strong>Banca: AstroPay</strong><br>
+                        CVU: 0000177500092064038112<br>
+                        Alias: integralpro.cr
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <strong>Banca: NaranjaX</strong><br>
+                        CBU: 4530000800015867566941<br>
+                        Alias: DSAJ.NX.ARS
+                    </div>
+
+                    <div>
+                        <strong>Banca: Brubank</strong><br>
+                        CBU: 1430001713024552310013<br>
+                        Alias: Diegosaj.bru
+                    </div>
+                    <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; text-align: center;">
+                        <p style="font-size: 0.95em; margin-bottom: 12px;">Ante cualquier consulta contactanos:</p>
+                        <a href="https://wa.me/5491133148649" style="background-color: #25d366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                            Contactar por WhatsApp
+                        </a>
+                    </div>
+                </div>
+                ` : ''}
+
+                ${orden.metodoPago === 'PagoFacil / Rapipago' ? `
+                <div style="background-color: #fffbeb; padding: 15px; border-radius: 8px; border: 1px solid #fef3c7; margin-top: 20px;">
+                    <h3 style="color: #d97706; margin-top: 0;">Instrucciones para Pago en Efectivo</h3>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <strong>📍 Pago Fácil:</strong><br>
+                        Acercate a una sucursal, indicá que querés cargar <strong>ClaroPay</strong> y dictá el número: <strong>11-3314-8649</strong>.<br>
+                        Monto total a pagar: <strong>$ ${orden.precioFinal}</strong>
+                    </div>
+
+                    <div>
+                        <strong>📍 Rapipago:</strong><br>
+                        Acercate a una sucursal e indicá que querés realizar una carga de <strong>$ ${orden.precioFinal}</strong> en <strong>PREX</strong> a la cuenta: <strong>14234836</strong>.
+                    </div>
+
+                    <div style="margin-top: 20px; border-top: 1px solid #fde68a; padding-top: 15px; text-align: center;">
+                        <p style="font-size: 0.95em; margin-bottom: 12px;">Ante cualquier consulta contactanos:</p>
+                        <a href="https://wa.me/5491133148649" style="background-color: #25d366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                            Contactar por WhatsApp
+                        </a>
+                    </div>
+                </div>
+                ` : ''}
+
+                ${orden.metodoPago === 'QR' ? `
+                <div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; border: 1px solid #bae6fd; margin-top: 20px;">
+                    <h3 style="color: #009ee3; margin-top: 0;">Pago mediante QR</h3>
+                    <p>Podés escanear el código QR que apareció al finalizar tu compra o utilizar los siguientes datos de transferencia si te resulta más cómodo:</p>
+                    <div style="margin-top: 10px;">
+                        <strong>Alias:</strong> integralpro.cr<br>
+                        <strong>CVU:</strong> 0000177500092064038112
+                    </div>
+                </div>
+                ` : ''}
+
+                ${!['Transferencia Bancaria', 'Mercado Pago', 'PagoFacil / Rapipago', 'QR'].includes(orden.metodoPago) ? '<p>Si aún no realizaste el pago, por favor hazlo para que podamos procesar tu recarga.</p>' : ''}
+                
                 <br>
                 <p>¡Gracias por elegir IntegralPro!</p>
             </div>

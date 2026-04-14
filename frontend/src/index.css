@@ -300,3 +300,14 @@ select {
         font-size: 1.5rem;
     }
 }
+
+/* ELIMINAR FLECHAS DE INPUTS DE NÚMERO */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}

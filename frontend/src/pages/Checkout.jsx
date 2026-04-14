@@ -1,13 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { metodosPorMoneda } from '../data/paymentConfig';
+import CheckoutSuccess from '../components/CheckoutSuccess';
 import './Checkout.css';
-
-// Métodos de pago según moneda
-const metodosPorMoneda = {
-    ARS: ['Transferencia Bancaria', 'PagoFacil', 'QR'],
-    USD: ['AstroPay', 'Binance Pay']
-};
 
 function Checkout() {
     const { carrito, moneda, totalCarrito, vaciarCarrito } = useCart();
@@ -20,6 +16,7 @@ function Checkout() {
     const [enviando, setEnviando] = useState(false);
     const [error, setError] = useState('');
     const [exito, setExito] = useState(false);
+    const [montoFinal, setMontoFinal] = useState(0);
 
     const metodos = metodosPorMoneda[moneda] || [];
 
@@ -37,7 +34,6 @@ function Checkout() {
 
         setEnviando(true);
         try {
-            // Enviamos una orden por cada item del carrito
             for (const item of carrito) {
                 const url = esInvitado
                     ? `${import.meta.env.VITE_API_URL}/orders/guest`
@@ -67,6 +63,7 @@ function Checkout() {
                 if (!resp.ok) throw new Error(data.error || 'Error al procesar la orden.');
             }
 
+            setMontoFinal(totalCarrito);
             vaciarCarrito();
             setExito(true);
         } catch (err) {
@@ -77,17 +74,7 @@ function Checkout() {
     };
 
     if (exito) {
-        return (
-            <div className="main-content auth-container" style={{ textAlign: 'center' }}>
-                <div className="card-glass" style={{ padding: '40px' }}>
-                    <h2 style={{ color: '#22c55e', marginBottom: '16px' }}>¡Pedido Confirmado!</h2>
-                    <p className="home-subtitle">Nos contactaremos contigo a la brevedad para coordinar el pago y la entrega.</p>
-                    <button className="btn-select" style={{ marginTop: '24px' }} onClick={() => navigate('/')}>
-                        Volver al Inicio
-                    </button>
-                </div>
-            </div>
-        );
+        return <CheckoutSuccess metodoPago={metodoPago} montoFinal={montoFinal} />;
     }
 
     return (
@@ -98,7 +85,7 @@ function Checkout() {
             <div className="checkout-layout">
                 {/* Resumen del pedido */}
                 <div className="card-glass checkout-summary">
-                    <h3 style={{ marginBottom: '1rem', color: 'var(--accent)' }}>Resumen</h3>
+                    <h3 className="checkout-section-title">Resumen</h3>
                     {carrito.map((item) => (
                         <div key={item.id} className="checkout-item">
                             <span>{item.juegoNombre} — {item.paqueteElegido}</span>
@@ -113,7 +100,7 @@ function Checkout() {
 
                 {/* Formulario */}
                 <form className="card-glass checkout-form" onSubmit={handleConfirmar}>
-                    <h3 style={{ marginBottom: '1rem', color: 'var(--accent)' }}>Tus Datos</h3>
+                    <h3 className="checkout-section-title">Tus Datos</h3>
 
                     <div className="form-group">
                         <label>Nombre completo</label>
