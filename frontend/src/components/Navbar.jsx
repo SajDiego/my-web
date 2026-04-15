@@ -15,7 +15,10 @@ function Navbar({ usuario, onLogout }) {
     return (
         <header className="navbar">
             <div className="navbar-inner">
-                <Link to="/" className="navbar-logo" onClick={closeMenu}>IntegralPro</Link>
+                <Link to="/" className="navbar-brand" onClick={closeMenu}>
+                    <img src="/logo.png" alt="IntegralPro Icon" className="navbar-logo-icon" />
+                    <span className="navbar-logo-text">IntegralPro</span>
+                </Link>
 
                 <div className="mobile-quick-actions">
                     <select className="currency-selector" value={moneda} onChange={(e) => setMoneda(e.target.value)}>

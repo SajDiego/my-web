@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useCart } from '../context/CartContext';
 import './GameDetail.css';
 
@@ -70,22 +71,30 @@ function GameDetail() {
     if (!juego) return <div className="main-content"><p className="loading-text">Juego no encontrado.</p></div>;
 
     return (
-        <div className="main-content">
+        <div className="game-detail-container app-container">
+            <Helmet>
+                <title>{`Recargar ${juego.juego} - Entrega Inmediata | IntegralPro`}</title>
+                <meta name="description" content={`Compra ${juego.juego} al mejor precio. ${juego.descripcion || 'Recargas rápidas y seguras con entrega automática en minutos.'}`} />
+                <meta property="og:title" content={`Recargas para ${juego.juego} - IntegralPro`} />
+                <meta property="og:description" content={`¡No te quedes sin jugar! Recarga ${juego.juego} de forma rápida y segura aquí.`} />
+                {juego.imagenUrl && <meta property="og:image" content={juego.imagenUrl} />}
+            </Helmet>
+
             <button className="btn-back" onClick={() => navigate('/')}>← Volver</button>
 
-            <div className="game-detail-header">
-                {juego.imagenUrl ? (
-                    <img src={juego.imagenUrl} alt={juego.juego} className="game-detail-img" />
-                ) : (
-                    <div className="game-detail-icon">{juego.juego[0]}</div>
-                )}
-                <div>
-                    <h1 className="hero-title" style={{ fontSize: '2rem', textAlign: 'left' }}>{juego.juego}</h1>
-                    <p className="home-subtitle">{juego.descripcion || 'Recarga directa a tu cuenta.'}</p>
-                </div>
-            </div>
-
             <div className="game-detail-body single-panel card-glass">
+                <div className="game-detail-header">
+                    {juego.imagenUrl ? (
+                        <img src={juego.imagenUrl} alt={juego.juego} className="game-detail-img" />
+                    ) : (
+                        <div className="game-detail-icon">{juego.juego[0]}</div>
+                    )}
+                    <div>
+                        <h1 className="hero-title-detail">{juego.juego}</h1>
+                        <p className="home-subtitle">{juego.descripcion || 'Recarga directa a tu cuenta.'}</p>
+                    </div>
+                </div>
+
                 <div className="step-section">
                     <h3 className="minimal-step-title">1. Elige tu recarga</h3>
                     
@@ -135,15 +144,12 @@ function GameDetail() {
 
                 {paqueteSeleccionado && (
                     <div className="step-section fade-in">
-                        <hr className="minimal-divider" />
-                        <h3 className="minimal-step-title">2. Datos de entrega</h3>
-                        
                         <form className="minimal-uid-form" onSubmit={handleAgregarAlCarrito}>
                             {(juego.camposEntrega && juego.camposEntrega.length > 0) ? (
                                 <div className="dynamic-fields-grid">
                                     {juego.camposEntrega.map((campo, idx) => (
-                                        <div key={idx} className="input-group-col" style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-                                            <label style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '5px', marginLeft: '5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        <div key={idx} className="input-group-col" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                            <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '6px', textAlign: 'center' }}>
                                                 {campo.label} {campo.requerido && <span style={{color: 'var(--accent)'}}>*</span>}
                                             </label>
                                             <input

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Bloquear rutas de administración
+Disallow: /admin
+Disallow: /admin/*
+
+# Sitemap (opcional pero recomendado)
+Sitemap: https://integralpro.com.ar/sitemap.xml

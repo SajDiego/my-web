@@ -13,8 +13,8 @@
 }
 
 .card-glass {
-  margin-top: 30px;
-  padding: 30px;
+  margin-top: 1px;
+  padding: 15px;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -29,7 +29,7 @@
 
 .home-subtitle {
   color: var(--text-muted);
-  margin-bottom: 2rem;
+  margin-bottom: 0rem;
 }
 
 .loading-text {

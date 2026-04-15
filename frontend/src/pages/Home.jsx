@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import Carousel from '../components/Carousel';
 import './Home.css';
 
@@ -47,7 +48,11 @@ function Home() {
     );
 
     return (
-        <div className="main-content">
+        <div className="home-container app-container">
+            <Helmet>
+                <title>IntegralPro - Recargas de Juegos y Gift Cards</title>
+                <meta name="description" content="La tienda más rápida para recargar diamantes, robux y pavos con entrega automática. ¡Explora nuestro catálogo!" />
+            </Helmet>
             <Carousel />
 
             {categoriasConProductos.length > 0 && (

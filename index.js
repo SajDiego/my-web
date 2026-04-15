@@ -20,6 +20,7 @@ mongoose.connect(process.env.MONGO_URI, {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/banners', require('./routes/banners'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

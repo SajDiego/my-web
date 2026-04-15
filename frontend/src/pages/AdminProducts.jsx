@@ -182,6 +182,7 @@ function AdminProducts() {
                 <div className="admin-nav-group">
                     <button className="btn-nav" onClick={() => navigate('/admin')}>Órdenes</button>
                     <button className="btn-nav active-admin">Productos</button>
+                    <button className="btn-nav" onClick={() => navigate('/admin/banners')}>Banners</button>
                 </div>
                 <button className="btn-select btn-new-game" onClick={() => handleOpenModal()}>+ Nuevo Juego</button>
             </div>

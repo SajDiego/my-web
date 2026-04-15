@@ -1,21 +1,23 @@
 .game-detail-header {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 30px;
-    margin-bottom: 3rem;
+    gap: 20px;
+    margin-bottom: 0.5rem;
+    text-align: left;
 }
 
 .game-detail-icon {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    border-radius: 24px;
+    border-radius: 20px;
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid var(--accent);
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: bold;
     color: var(--accent);
 }
@@ -27,16 +29,16 @@
 }
 
 .game-detail-img {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     object-fit: cover;
-    border-radius: 24px;
+    border-radius: 20px;
     border: 2px solid var(--accent);
     flex-shrink: 0;
 }
 
 .hero-title-detail {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
     text-align: left;
     margin: 0;
 }
@@ -44,8 +46,8 @@
 .single-panel {
     display: flex;
     flex-direction: column;
-    padding: 40px;
-    gap: 30px;
+    padding: 20px;
+    gap: 15px;
     max-width: 800px;
     margin: 0 auto;
 }
@@ -54,9 +56,10 @@
     color: var(--text-muted);
     font-size: 1.1rem;
     font-weight: 500;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-align: center;
 }
 
 .package-grid {
@@ -92,12 +95,14 @@
 .pack-info {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 5px;
 }
 
 .pack-name {
     font-weight: 600;
     font-size: 0.9rem;
+    text-align: center;
 }
 
 .pack-badge {
@@ -107,7 +112,7 @@
     padding: 3px 8px;
     border-radius: 12px;
     font-weight: bold;
-    align-self: flex-start;
+    align-self: center;
 }
 
 .pack-price {
@@ -115,12 +120,13 @@
     font-size: 1.05rem;
     font-weight: bold;
     color: var(--accent);
+    text-align: center;
 }
 
 .minimal-divider {
     border: none;
     border-top: 1px dashed rgba(255, 255, 255, 0.1);
-    margin-bottom: 30px;
+    margin-bottom: 15px;
 }
 
 .input-group-row {
@@ -168,11 +174,20 @@
     }
 }
 
-.dynamic-fields-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+.dynamic-fields-grid,
+.input-group-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 15px;
     margin-bottom: 20px;
+}
+
+.input-group-col,
+.input-group-row .minimal-input {
+    flex: 1;
+    min-width: 250px;
+    max-width: 400px;
 }
 
 @media (max-width: 768px) {
@@ -192,11 +207,19 @@
     .game-detail-header {
         flex-direction: column;
         text-align: center;
+        margin-bottom: 0.5rem;
+        gap: 8px;
+        /* Reducido de 15px */
+    }
+
+    .single-panel {
+        padding: 5px 10px;
     }
 
     .hero-title-detail {
         text-align: center;
-        font-size: 2rem;
+        font-size: 1.5rem;
+        /* Reducido de 2rem */
     }
 }
 

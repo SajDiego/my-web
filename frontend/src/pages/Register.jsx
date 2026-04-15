@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import './Auth.css';
 
 function Register() {
@@ -36,8 +37,11 @@ function Register() {
     };
 
     return (
-        <div className="main-content auth-container">
-            <div className="card-glass">
+        <div className="auth-container app-container">
+            <Helmet>
+                <title>Crear Cuenta - IntegralPro</title>
+            </Helmet>
+            <div className="auth-card card-glass fade-in">
                 <h2 className="auth-title">Crear Cuenta</h2>
                 {error && <p className="error-msg">{error}</p>}
 

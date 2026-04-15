@@ -11,6 +11,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
+import AdminBanners from './pages/AdminBanners';
 import Perfil from './pages/Perfil';
 import Register from './pages/Register';
 import './index.css';
@@ -48,6 +49,7 @@ function App() {
             <Route path="/cuenta" element={<Perfil />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/banners" element={<AdminBanners />} />
           </Routes>
         </div>
         <Footer />
