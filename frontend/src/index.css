@@ -280,7 +280,7 @@ select {
 
 @media (max-width: 768px) {
     .main-content {
-        padding: 24px 16px;
+        padding: 5px 8px;
     }
 
     .section-title,

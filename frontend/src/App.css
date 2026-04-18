@@ -156,3 +156,19 @@
 .btn-back:hover {
   color: var(--text-main);
 }
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 0 8px;
+  }
+  .main-content {
+    padding: 15px 0;
+  }
+  .card-glass {
+    padding: 10px;
+    border-radius: 12px;
+  }
+  .auth-container {
+    margin: 20px auto;
+  }
+}
