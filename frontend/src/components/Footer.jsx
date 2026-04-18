@@ -6,7 +6,7 @@ function Footer() {
     <footer className="footer">
       <div className="footer-inner">
         <div className="footer-section">
-          <h3>IntegralPro</h3>
+          <h3>GamePin</h3>
           <p>Tu tienda de confianza para recargas de juegos. Rápido, seguro y al mejor precio.</p>
         </div>
         <div className="footer-section">
@@ -18,12 +18,12 @@ function Footer() {
         </div>
         <div className="footer-section">
           <h4>Contacto</h4>
-          <p>Email: soporte@integralpro.com</p>
+          <p>Email: soporte@gamepin.top</p>
           <p>WhatsApp: +54 9 11 1234-5678</p>
         </div>
       </div>
       <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} IntegralPro Store. Todos los derechos reservados.</p>
+        <p>&copy; {new Date().getFullYear()} GamePin Store. Todos los derechos reservados.</p>
       </div>
     </footer>
   );
