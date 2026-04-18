@@ -16,6 +16,7 @@ function AdminProducts() {
     const [formData, setFormData] = useState({
         juego: '',
         descripcion: '',
+        infoExtra: '',
         imagenUrl: '',
         categoria: 'TopUp',
         camposEntrega: [],
@@ -44,6 +45,7 @@ function AdminProducts() {
             setFormData({
                 juego: prod.juego,
                 descripcion: prod.descripcion || '',
+                infoExtra: prod.infoExtra || '',
                 imagenUrl: prod.imagenUrl || '',
                 categoria: prod.categoria || 'TopUp',
                 camposEntrega: prod.camposEntrega ? prod.camposEntrega.map(c => ({ 
@@ -67,6 +69,7 @@ function AdminProducts() {
             setFormData({
                 juego: '',
                 descripcion: '',
+                infoExtra: '',
                 imagenUrl: '',
                 categoria: 'TopUp',
                 camposEntrega: [],
@@ -127,9 +130,11 @@ function AdminProducts() {
 
     const handleDuplicatePackage = (index) => {
         const pkgToDuplicate = { ...formData.paquetes[index] };
+        const newPaquetes = [...formData.paquetes];
+        newPaquetes.splice(index + 1, 0, pkgToDuplicate);
         setFormData({ 
             ...formData, 
-            paquetes: [...formData.paquetes, pkgToDuplicate] 
+            paquetes: newPaquetes 
         });
     };
 
@@ -270,11 +275,20 @@ function AdminProducts() {
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label>Descripción</label>
+                                <label>Descripción general</label>
                                 <textarea 
                                     className="admin-form-textarea"
                                     value={formData.descripcion}
                                     onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Mensaje / Info Extra (Ej: Notas de la región)</label>
+                                <textarea 
+                                    className="admin-form-textarea"
+                                    placeholder="⚠️ Este juego tiene restricciones en ciertos países..."
+                                    value={formData.infoExtra}
+                                    onChange={(e) => setFormData({...formData, infoExtra: e.target.value})}
                                 />
                             </div>
                             <div className="form-group">

@@ -21,6 +21,7 @@ const productSchema = new mongoose.Schema({
     juego: { type: String, required: true, unique: true },
     descripcion: { type: String },
     imagenUrl: { type: String },
+    infoExtra: { type: String, default: '' },
     paquetes: [paqueteSchema],
     camposEntrega: [campoEntregaSchema],
     categoria: {

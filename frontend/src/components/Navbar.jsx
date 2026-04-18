@@ -17,7 +17,7 @@ function Navbar({ usuario, onLogout }) {
             <div className="navbar-inner">
                 <Link to="/" className="navbar-brand" onClick={closeMenu}>
                     <img src="/logo.png" alt="IntegralPro Icon" className="navbar-logo-icon" />
-                    <span className="navbar-logo-text">IntegralPro</span>
+                    <span className="navbar-logo-text">GamePin</span>
                 </Link>
 
                 <div className="mobile-quick-actions">
@@ -39,35 +39,35 @@ function Navbar({ usuario, onLogout }) {
                     <nav className="navbar-links">
                         <Link to="/" onClick={closeMenu}>Inicio</Link>
                         <Link to="/cart" className="navbar-cart-link desktop-only" onClick={closeMenu}>
-                        <FiShoppingCart size={22} />
-                        {carrito.length > 0 && (
-                            <span className="cart-badge">{carrito.length}</span>
-                        )}
-                    </Link>
-                </nav>
-
-                <div className="navbar-right">
-                    <select
-                        className="currency-selector desktop-only"
-                        value={moneda}
-                        onChange={(e) => setMoneda(e.target.value)}
-                    >
-                        <option value="ARS">🇦🇷 ARS</option>
-                        <option value="USD">🇺🇸 USD</option>
-                    </select>
-
-                    {usuario ? (
-                        <div className="navbar-account">
-                            {usuario.rol === 'admin' && (
-                                <Link to="/admin" className="btn-nav" onClick={closeMenu}>Panel Admin</Link>
+                            <FiShoppingCart size={22} />
+                            {carrito.length > 0 && (
+                                <span className="cart-badge">{carrito.length}</span>
                             )}
-                            <Link to="/cuenta" className="btn-nav" onClick={closeMenu}>Mi Cuenta</Link>
-                            <button onClick={() => { onLogout(); closeMenu(); }} className="btn-nav btn-logout">Salir</button>
-                        </div>
-                    ) : (
-                        <Link to="/login" className="btn-nav btn-accent" onClick={closeMenu}>Ingresar</Link>
-                    )}
-                </div>
+                        </Link>
+                    </nav>
+
+                    <div className="navbar-right">
+                        <select
+                            className="currency-selector desktop-only"
+                            value={moneda}
+                            onChange={(e) => setMoneda(e.target.value)}
+                        >
+                            <option value="ARS">🇦🇷 ARS</option>
+                            <option value="USD">🇺🇸 USD</option>
+                        </select>
+
+                        {usuario ? (
+                            <div className="navbar-account">
+                                {usuario.rol === 'admin' && (
+                                    <Link to="/admin" className="btn-nav" onClick={closeMenu}>Panel Admin</Link>
+                                )}
+                                <Link to="/cuenta" className="btn-nav" onClick={closeMenu}>Mi Cuenta</Link>
+                                <button onClick={() => { onLogout(); closeMenu(); }} className="btn-nav btn-logout">Salir</button>
+                            </div>
+                        ) : (
+                            <Link to="/login" className="btn-nav btn-accent" onClick={closeMenu}>Ingresar</Link>
+                        )}
+                    </div>
                 </div>
             </div>
         </header>

@@ -130,7 +130,6 @@ function GameDetail() {
                                     >
                                         <div className="pack-info">
                                             <span className="pack-name">{paquete.nombre}</span>
-                                            {paquete.bonoDetalle && <span className="pack-badge">{paquete.bonoDetalle}</span>}
                                             {sinStock && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600 }}>Sin stock</span>}
                                         </div>
                                         <div className="pack-price">
@@ -174,8 +173,14 @@ function GameDetail() {
                             )}
 
                             <button type="submit" className="btn-select btn-minimal-submit">
-                                Agregar al Carrito ( {moneda === 'USD' ? `U$D ${paqueteSeleccionado.precioUSD}` : `$ ${paqueteSeleccionado.precioARS}`} )
+                                Agregar • {moneda === 'USD' ? `U$D ${paqueteSeleccionado.precioUSD}` : `$ ${paqueteSeleccionado.precioARS}`}
                             </button>
+
+                            {paqueteSeleccionado.bonoDetalle && (
+                                <div className="pack-badge fade-in" style={{ width: 'fit-content', margin: '15px auto 10px', fontSize: '0.85rem' }}>
+                                    {paqueteSeleccionado.bonoDetalle}
+                                </div>
+                            )}
 
                             {paqueteSeleccionado.descripcion && (
                                 <div className="package-description-note fade-in">
@@ -186,6 +191,12 @@ function GameDetail() {
                     </div>
                 )}
             </div>
+
+            {juego.infoExtra && (
+                <div className="region-disclaimer fade-in">
+                    {juego.infoExtra}
+                </div>
+            )}
         </div>
     );
 }

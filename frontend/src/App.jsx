@@ -14,6 +14,9 @@ import AdminProducts from './pages/AdminProducts';
 import AdminBanners from './pages/AdminBanners';
 import Perfil from './pages/Perfil';
 import Register from './pages/Register';
+import AboutUs from './pages/AboutUs';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 import './index.css';
 import './App.css';
 
@@ -47,6 +50,9 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/register" element={<Register />} />
             <Route path="/cuenta" element={<Perfil />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/banners" element={<AdminBanners />} />
