@@ -78,4 +78,27 @@ router.get('/perfil', auth, async (req, res) => {
     }
 });
 
+// Actualizar Perfil
+router.put('/perfil', auth, async (req, res) => {
+    try {
+        const { nombre, whatsapp, password } = req.body;
+        const updates = { nombre, whatsapp };
+
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            updates.password = await bcrypt.hash(password, salt);
+        }
+
+        const usuario = await User.findByIdAndUpdate(
+            req.usuario.id,
+            { $set: updates },
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        res.json(usuario);
+    } catch (error) {
+        res.status(400).json({ error: "Error al actualizar perfil" });
+    }
+});
+
 module.exports = router;

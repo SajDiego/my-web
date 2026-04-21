@@ -90,12 +90,12 @@ function Checkout() {
                     {carrito.map((item) => (
                         <div key={item.id} className="checkout-item">
                             <span>{item.juegoNombre} — {item.paqueteElegido}</span>
-                            <strong>{moneda === 'USD' ? `U$D ${item.precioUSD}` : `$ ${item.precioARS}`}</strong>
+                            <strong>{moneda === 'USD' ? `U$D ${Number(item.precioUSD).toFixed(2)}` : `$ ${item.precioARS}`}</strong>
                         </div>
                     ))}
                     <div className="checkout-total">
                         <span>Total</span>
-                        <strong>{moneda === 'USD' ? `U$D ${totalCarrito}` : `$ ${totalCarrito}`}</strong>
+                        <strong>{moneda === 'USD' ? `U$D ${Number(totalCarrito).toFixed(2)}` : `$ ${totalCarrito}`}</strong>
                     </div>
                 </div>
 

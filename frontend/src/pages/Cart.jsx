@@ -38,7 +38,7 @@ function Cart() {
                         </div>
                         <div className="cart-item-right">
                             <p className="cart-item-price">
-                                {moneda === 'USD' ? `U$D ${item.precioUSD}` : `$ ${item.precioARS}`}
+                                {moneda === 'USD' ? `U$D ${Number(item.precioUSD).toFixed(2)}` : `$ ${item.precioARS}`}
                             </p>
                             <button className="cart-item-delete" onClick={() => eliminarDelCarrito(item.id)}>
                                 <FiTrash2 size={18} />
@@ -51,8 +51,11 @@ function Cart() {
             <div className="cart-summary card-glass">
                 <div className="cart-total">
                     <span>Total</span>
-                    <strong>{moneda === 'USD' ? `U$D ${totalCarrito}` : `$ ${totalCarrito}`}</strong>
+                    <strong>{moneda === 'USD' ? `U$D ${Number(totalCarrito).toFixed(2)}` : `$ ${totalCarrito}`}</strong>
                 </div>
+                <p style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '15px', textAlign: 'center' }}>
+                    * Los precios en pesos argentinos son finales.
+                </p>
                 <button className="btn-select" onClick={() => navigate('/checkout')}>
                     Finalizar Compra
                 </button>

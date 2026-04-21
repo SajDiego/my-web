@@ -30,11 +30,11 @@ function Carousel() {
   }, [slides]);
 
   if (loading) return null;
-  
+
   // Si no hay banners, mostramos uno por defecto (CSS puro, cero datos de imagen)
   const displaySlides = slides.length > 0 ? slides : [{
     _id: 'fallback',
-    title: 'BIENVENIDOS A INTEGRALPRO',
+    title: 'BIENVENIDOS A GAMEPIN',
     subtitle: 'Tu tienda líder en recargas y gift cards',
     color: '#6d28d9',
     isFallback: true
@@ -46,10 +46,10 @@ function Carousel() {
         <div
           key={slide._id || slide.id}
           className={`carousel-slide ${index === current ? 'active' : ''}`}
-          style={{ 
-            backgroundImage: slide.isFallback 
-                ? `linear-gradient(135deg, #18181b 0%, #6d28d9 100%)` 
-                : `linear-gradient(45deg, rgba(9, 9, 11, 0.9), rgba(9, 9, 11, 0.2)), url(${slide.image})`,
+          style={{
+            backgroundImage: slide.isFallback
+              ? `linear-gradient(135deg, #18181b 0%, #6d28d9 100%)`
+              : `linear-gradient(45deg, rgba(9, 9, 11, 0.9), rgba(9, 9, 11, 0.2)), url(${slide.image})`,
             borderColor: slide.color || '#6d28d9'
           }}
         >
@@ -57,26 +57,26 @@ function Carousel() {
             {slide.title && <h2 className="carousel-title">{slide.title}</h2>}
             {slide.subtitle && <p className="carousel-subtitle">{slide.subtitle}</p>}
             {slide.link && (
-                <button 
-                    className="btn-select" 
-                    style={{ width: 'auto', padding: '10px 24px' }}
-                    onClick={() => window.location.href = slide.link}
-                >
-                    Ver más
-                </button>
+              <button
+                className="btn-select"
+                style={{ width: 'auto', padding: '10px 24px' }}
+                onClick={() => window.location.href = slide.link}
+              >
+                Ver más
+              </button>
             )}
           </div>
         </div>
       ))}
       {slides.length > 1 && (
         <div className="carousel-dots">
-            {slides.map((_, index) => (
+          {slides.map((_, index) => (
             <div
-                key={index}
-                className={`dot ${index === current ? 'dot-active' : ''}`}
-                onClick={() => setCurrent(index)}
+              key={index}
+              className={`dot ${index === current ? 'dot-active' : ''}`}
+              onClick={() => setCurrent(index)}
             />
-            ))}
+          ))}
         </div>
       )}
     </div>

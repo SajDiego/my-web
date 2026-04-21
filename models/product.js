@@ -4,7 +4,8 @@ const campoEntregaSchema = new mongoose.Schema({
     label: { type: String, required: true },
     tipo: { type: String, default: 'text' },
     requerido: { type: Boolean, default: true },
-    placeholder: { type: String, default: '' }
+    placeholder: { type: String, default: '' },
+    opciones: { type: [String], default: [] }
 });
 
 const paqueteSchema = new mongoose.Schema({
@@ -23,6 +24,7 @@ const productSchema = new mongoose.Schema({
     imagenUrl: { type: String },
     infoExtra: { type: String, default: '' },
     paquetes: [paqueteSchema],
+    descripcionesRegionales: { type: Map, of: String, default: {} },
     camposEntrega: [campoEntregaSchema],
     categoria: {
         type: String,

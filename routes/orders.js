@@ -112,6 +112,15 @@ router.post('/guest', async (req, res) => {
     }
 });
 
+router.get('/me', auth, async (req, res) => {
+    try {
+        const ordenes = await Order.find({ usuario: req.usuario.id }).sort({ fechaCompra: -1 });
+        res.json(ordenes);
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener tus pedidos." });
+    }
+});
+
 router.get('/', auth, admin, async (req, res) => {
     try {
         const ordenes = await Order.find().populate('usuario', 'nombre email');

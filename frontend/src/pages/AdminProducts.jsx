@@ -52,7 +52,8 @@ function AdminProducts() {
                     label: c.label || '', 
                     tipo: c.tipo || 'text', 
                     requerido: c.requerido !== false, 
-                    placeholder: c.placeholder || '' 
+                    placeholder: c.placeholder || '',
+                    opciones: c.opciones ? c.opciones.join(', ') : ''
                 })) : [],
                 paquetes: prod.paquetes.length > 0 ? prod.paquetes.map(p => ({
                     nombre: p.nombre || '',
@@ -60,9 +61,9 @@ function AdminProducts() {
                     precioUSD: p.precioUSD || '',
                     region: p.region || 'Global',
                     stock: p.stock != null ? p.stock : '',
-                    bonoDetalle: p.bonoDetalle || '',
-                    descripcion: p.descripcion || ''
-                })) : [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }]
+                    bonoDetalle: p.bonoDetalle || ''
+                })) : [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }],
+                descripcionesRegionales: prod.descripcionesRegionales || {}
             });
         } else {
             setEditingId(null);
@@ -73,7 +74,8 @@ function AdminProducts() {
                 imagenUrl: '',
                 categoria: 'TopUp',
                 camposEntrega: [],
-                paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }]
+                paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '' }],
+                descripcionesRegionales: {}
             });
         }
         setShowModal(true);
@@ -109,7 +111,7 @@ function AdminProducts() {
     };
 
     const handleAddCampo = () => {
-        setFormData({ ...formData, camposEntrega: [...formData.camposEntrega, { label: '', tipo: 'text', requerido: true, placeholder: '' }] });
+        setFormData({ ...formData, camposEntrega: [...formData.camposEntrega, { label: '', tipo: 'text', requerido: true, placeholder: '', opciones: '' }] });
     };
 
     const handleRemoveCampo = (index) => {
@@ -140,6 +142,18 @@ function AdminProducts() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Formatear las opciones antes de enviar
+        const formattedFormData = {
+            ...formData,
+            camposEntrega: formData.camposEntrega.map(c => ({
+                ...c,
+                opciones: c.tipo === 'select' 
+                    ? c.opciones.split(',').map(opt => opt.trim()).filter(opt => opt !== '') 
+                    : []
+            }))
+        };
+
         const url = editingId ? `${import.meta.env.VITE_API_URL}/products/${editingId}` : `${import.meta.env.VITE_API_URL}/products`;
         const method = editingId ? 'PUT' : 'POST';
 
@@ -150,7 +164,7 @@ function AdminProducts() {
                     'Content-Type': 'application/json',
                     'x-auth-token': localStorage.getItem('token')
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(formattedFormData)
             });
 
             if (res.ok) {
@@ -252,7 +266,17 @@ function AdminProducts() {
                                         <option value="text">Texto</option>
                                         <option value="email">Email</option>
                                         <option value="number">Número</option>
+                                        <option value="select">Selección</option>
                                     </select>
+                                    {campo.tipo === 'select' && (
+                                        <input
+                                            style={{ flex: 3 }}
+                                            placeholder="Opciones (ej: Op1, Op2)"
+                                            value={campo.opciones}
+                                            onChange={(e) => handleCampoChange(idx, 'opciones', e.target.value)}
+                                            required
+                                        />
+                                    )}
                                     <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                                         <input type="checkbox" checked={campo.requerido} onChange={(e) => handleCampoChange(idx, 'requerido', e.target.checked)} />
                                         Req.
@@ -307,10 +331,35 @@ function AdminProducts() {
                                 )}
                             </div>
 
-                            <div className="packages-header">
-                                <h3>Paquetes / Precios</h3>
-                                <button type="button" className="btn-action" onClick={handleAddPackage}>+ Añadir</button>
-                            </div>
+                             <div className="packages-header" style={{ marginTop: '20px' }}>
+                                 <h3>Descripciones por Región</h3>
+                             </div>
+                             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                                 Se detectan automáticamente según las regiones que definas abajo.
+                             </p>
+                             {[...new Set(formData.paquetes.map(p => p.region || 'Global'))].map(reg => (
+                                 <div key={reg} className="form-group" style={{ marginBottom: '10px' }}>
+                                     <label style={{ fontSize: '0.85rem' }}>Descripción para Región: <strong>{reg}</strong></label>
+                                     <textarea
+                                         className="admin-form-textarea"
+                                         style={{ minHeight: '60px' }}
+                                         placeholder={`Información específica para ${reg}...`}
+                                         value={formData.descripcionesRegionales?.[reg] || ''}
+                                         onChange={(e) => setFormData({
+                                             ...formData,
+                                             descripcionesRegionales: {
+                                                 ...formData.descripcionesRegionales,
+                                                 [reg]: e.target.value
+                                             }
+                                         })}
+                                     />
+                                 </div>
+                             ))}
+
+                             <div className="packages-header">
+                                 <h3>Paquetes / Precios</h3>
+                                 <button type="button" className="btn-action" onClick={handleAddPackage}>+ Añadir</button>
+                             </div>
 
                             <div style={{ maxHeight: '300px', overflowY: 'auto', marginTop: '10px' }}>
                                 {formData.paquetes.map((pkg, idx) => (
@@ -327,7 +376,7 @@ function AdminProducts() {
                                             <input style={{width: '90px'}} placeholder="$ ARS" type="number" value={pkg.precioARS} onChange={(e) => handlePackageChange(idx, 'precioARS', e.target.value)} required />
                                             <input style={{width: '90px'}} placeholder="U$D" type="number" step="0.01" value={pkg.precioUSD} onChange={(e) => handlePackageChange(idx, 'precioUSD', e.target.value)} required />
                                         </div>
-                                        <input style={{width: '100%'}} placeholder="Descripción corta" value={pkg.descripcion || ''} onChange={(e) => handlePackageChange(idx, 'descripcion', e.target.value)} />
+
                                     </div>
                                 ))}
                             </div>

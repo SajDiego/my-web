@@ -22,8 +22,8 @@ function GameDetail() {
                 const resp = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`);
                 const data = await resp.json();
                 setJuego(data);
-                
-                if(data.paquetes && data.paquetes.length > 0) {
+
+                if (data.paquetes && data.paquetes.length > 0) {
                     const uniqueRegions = [...new Set(data.paquetes.map(p => p.region || 'Global'))];
                     setRegionSeleccionada(uniqueRegions[0]);
                 }
@@ -97,7 +97,7 @@ function GameDetail() {
 
                 <div className="step-section">
                     <h3 className="minimal-step-title">1. Elige tu recarga</h3>
-                    
+
                     {juego.paquetes && [...new Set(juego.paquetes.map(p => p.region || 'Global'))].length > 1 && (
                         <div className="region-selector-container" style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             {[...new Set(juego.paquetes.map(p => p.region || 'Global'))].map(reg => (
@@ -133,12 +133,15 @@ function GameDetail() {
                                             {sinStock && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600 }}>Sin stock</span>}
                                         </div>
                                         <div className="pack-price">
-                                            {moneda === 'USD' ? `U$D ${paquete.precioUSD}` : `$ ${paquete.precioARS}`}
+                                            {moneda === 'USD' ? `U$D ${Number(paquete.precioUSD).toFixed(2)}` : `$ ${paquete.precioARS}`}
                                         </div>
                                     </div>
                                 );
                             })}
                     </div>
+                    <p style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '10px', textAlign: 'center' }}>
+                        * Los precios en pesos argentinos son finales, no tenés que sumarle nada.
+                    </p>
                 </div>
 
                 {paqueteSeleccionado && (
@@ -149,16 +152,31 @@ function GameDetail() {
                                     {juego.camposEntrega.map((campo, idx) => (
                                         <div key={idx} className="input-group-col" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                             <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '6px', textAlign: 'center' }}>
-                                                {campo.label} {campo.requerido && <span style={{color: 'var(--accent)'}}>*</span>}
+                                                {campo.label} {campo.requerido && <span style={{ color: 'var(--accent)' }}>*</span>}
                                             </label>
-                                            <input
-                                                type={campo.tipo || 'text'}
-                                                className="minimal-input"
-                                                placeholder={campo.placeholder || `Ej: Ingresa tu ${campo.label}`}
-                                                value={datosEntrega[campo.label] || ''}
-                                                onChange={(e) => setDatosEntrega({ ...datosEntrega, [campo.label]: e.target.value })}
-                                                required={campo.requerido !== false}
-                                            />
+                                            {campo.tipo === 'select' ? (
+                                                <select
+                                                    className="minimal-input"
+                                                    value={datosEntrega[campo.label] || ''}
+                                                    onChange={(e) => setDatosEntrega({ ...datosEntrega, [campo.label]: e.target.value })}
+                                                    required={campo.requerido !== false}
+                                                    style={{ appearance: 'auto', background: 'rgba(255,255,255,0.05)' }}
+                                                >
+                                                    <option value="">Selecciona {campo.label}</option>
+                                                    {campo.opciones && campo.opciones.map((opt, i) => (
+                                                        <option key={i} value={opt} style={{ background: '#1a1a1a' }}>{opt}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    type={campo.tipo || 'text'}
+                                                    className="minimal-input"
+                                                    placeholder={campo.placeholder || `Ej: Ingresa tu ${campo.label}`}
+                                                    value={datosEntrega[campo.label] || ''}
+                                                    onChange={(e) => setDatosEntrega({ ...datosEntrega, [campo.label]: e.target.value })}
+                                                    required={campo.requerido !== false}
+                                                />
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -173,7 +191,7 @@ function GameDetail() {
                             )}
 
                             <button type="submit" className="btn-select btn-minimal-submit">
-                                Agregar • {moneda === 'USD' ? `U$D ${paqueteSeleccionado.precioUSD}` : `$ ${paqueteSeleccionado.precioARS}`}
+                                Agregar • {moneda === 'USD' ? `U$D ${Number(paqueteSeleccionado.precioUSD).toFixed(2)}` : `$ ${paqueteSeleccionado.precioARS}`}
                             </button>
 
                             {paqueteSeleccionado.bonoDetalle && (
@@ -182,9 +200,9 @@ function GameDetail() {
                                 </div>
                             )}
 
-                            {paqueteSeleccionado.descripcion && (
+                            {juego.descripcionesRegionales?.[regionSeleccionada] && (
                                 <div className="package-description-note fade-in">
-                                    {paqueteSeleccionado.descripcion}
+                                    {juego.descripcionesRegionales[regionSeleccionada]}
                                 </div>
                             )}
                         </form>
