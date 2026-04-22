@@ -41,6 +41,25 @@
   color: var(--accent);
 }
 
+.footer-socials {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.social-icon {
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-icon:hover {
+  color: #E1306C; /* Instagram color */
+  transform: translateY(-3px);
+}
+
 .footer-bottom {
   text-align: center;
   padding-top: 20px;

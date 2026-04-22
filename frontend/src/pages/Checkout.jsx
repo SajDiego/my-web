@@ -75,7 +75,7 @@ function Checkout() {
     };
 
     if (exito) {
-        return <CheckoutSuccess metodoPago={metodoPago} montoFinal={montoFinal} />;
+        return <CheckoutSuccess metodoPago={metodoPago} montoFinal={montoFinal} moneda={moneda} />;
     }
 
     return (

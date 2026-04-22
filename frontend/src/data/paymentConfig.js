@@ -49,3 +49,11 @@ export const qr = {
     imagen: '/qr-pago.png.png',
     color: '#009ee3'
 };
+
+export const binancePay = {
+    nombre: 'Binance Pay',
+    instruccion: 'You must make the payment from your Binance Pay app. Pay exact amount',
+    payId: '199828457',
+    imagen: '/binance-pay.png',
+    color: '#F0B90B'
+};

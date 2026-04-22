@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 
 const enviarEmailAdmin = async (orden, clienteInfo) => {
     const mailOptions = {
-        from: `"IntegralPro Order" <${process.env.SMTP_USER}>`,
+        from: `"GamePin Orders" <${process.env.SMTP_USER}>`,
         to: process.env.ADMIN_EMAIL,
         subject: `🚨 ¡NUEVO PEDIDO! #${orden.numeroOrden} - ${orden.juegoNombre}`,
         html: `
@@ -40,7 +40,7 @@ const enviarEmailAdmin = async (orden, clienteInfo) => {
 
 const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = "") => {
     const mailOptions = {
-        from: `"IntegralPro Gaming" <${process.env.SMTP_USER}>`,
+        from: `"GamePin Store" <${process.env.SMTP_USER}>`,
         to: clienteEmail,
         subject: `Orden #${orden.numeroOrden} - ${orden.estado}`,
         html: `
@@ -122,10 +122,19 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
                 </div>
                 ` : ''}
 
-                ${!['Transferencia Bancaria', 'Mercado Pago', 'PagoFacil / Rapipago', 'QR'].includes(orden.metodoPago) ? '<p>Si aún no realizaste el pago, por favor hazlo para que podamos procesar tu recarga.</p>' : ''}
+                ${orden.metodoPago === 'Binance Pay' ? `
+                <div style="background-color: #fefce8; padding: 15px; border-radius: 8px; border: 1px solid #fef08a; margin-top: 20px;">
+                    <h3 style="color: #ca8a04; margin-top: 0;">Binance Pay Instructions</h3>
+                    <p><strong>English:</strong> You must make the payment from your Binance Pay app. Pay exact amount.</p>
+                    <p><strong>Backup ID:</strong> 199828457 (Use this if you cannot scan the QR code).</p>
+                    <p style="margin-top: 10px;">Total to pay: <strong>U$D ${orden.precioFinal}</strong></p>
+                </div>
+                ` : ''}
+
+                ${!['Transferencia Bancaria', 'Mercado Pago', 'PagoFacil / Rapipago', 'QR', 'Binance Pay'].includes(orden.metodoPago) ? '<p>Si aún no realizaste el pago, por favor hazlo para que podamos procesar tu recarga.</p>' : ''}
                 
                 <br>
-                <p>¡Gracias por elegir IntegralPro!</p>
+                <p>¡Gracias por elegir GamePin Store!</p>
             </div>
         `
     };

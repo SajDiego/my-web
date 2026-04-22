@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { bankAccounts, cashInstructions, qr } from '../data/paymentConfig';
+import { bankAccounts, cashInstructions, qr, binancePay } from '../data/paymentConfig';
 
-function CheckoutSuccess({ metodoPago, montoFinal }) {
+function CheckoutSuccess({ metodoPago, montoFinal, moneda }) {
     const navigate = useNavigate();
 
     const copyToClipboard = (text) => {
@@ -12,6 +12,7 @@ function CheckoutSuccess({ metodoPago, montoFinal }) {
     const isTransfer = ['Transferencia Bancaria', 'Mercado Pago'].includes(metodoPago);
     const isCash = metodoPago === 'PagoFacil / Rapipago';
     const isQR = metodoPago === 'QR';
+    const isBinancePay = metodoPago === 'Binance Pay';
 
     return (
         <div className="main-content auth-container" style={{ textAlign: 'center' }}>
@@ -19,10 +20,10 @@ function CheckoutSuccess({ metodoPago, montoFinal }) {
                 <h2 className="success-title">¡Pedido Confirmado!</h2>
                 
                 <p className="success-msg">
-                    {isTransfer || isCash || isQR
+                    {isTransfer || isCash || isQR || isBinancePay
                         ? (
                             <>
-                                Realizá tu pago de <strong style={{ color: '#22c55e', fontSize: '1.4rem' }}>$ {montoFinal}</strong> siguiendo estas instrucciones:
+                                Realizá tu pago de <strong style={{ color: '#22c55e', fontSize: '1.4rem' }}>{moneda === 'USD' ? 'U$D' : '$'} {montoFinal}</strong> siguiendo estas instrucciones:
                             </>
                         )
                         : 'Tu orden está pendiente de pago. Por favor seguí las instrucciones para realizar el pago.'
@@ -47,6 +48,39 @@ function CheckoutSuccess({ metodoPago, montoFinal }) {
                                 />
                                 <p style={{ marginTop: '20px', fontSize: '1rem' }}>
                                     Total a pagar: <strong style={{ color: '#22c55e' }}>$ {montoFinal}</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Bloque de Binance Pay */}
+                {isBinancePay && (
+                    <div className="qr-container" style={{ marginBottom: '40px' }}>
+                        <div className="bank-card" style={{ borderTop: `4px solid ${binancePay.color}`, textAlign: 'center' }}>
+                            <div className="bank-card-header">
+                                <strong style={{ color: binancePay.color }}>📍 {binancePay.nombre}</strong>
+                            </div>
+                            <div className="bank-card-body" style={{ alignItems: 'center' }}>
+                                <p style={{ fontSize: '0.95rem', marginBottom: '20px', fontWeight: 'bold' }}>
+                                    {binancePay.instruccion}
+                                </p>
+                                <img 
+                                    src={binancePay.imagen} 
+                                    alt="Binance Pay QR" 
+                                    style={{ maxWidth: '250px', borderRadius: '12px', border: '5px solid white' }} 
+                                />
+                                <div style={{ marginTop: '20px' }}>
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                                        If you cannot scan the QR code, pay via Binance Pay ID:
+                                    </p>
+                                    <div className="copy-field" style={{ justifyContent: 'center' }}>
+                                        <span>ID: {binancePay.payId}</span>
+                                        <button type="button" onClick={() => copyToClipboard(binancePay.payId)} className="btn-copy">📋</button>
+                                    </div>
+                                </div>
+                                <p style={{ marginTop: '20px', fontSize: '1rem' }}>
+                                    Total to pay: <strong style={{ color: '#22c55e' }}>U$D {montoFinal}</strong>
                                 </p>
                             </div>
                         </div>

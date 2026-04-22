@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { FaInstagram } from 'react-icons/fa';
 import './Footer.css';
 
 function Footer() {
@@ -20,6 +21,11 @@ function Footer() {
           <h4>Contacto</h4>
           <p>Email: soporte@gamepin.top</p>
           <p>WhatsApp: +54 9 11 3314-8649</p>
+          <div className="footer-socials">
+            <a href="https://instagram.com/gamepin.top" target="_blank" rel="noopener noreferrer" className="social-icon" title="Síguenos en Instagram">
+              <FaInstagram size={24} />
+            </a>
+          </div>
         </div>
       </div>
       <div className="footer-bottom">
