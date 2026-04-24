@@ -80,12 +80,14 @@ function AdminDashboard() {
                                     {ord.usuario ? (
                                         <>
                                             <strong>{ord.usuario.nombre}</strong><br/>
-                                            <small>{ord.usuario.email}</small>
+                                            <small>{ord.usuario.email}</small><br/>
+                                            <small style={{ color: 'var(--accent)' }}>Wsp: {ord.usuario.whatsapp || 'No cargado'}</small>
                                         </>
                                     ) : (
                                         <>
-                                            <strong>{ord.usuarioInvitado?.nombre}</strong><br/>
-                                            <small>{ord.usuarioInvitado?.contacto}</small>
+                                            <strong>{ord.usuarioInvitado?.nombre || 'Invitado'}</strong><br/>
+                                            <small>{ord.usuarioInvitado?.email}</small><br/>
+                                            <small style={{ color: 'var(--accent)' }}>Wsp: {ord.usuarioInvitado?.whatsapp}</small>
                                         </>
                                     )}
                                 </td>

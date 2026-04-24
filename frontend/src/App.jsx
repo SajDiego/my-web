@@ -14,6 +14,8 @@ import AdminProducts from './pages/AdminProducts';
 import AdminBanners from './pages/AdminBanners';
 import Perfil from './pages/Perfil';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import AboutUs from './pages/AboutUs';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
@@ -49,6 +51,8 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/cuenta" element={<Perfil />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/terms" element={<Terms />} />

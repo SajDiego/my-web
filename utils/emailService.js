@@ -146,4 +146,62 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
     }
 };
 
-module.exports = { enviarEmailAdmin, enviarEmailCliente };
+const enviarEmailOrdenCompletada = async (orden, clienteEmail) => {
+    const mailOptions = {
+        from: `"GamePin Store" <${process.env.SMTP_USER}>`,
+        to: clienteEmail,
+        subject: `Orden #${orden.numeroOrden} - Completada`,
+        html: `
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2 style="color: #22c55e;">¡Tu orden está lista!</h2>
+                <p>Estado de la orden: <strong>completado</strong></p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p>Ante cualquier consulta, por favor comunícate por WhatsApp:</p>
+                <a href="https://wa.me/5491133148649" style="background-color: #25d366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                    Contactar por WhatsApp
+                </a>
+                <br><br>
+                <p>¡Gracias por elegir GamePin Store!</p>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.error("Error enviando mail de completado:", error);
+    }
+};
+
+const enviarEmailResetPassword = async (email, token) => {
+    const resetUrl = `${process.env.FRONTEND_URL || 'https://gamepin.top'}/reset-password?token=${token}`;
+    
+    const mailOptions = {
+        from: `"GamePin Store" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: 'Recuperación de Contraseña - GamePin Store',
+        html: `
+            <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #6366f1;">Restablecer tu contraseña</h2>
+                <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en GamePin Store.</p>
+                <p>Hacé clic en el siguiente botón para elegir una nueva contraseña. Este enlace es válido por 15 minutos.</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${resetUrl}" style="background-color: #6366f1; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                        Restablecer Contraseña
+                    </a>
+                </div>
+                <p style="font-size: 0.9em; color: #666;">Si no solicitaste este cambio, podés ignorar este correo de forma segura.</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p>¡Gracias por elegir GamePin Store!</p>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.error("Error enviando mail de reset:", error);
+    }
+};
+
+module.exports = { enviarEmailAdmin, enviarEmailCliente, enviarEmailOrdenCompletada, enviarEmailResetPassword };

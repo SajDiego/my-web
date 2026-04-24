@@ -101,4 +101,49 @@ router.put('/perfil', auth, async (req, res) => {
     }
 });
 
+const { enviarEmailResetPassword } = require('../utils/emailService');
+
+// Olvidé mi contraseña (genera link)
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const usuario = await User.findOne({ email });
+        
+        if (!usuario) {
+            return res.status(404).json({ error: "No existe un usuario con ese correo electrónico" });
+        }
+
+        // Token válido por 15 minutos
+        const resetToken = jwt.sign(
+            { id: usuario._id, type: 'reset' },
+            process.env.JWT_SECRET,
+            { expiresIn: '15m' }
+        );
+
+        await enviarEmailResetPassword(email, resetToken);
+        res.json({ mensaje: "Email de recuperación enviado" });
+    } catch (error) {
+        res.status(500).json({ error: "Error al procesar la solicitud" });
+    }
+});
+
+// Restablecer contraseña (usa el token)
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.type !== 'reset') throw new Error("Token inválido");
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await User.findByIdAndUpdate(decoded.id, { password: hashedPassword });
+        
+        res.json({ mensaje: "Contraseña actualizada con éxito" });
+    } catch (error) {
+        res.status(400).json({ error: "El enlace ha expirado o es inválido" });
+    }
+});
+
 module.exports = router;

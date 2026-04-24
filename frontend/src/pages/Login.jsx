@@ -70,6 +70,11 @@ function Login({ onLoginSuccess }) {
                             onChange={(e) => setPassword(e.target.value)} 
                             required 
                         />
+                        <div style={{ textAlign: 'right', marginTop: '5px' }}>
+                            <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: 'var(--accent)', textDecoration: 'none' }}>
+                                ¿Olvidaste tu contraseña?
+                            </Link>
+                        </div>
                     </div>
                     <button type="submit" className="btn-select">Ingresar</button>
                 </form>

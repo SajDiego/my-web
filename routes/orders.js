@@ -6,7 +6,7 @@ const admin = require('../middleware/adminMiddleware');
 const Product = require('../models/product');
 const Counter = require('../models/counter');
 const User = require('../models/user');
-const { enviarEmailAdmin, enviarEmailCliente } = require('../utils/emailService');
+const { enviarEmailAdmin, enviarEmailCliente, enviarEmailOrdenCompletada } = require('../utils/emailService');
 
 async function getNextSequenceValue(sequenceName) {
     const sequenceDocument = await Counter.findOneAndUpdate(
@@ -123,7 +123,7 @@ router.get('/me', auth, async (req, res) => {
 
 router.get('/', auth, admin, async (req, res) => {
     try {
-        const ordenes = await Order.find().populate('usuario', 'nombre email');
+        const ordenes = await Order.find().populate('usuario', 'nombre email whatsapp');
         res.json(ordenes);
     } catch (error) {
         res.status(500).json({ error: "Error al obtener pedidos." });
@@ -137,8 +137,20 @@ router.patch('/:id/estado', auth, admin, async (req, res) => {
             req.params.id,
             { estado },
             { returnDocument: 'after' }
-        );
+        ).populate('usuario', 'email');
+
         if (!ordenActualizada) return res.status(404).json({ error: "Orden no encontrada" });
+
+        if (estado === 'Completada') {
+            const emailCliente = ordenActualizada.usuario 
+                ? ordenActualizada.usuario.email 
+                : ordenActualizada.usuarioInvitado?.email;
+            
+            if (emailCliente) {
+                enviarEmailOrdenCompletada(ordenActualizada, emailCliente).catch(e => console.error("Error async email:", e));
+            }
+        }
+
         res.json({ mensaje: `Estado actualizado: ${estado}`, orden: ordenActualizada });
     } catch (error) {
         res.status(400).json({ error: "Error al cambiar estado." });
