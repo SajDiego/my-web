@@ -150,18 +150,19 @@ const enviarEmailOrdenCompletada = async (orden, clienteEmail) => {
     const mailOptions = {
         from: `"GamePin Store" <${process.env.SMTP_USER}>`,
         to: clienteEmail,
-        subject: `Orden #${orden.numeroOrden} - Completada`,
+        subject: `¡Orden Completada! #${orden.numeroOrden}`,
         html: `
-            <div style="font-family: Arial, sans-serif; color: #333;">
-                <h2 style="color: #22c55e;">¡Tu orden está lista!</h2>
-                <p>Estado de la orden: <strong>completado</strong></p>
+            <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #6366f1;">Estado de la orden: Completado</h2>
+                <p>Tu pedido de <strong>${orden.juegoNombre}</strong> ha sido procesado con éxito.</p>
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                <p>Ante cualquier consulta, por favor comunícate por WhatsApp:</p>
-                <a href="https://wa.me/5491133148649" style="background-color: #25d366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                    Contactar por WhatsApp
-                </a>
-                <br><br>
-                <p>¡Gracias por elegir GamePin Store!</p>
+                <p>Ante cualquier consulta, por favor comunicate por WhatsApp:</p>
+                <div style="text-align: center; margin: 25px 0;">
+                    <a href="https://wa.me/5491133148649" style="background-color: #25d366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                        Contactar Soporte
+                    </a>
+                </div>
+                <p>¡Gracias por tu compra!</p>
             </div>
         `
     };

@@ -121,9 +121,14 @@ router.get('/me', auth, async (req, res) => {
     }
 });
 
+
+
 router.get('/', auth, admin, async (req, res) => {
     try {
-        const ordenes = await Order.find().populate('usuario', 'nombre email whatsapp');
+        // Poblamos también el campo whatsapp del usuario registrado
+        const ordenes = await Order.find()
+            .populate('usuario', 'nombre email whatsapp')
+            .sort({ fechaCompra: -1 });
         res.json(ordenes);
     } catch (error) {
         res.status(500).json({ error: "Error al obtener pedidos." });
@@ -137,17 +142,15 @@ router.patch('/:id/estado', auth, admin, async (req, res) => {
             req.params.id,
             { estado },
             { returnDocument: 'after' }
-        ).populate('usuario', 'email');
+        ).populate('usuario', 'email nombre');
 
         if (!ordenActualizada) return res.status(404).json({ error: "Orden no encontrada" });
 
+        // Si el estado es "Completada", enviar email automático
         if (estado === 'Completada') {
-            const emailCliente = ordenActualizada.usuario 
-                ? ordenActualizada.usuario.email 
-                : ordenActualizada.usuarioInvitado?.email;
-            
-            if (emailCliente) {
-                enviarEmailOrdenCompletada(ordenActualizada, emailCliente).catch(e => console.error("Error async email:", e));
+            const emailDestino = ordenActualizada.usuario ? ordenActualizada.usuario.email : ordenActualizada.usuarioInvitado?.email;
+            if (emailDestino) {
+                await enviarEmailOrdenCompletada(ordenActualizada, emailDestino);
             }
         }
 

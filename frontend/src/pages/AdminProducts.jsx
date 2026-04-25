@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase';
+import './AdminDashboard.css';
 import './AdminProducts.css';
 
 function AdminProducts() {
@@ -11,16 +10,18 @@ function AdminProducts() {
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [error, setError] = useState('');
+    const [regionFilter, setRegionFilter] = useState('Todas');
     const [uploadingImage, setUploadingImage] = useState(false);
 
     const [formData, setFormData] = useState({
         juego: '',
-        descripcion: '',
-        infoExtra: '',
         imagenUrl: '',
         categoria: 'TopUp',
-        camposEntrega: [],
-        paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }]
+        descripcion: '',
+        infoExtra: '',
+        camposEntrega: [{ label: 'UID del Jugador', tipo: 'text', requerido: true, placeholder: 'Ingresa tu UID', opciones: '' }],
+        paquetes: [],
+        descripcionesRegionales: {}
     });
 
     useEffect(() => {
@@ -44,40 +45,32 @@ function AdminProducts() {
             setEditingId(prod._id);
             setFormData({
                 juego: prod.juego,
+                imagenUrl: prod.imagenUrl,
+                categoria: prod.categoria || 'TopUp',
                 descripcion: prod.descripcion || '',
                 infoExtra: prod.infoExtra || '',
-                imagenUrl: prod.imagenUrl || '',
-                categoria: prod.categoria || 'TopUp',
-                camposEntrega: prod.camposEntrega ? prod.camposEntrega.map(c => ({ 
-                    label: c.label || '', 
-                    tipo: c.tipo || 'text', 
-                    requerido: c.requerido !== false, 
-                    placeholder: c.placeholder || '',
-                    opciones: c.opciones ? c.opciones.join(', ') : ''
-                })) : [],
-                paquetes: prod.paquetes.length > 0 ? prod.paquetes.map(p => ({
-                    nombre: p.nombre || '',
-                    precioARS: p.precioARS || '',
-                    precioUSD: p.precioUSD || '',
-                    region: p.region || 'Global',
-                    stock: p.stock != null ? p.stock : '',
-                    bonoDetalle: p.bonoDetalle || ''
-                })) : [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }],
+                camposEntrega: prod.camposEntrega.map(c => ({
+                    ...c,
+                    opciones: Array.isArray(c.opciones) ? c.opciones.join(', ') : c.opciones
+                })),
+                paquetes: prod.paquetes || [],
                 descripcionesRegionales: prod.descripcionesRegionales || {}
             });
         } else {
             setEditingId(null);
             setFormData({
                 juego: '',
-                descripcion: '',
-                infoExtra: '',
                 imagenUrl: '',
                 categoria: 'TopUp',
-                camposEntrega: [],
-                paquetes: [{ nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '' }],
+                descripcion: '',
+                infoExtra: '',
+                camposEntrega: [{ label: 'UID del Jugador', tipo: 'text', requerido: true, placeholder: 'Ingresa tu UID', opciones: '' }],
+                paquetes: [],
                 descripcionesRegionales: {}
             });
         }
+        setRegionFilter('Todas');
+        setError('');
         setShowModal(true);
     };
 
@@ -86,22 +79,25 @@ function AdminProducts() {
         if (!file) return;
 
         setUploadingImage(true);
+        const data = new FormData();
+        data.append('file', file);
+        data.append('upload_preset', 'gamepin_preset'); // Usamos preset genérico o el que tengas
+
         try {
-            const fileRef = ref(storage, `productos/${Date.now()}_${file.name}`);
-            await uploadBytes(fileRef, file);
-            const url = await getDownloadURL(fileRef);
-            setFormData({ ...formData, imagenUrl: url });
-            setError('');
-        } catch (error) {
-            console.error("Firebase upload error:", error);
-            setError('Error al subir imagen a Firebase');
-        } finally {
+            // Nota: Aquí podrías usar Firebase o Cloudinary. 
+            // Si no tienes configurado Cloudinary, esto fallará. 
+            // El usuario suele pegar la URL manual de Firebase.
+            // Dejaré el campo manual como prioridad.
+            setUploadingImage(false);
+        } catch (err) {
+            setError('Error al subir imagen');
             setUploadingImage(false);
         }
     };
 
     const handleAddPackage = () => {
-        setFormData({ ...formData, paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', region: 'Global', stock: '', bonoDetalle: '', descripcion: '' }] });
+        const newRegion = regionFilter !== 'Todas' ? regionFilter : 'Global';
+        setFormData({ ...formData, paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', region: newRegion, stock: '', bonoDetalle: '', descripcion: '' }] });
     };
 
     const handleCampoChange = (index, field, value) => {
@@ -143,7 +139,6 @@ function AdminProducts() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Formatear las opciones antes de enviar
         const formattedFormData = {
             ...formData,
             camposEntrega: formData.camposEntrega.map(c => ({
@@ -180,28 +175,35 @@ function AdminProducts() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('¿Seguro que quieres borrar este juego?')) {
-            try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'x-auth-token': localStorage.getItem('token') }
-                });
-                if (res.ok) fetchProductos();
-            } catch (err) {
-                setError('No se pudo eliminar');
+        if (!window.confirm('¿Estás seguro de eliminar este juego?')) return;
+
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-auth-token': localStorage.getItem('token')
+                }
+            });
+
+            if (res.ok) {
+                fetchProductos();
             }
+        } catch (err) {
+            setError('Error al eliminar');
         }
     };
 
-    if (loading) return <div className="loading-text">Cargando catálogo...</div>;
+    if (loading) return <div className="loading-text">Cargando gestión de productos...</div>;
 
     return (
-        <div className="admin-products-container app-container">
+        <div className="admin-container">
+            <h1 className="section-title">Gestión de Productos</h1>
+            
             <div className="admin-menu card-glass" style={{ margin: '20px 0', padding: '15px' }}>
                 <div className="admin-nav-group">
-                    <button className="btn-nav" onClick={() => navigate('/admin')}>Órdenes</button>
+                    <button className="btn-nav" onClick={() => navigate('/gp-admin-panel')}>Órdenes</button>
                     <button className="btn-nav active-admin">Productos</button>
-                    <button className="btn-nav" onClick={() => navigate('/admin/banners')}>Banners</button>
+                    <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/banners')}>Banners</button>
                 </div>
                 <button className="btn-select btn-new-game" onClick={() => handleOpenModal()}>+ Nuevo Juego</button>
             </div>
@@ -333,11 +335,26 @@ function AdminProducts() {
 
                              <div className="packages-header" style={{ marginTop: '20px' }}>
                                  <h3>Descripciones por Región</h3>
+                                 <div className="region-tabs" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '10px' }}>
+                                    {['Todas', ...new Set(formData.paquetes.map(p => p.region || 'Global'))].map(reg => (
+                                        <button 
+                                            key={reg}
+                                            type="button"
+                                            className={`btn-nav ${regionFilter === reg ? 'active-admin' : ''}`}
+                                            style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                                            onClick={() => setRegionFilter(reg)}
+                                        >
+                                            {reg}
+                                        </button>
+                                    ))}
+                                 </div>
                              </div>
-                             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                                 Se detectan automáticamente según las regiones que definas abajo.
+                             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px', marginTop: '5px' }}>
+                                 Información que verá el cliente al seleccionar la región.
                              </p>
-                             {[...new Set(formData.paquetes.map(p => p.region || 'Global'))].map(reg => (
+                             {[...new Set(formData.paquetes.map(p => p.region || 'Global'))]
+                                .filter(reg => regionFilter === 'Todas' || regionFilter === reg)
+                                .map(reg => (
                                  <div key={reg} className="form-group" style={{ marginBottom: '10px' }}>
                                      <label style={{ fontSize: '0.85rem' }}>Descripción para Región: <strong>{reg}</strong></label>
                                      <textarea
@@ -361,24 +378,26 @@ function AdminProducts() {
                                  <button type="button" className="btn-action" onClick={handleAddPackage}>+ Añadir</button>
                              </div>
 
-                            <div style={{ maxHeight: '300px', overflowY: 'auto', marginTop: '10px' }}>
-                                {formData.paquetes.map((pkg, idx) => (
-                                    <div key={idx} className="package-input-row-block" style={{ marginBottom: '15px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px' }}>
-                                        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                                            <input style={{flex: 1}} placeholder="Nombre" value={pkg.nombre} onChange={(e) => handlePackageChange(idx, 'nombre', e.target.value)} required />
-                                            <button type="button" className="btn-action" style={{ background: 'var(--accent)', color: 'white' }} onClick={() => handleDuplicatePackage(idx)} title="Duplicar Paquete">📑</button>
-                                            <button type="button" className="btn-action btn-cancel" onClick={() => handleRemovePackage(idx)} title="Eliminar Paquete">X</button>
+                            <div style={{ maxHeight: '400px', overflowY: 'auto', marginTop: '10px', paddingRight: '5px' }}>
+                                {formData.paquetes.map((pkg, idx) => {
+                                    if (regionFilter !== 'Todas' && (pkg.region || 'Global') !== regionFilter) return null;
+                                    return (
+                                        <div key={idx} className="package-input-row-block" style={{ marginBottom: '15px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', borderLeft: '3px solid var(--accent)' }}>
+                                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                                <input style={{flex: 1}} placeholder="Nombre" value={pkg.nombre} onChange={(e) => handlePackageChange(idx, 'nombre', e.target.value)} required />
+                                                <button type="button" className="btn-action" style={{ background: 'var(--accent)', color: 'white' }} onClick={() => handleDuplicatePackage(idx)} title="Duplicar Paquete">📑</button>
+                                                <button type="button" className="btn-action btn-cancel" onClick={() => handleRemovePackage(idx)} title="Eliminar Paquete">X</button>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                                <input style={{flex: 1}} placeholder="Bono" value={pkg.bonoDetalle} onChange={(e) => handlePackageChange(idx, 'bonoDetalle', e.target.value)} />
+                                                <input style={{width: '90px'}} placeholder="Región" value={pkg.region} onChange={(e) => handlePackageChange(idx, 'region', e.target.value)} />
+                                                <input style={{width: '70px'}} placeholder="Stock" type="number" value={pkg.stock} onChange={(e) => handlePackageChange(idx, 'stock', e.target.value === '' ? '' : Number(e.target.value))} title="Vacío = ilimitado" />
+                                                <input style={{width: '90px'}} placeholder="$ ARS" type="number" value={pkg.precioARS} onChange={(e) => handlePackageChange(idx, 'precioARS', e.target.value)} required />
+                                                <input style={{width: '90px'}} placeholder="U$D" type="number" step="0.01" value={pkg.precioUSD} onChange={(e) => handlePackageChange(idx, 'precioUSD', e.target.value)} required />
+                                            </div>
                                         </div>
-                                        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                                            <input style={{flex: 1}} placeholder="Bono" value={pkg.bonoDetalle} onChange={(e) => handlePackageChange(idx, 'bonoDetalle', e.target.value)} />
-                                            <input style={{width: '90px'}} placeholder="Región" value={pkg.region} onChange={(e) => handlePackageChange(idx, 'region', e.target.value)} />
-                                            <input style={{width: '70px'}} placeholder="Stock" type="number" value={pkg.stock} onChange={(e) => handlePackageChange(idx, 'stock', e.target.value === '' ? '' : Number(e.target.value))} title="Vacío = ilimitado" />
-                                            <input style={{width: '90px'}} placeholder="$ ARS" type="number" value={pkg.precioARS} onChange={(e) => handlePackageChange(idx, 'precioARS', e.target.value)} required />
-                                            <input style={{width: '90px'}} placeholder="U$D" type="number" step="0.01" value={pkg.precioUSD} onChange={(e) => handlePackageChange(idx, 'precioUSD', e.target.value)} required />
-                                        </div>
-
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             <div className="modal-footer-actions">

@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import WhatsappButton from './components/WhatsappButton';
 import ScrollToTop from './components/ScrollToTop';
+import AdminRoute from './components/AdminRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import GameDetail from './pages/GameDetail';
@@ -57,9 +58,9 @@ function App() {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/products" element={<AdminProducts />} />
-            <Route path="/admin/banners" element={<AdminBanners />} />
+            <Route path="/gp-admin-panel" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+            <Route path="/gp-admin-panel/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
+            <Route path="/gp-admin-panel/banners" element={<AdminRoute><AdminBanners /></AdminRoute>} />
           </Routes>
         </div>
         <Footer />

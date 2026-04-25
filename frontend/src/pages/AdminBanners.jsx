@@ -90,8 +90,8 @@ function AdminBanners() {
         <div className="admin-products-container app-container">
             <div className="admin-menu card-glass" style={{ margin: '20px 0', padding: '15px' }}>
                 <div className="admin-nav-group">
-                    <button className="btn-nav" onClick={() => navigate('/admin')}>Órdenes</button>
-                    <button className="btn-nav" onClick={() => navigate('/admin/products')}>Productos</button>
+                    <button className="btn-nav" onClick={() => navigate('/gp-admin-panel')}>Órdenes</button>
+                    <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/products')}>Productos</button>
                     <button className="btn-nav active-admin">Banners</button>
                 </div>
             </div>

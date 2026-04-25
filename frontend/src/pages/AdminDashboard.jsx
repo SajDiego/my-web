@@ -51,8 +51,8 @@ function AdminDashboard() {
 
             <div className="admin-menu-tabs card-glass" style={{ margin: '20px 0', padding: '15px' }}>
                 <button className="btn-nav active-admin">Órdenes</button>
-                <button className="btn-nav" onClick={() => navigate('/admin/products')}>Productos</button>
-                <button className="btn-nav" onClick={() => navigate('/admin/banners')}>Banners</button>
+                <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/products')}>Productos</button>
+                <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/banners')}>Banners</button>
             </div>
 
             {error && <p className="error-msg">{error}</p>}
