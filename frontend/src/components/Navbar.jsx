@@ -59,7 +59,7 @@ function Navbar({ usuario, onLogout }) {
                         {usuario ? (
                             <div className="navbar-account">
                                 {usuario.rol === 'admin' && (
-                                    <Link to="/admin" className="btn-nav" onClick={closeMenu}>Panel Admin</Link>
+                                    <Link to="/gp-admin-panel" className="btn-nav" onClick={closeMenu}>Panel Admin</Link>
                                 )}
                                 <Link to="/cuenta" className="btn-nav" onClick={closeMenu}>Mi Cuenta</Link>
                                 <button onClick={() => { onLogout(); closeMenu(); }} className="btn-nav btn-logout">Salir</button>

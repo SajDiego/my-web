@@ -32,7 +32,7 @@ function Login({ onLoginSuccess }) {
             }
 
             if (data.usuario.rol === 'admin') {
-                navigate('/admin');
+                navigate('/gp-admin-panel');
             } else {
                 navigate('/cuenta');
             }
