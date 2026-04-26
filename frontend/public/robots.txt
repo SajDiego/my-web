@@ -2,8 +2,8 @@ User-agent: *
 Allow: /
 
 # Bloquear rutas de administración
-Disallow: /admin
-Disallow: /admin/*
+Disallow: /gp-admin-panel
+Disallow: /gp-admin-panel/*
 
 # Sitemap (opcional pero recomendado)
 Sitemap: https://gamepin.top/sitemap.xml
