@@ -34,7 +34,7 @@ function ForgotPassword() {
     };
 
     return (
-        <div className="auth-container app-container">
+        <div className="auth-container">
             <Helmet>
                 <title>Recuperar Contraseña - GamePin Store</title>
             </Helmet>

@@ -43,7 +43,7 @@ function ResetPassword() {
 
     if (!token) {
         return (
-            <div className="auth-container app-container">
+            <div className="auth-container">
                 <div className="auth-card card-glass">
                     <p className="error-msg">Token de recuperación no encontrado o inválido.</p>
                     <Link to="/login" className="auth-link">Volver al inicio</Link>
@@ -53,7 +53,7 @@ function ResetPassword() {
     }
 
     return (
-        <div className="auth-container app-container">
+        <div className="auth-container">
             <Helmet>
                 <title>Nueva Contraseña - GamePin Store</title>
             </Helmet>

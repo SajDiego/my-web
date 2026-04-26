@@ -48,7 +48,7 @@ function Home() {
     );
 
     return (
-        <div className="home-container app-container">
+        <div className="home-container">
             <Helmet>
                 <title>GamePin Store - Recargas de Juegos y Gift Cards</title>
                 <meta name="description" content="La tienda más rápida para recargar diamantes, robux y pavos con entrega automática. ¡Explora nuestro catálogo!" />

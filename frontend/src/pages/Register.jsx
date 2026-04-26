@@ -37,7 +37,7 @@ function Register() {
     };
 
     return (
-        <div className="auth-container app-container">
+        <div className="auth-container">
             <Helmet>
                 <title>Crear Cuenta - GamePin Store</title>
             </Helmet>

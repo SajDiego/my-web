@@ -71,7 +71,7 @@ function GameDetail() {
     if (!juego) return <div className="main-content"><p className="loading-text">Juego no encontrado.</p></div>;
 
     return (
-        <div className="game-detail-container app-container">
+        <div className="game-detail-container">
             <Helmet>
                 <title>{`Recargar ${juego.juego} - Entrega Inmediata | GamePin Store`}</title>
                 <meta name="description" content={`Compra ${juego.juego} al mejor precio. ${juego.descripcion || 'Recargas rápidas y seguras con entrega automática en minutos.'}`} />

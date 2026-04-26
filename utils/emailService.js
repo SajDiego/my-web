@@ -64,7 +64,7 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
                     <div style="margin-bottom: 15px;">
                         <strong>Banca: AstroPay</strong><br>
                         CVU: 0000177500092064038112<br>
-                        Alias: gamepinstore
+                        Alias: integralpro.cr
                     </div>
 
                     <div style="margin-bottom: 15px;">
@@ -116,7 +116,7 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
                     <h3 style="color: #009ee3; margin-top: 0;">Pago mediante QR</h3>
                     <p>Podés escanear el código QR que apareció al finalizar tu compra o utilizar los siguientes datos de transferencia si te resulta más cómodo:</p>
                     <div style="margin-top: 10px;">
-                        <strong>Alias:</strong> gamepinstore<br>
+                        <strong>Alias:</strong> integralpro.cr<br>
                         <strong>CVU:</strong> 0000177500092064038112
                     </div>
                 </div>
@@ -176,7 +176,7 @@ const enviarEmailOrdenCompletada = async (orden, clienteEmail) => {
 
 const enviarEmailResetPassword = async (email, token) => {
     const resetUrl = `${process.env.FRONTEND_URL || 'https://gamepin.top'}/reset-password?token=${token}`;
-    
+
     const mailOptions = {
         from: `"GamePin Store" <${process.env.SMTP_USER}>`,
         to: email,

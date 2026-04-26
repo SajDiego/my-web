@@ -42,7 +42,7 @@ function Login({ onLoginSuccess }) {
     };
 
     return (
-        <div className="auth-container app-container">
+        <div className="auth-container">
             <Helmet>
                 <title>Iniciar Sesión - GamePin Store</title>
             </Helmet>

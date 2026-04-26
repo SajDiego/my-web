@@ -43,10 +43,10 @@ function AdminDashboard() {
         }
     };
 
-    if (loading) return <div className="loading-text app-container">Cargando panel...</div>;
+    if (loading) return <div className="loading-text">Cargando panel...</div>;
 
     return (
-        <div className="admin-dashboard-container app-container">
+        <div className="admin-dashboard-container">
             <h1 className="home-title">Panel de Administración</h1>
 
             <div className="admin-menu-tabs card-glass" style={{ margin: '20px 0', padding: '15px' }}>
