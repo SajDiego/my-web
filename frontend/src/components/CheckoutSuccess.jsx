@@ -136,7 +136,7 @@ function CheckoutSuccess({ metodoPago, montoFinal, moneda }) {
 
                 <div className="success-actions">
                     <a
-                        href={`https://wa.me/5491133148649?text=${encodeURIComponent('Hola IntegralPro! Acabo de realizar un pedido. Adjunto el comprobante.')}`}
+                        href={`https://wa.me/5491133148649?text=${encodeURIComponent('Hola GamePin Store! Acabo de realizar un pedido. Adjunto el comprobante.')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-whatsapp-success"

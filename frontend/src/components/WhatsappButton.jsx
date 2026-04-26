@@ -3,7 +3,7 @@ import './WhatsappButton.css';
 
 function WhatsappButton() {
   const numero = "5491133148649";
-  const mensaje = "Hola IntegralPro! Necesito ayuda con una recarga.";
+  const mensaje = "Hola GamePin Store! Necesito ayuda con una recarga.";
   const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
 
   return (

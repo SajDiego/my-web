@@ -44,7 +44,7 @@ function Login({ onLoginSuccess }) {
     return (
         <div className="auth-container app-container">
             <Helmet>
-                <title>Iniciar Sesión - IntegralPro</title>
+                <title>Iniciar Sesión - GamePin Store</title>
             </Helmet>
             <div className="auth-card card-glass fade-in">
                 <h2 className="auth-title">Iniciar Sesión</h2>

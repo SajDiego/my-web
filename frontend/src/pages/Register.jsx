@@ -39,7 +39,7 @@ function Register() {
     return (
         <div className="auth-container app-container">
             <Helmet>
-                <title>Crear Cuenta - IntegralPro</title>
+                <title>Crear Cuenta - GamePin Store</title>
             </Helmet>
             <div className="auth-card card-glass fade-in">
                 <h2 className="auth-title">Crear Cuenta</h2>

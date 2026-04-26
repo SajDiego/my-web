@@ -73,9 +73,9 @@ function GameDetail() {
     return (
         <div className="game-detail-container app-container">
             <Helmet>
-                <title>{`Recargar ${juego.juego} - Entrega Inmediata | IntegralPro`}</title>
+                <title>{`Recargar ${juego.juego} - Entrega Inmediata | GamePin Store`}</title>
                 <meta name="description" content={`Compra ${juego.juego} al mejor precio. ${juego.descripcion || 'Recargas rápidas y seguras con entrega automática en minutos.'}`} />
-                <meta property="og:title" content={`Recargas para ${juego.juego} - IntegralPro`} />
+                <meta property="og:title" content={`Recargas para ${juego.juego} - GamePin Store`} />
                 <meta property="og:description" content={`¡No te quedes sin jugar! Recarga ${juego.juego} de forma rápida y segura aquí.`} />
                 {juego.imagenUrl && <meta property="og:image" content={juego.imagenUrl} />}
             </Helmet>

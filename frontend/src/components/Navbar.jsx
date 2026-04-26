@@ -16,7 +16,7 @@ function Navbar({ usuario, onLogout }) {
         <header className="navbar">
             <div className="navbar-inner">
                 <Link to="/" className="navbar-brand" onClick={closeMenu}>
-                    <img src="/logo.png" alt="IntegralPro Icon" className="navbar-logo-icon" />
+                    <img src="/logo.png" alt="GamePin Store Icon" className="navbar-logo-icon" />
                     <span className="navbar-logo-text">GamePin</span>
                 </Link>
 
