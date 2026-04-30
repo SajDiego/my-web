@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import './Carousel.css';
 
 function Carousel() {
   const [slides, setSlides] = useState([]);
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(true);
-  const trackRef = useRef(null);
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -40,18 +39,9 @@ function Carousel() {
     isFallback: true
   }];
 
-  // Calculamos el offset para centrar el slide activo
-  // Cada slide ocupa el 85% del ancho del contenedor (definido en CSS)
-  // El espacio lateral sobrante es (100% - 85%) / 2 = 7.5%
-  const slideWidth = 85; 
-  const offset = 7.5 - (current * slideWidth);
-
   return (
-    <div className="carousel">
-      <div 
-        className="carousel-track" 
-        style={{ transform: `translateX(${offset}%)` }}
-      >
+    <div className="carousel" style={{ '--current-index': current }}>
+      <div className="carousel-track">
         {displaySlides.map((slide, index) => (
           <div
             key={slide._id || slide.id}
@@ -60,7 +50,7 @@ function Carousel() {
             style={{
               backgroundImage: slide.isFallback
                 ? `linear-gradient(135deg, #18181b 0%, #6d28d9 100%)`
-                : `linear-gradient(45deg, rgba(9, 9, 11, 0.8), rgba(9, 9, 11, 0.2)), url(${slide.image})`,
+                : `url(${slide.image})`,
               borderColor: slide.color || '#6d28d9'
             }}
           >

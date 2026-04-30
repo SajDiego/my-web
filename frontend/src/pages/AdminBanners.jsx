@@ -133,7 +133,7 @@ function AdminBanners() {
                         <input type="text" value={formData.link} onChange={e => setFormData({ ...formData, link: e.target.value })} placeholder="Ej: /game/ID..." />
                     </div>
                     <div className="form-group">
-                        <label>Imagen 1200x300, 150kb</label>
+                        <label>Imagen Recomendada: 1000x360 (Foco al centro)</label>
                         <input type="file" onChange={handleImageUpload} disabled={uploadingImage} />
                         {formData.image && <img src={formData.image} style={{ width: '100px', marginTop: '10px', borderRadius: '8px' }} alt="Preview" />}
                     </div>
