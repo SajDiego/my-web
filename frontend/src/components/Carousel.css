@@ -98,16 +98,17 @@
 
 @media (max-width: 768px) {
   .carousel {
-    height: 220px;
+    height: 120px;
     margin-bottom: 20px;
-    --slide-width: 90%;
-    --slide-offset: 5%;
-    /* (100% - 90%) / 2 */
+    --slide-width: 92%;
+    --slide-offset: 4%;
   }
 
   .carousel-slide {
     padding-left: 20px;
-    height: 95%;
+    height: 98%;
+    background-size: cover;
+    background-position: center center;
   }
 
   .carousel-title {
