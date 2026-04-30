@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { storage } from '../firebase';
 import './AdminDashboard.css';
 import './AdminProducts.css';
 
@@ -17,6 +19,8 @@ function AdminProducts() {
         juego: '',
         imagenUrl: '',
         categoria: 'TopUp',
+        isBestSeller: false,
+        isNewRelease: false,
         descripcion: '',
         infoExtra: '',
         camposEntrega: [{ label: 'UID del Jugador', tipo: 'text', requerido: true, placeholder: 'Ingresa tu UID', opciones: '' }],
@@ -47,6 +51,8 @@ function AdminProducts() {
                 juego: prod.juego,
                 imagenUrl: prod.imagenUrl,
                 categoria: prod.categoria || 'TopUp',
+                isBestSeller: prod.isBestSeller || false,
+                isNewRelease: prod.isNewRelease || false,
                 descripcion: prod.descripcion || '',
                 infoExtra: prod.infoExtra || '',
                 camposEntrega: prod.camposEntrega.map(c => ({
@@ -62,6 +68,8 @@ function AdminProducts() {
                 juego: '',
                 imagenUrl: '',
                 categoria: 'TopUp',
+                isBestSeller: false,
+                isNewRelease: false,
                 descripcion: '',
                 infoExtra: '',
                 camposEntrega: [{ label: 'UID del Jugador', tipo: 'text', requerido: true, placeholder: 'Ingresa tu UID', opciones: '' }],
@@ -77,20 +85,15 @@ function AdminProducts() {
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         setUploadingImage(true);
-        const data = new FormData();
-        data.append('file', file);
-        data.append('upload_preset', 'gamepin_preset'); // Usamos preset genérico o el que tengas
-
         try {
-            // Nota: Aquí podrías usar Firebase o Cloudinary. 
-            // Si no tienes configurado Cloudinary, esto fallará. 
-            // El usuario suele pegar la URL manual de Firebase.
-            // Dejaré el campo manual como prioridad.
-            setUploadingImage(false);
+            const fileRef = ref(storage, `products/${Date.now()}_${file.name}`);
+            await uploadBytes(fileRef, file);
+            const url = await getDownloadURL(fileRef);
+            setFormData(prev => ({ ...prev, imagenUrl: url }));
         } catch (err) {
             setError('Error al subir imagen');
+        } finally {
             setUploadingImage(false);
         }
     };
@@ -130,21 +133,21 @@ function AdminProducts() {
         const pkgToDuplicate = { ...formData.paquetes[index] };
         const newPaquetes = [...formData.paquetes];
         newPaquetes.splice(index + 1, 0, pkgToDuplicate);
-        setFormData({ 
-            ...formData, 
-            paquetes: newPaquetes 
+        setFormData({
+            ...formData,
+            paquetes: newPaquetes
         });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const formattedFormData = {
             ...formData,
             camposEntrega: formData.camposEntrega.map(c => ({
                 ...c,
-                opciones: c.tipo === 'select' 
-                    ? c.opciones.split(',').map(opt => opt.trim()).filter(opt => opt !== '') 
+                opciones: c.tipo === 'select'
+                    ? c.opciones.split(',').map(opt => opt.trim()).filter(opt => opt !== '')
                     : []
             }))
         };
@@ -177,7 +180,24 @@ function AdminProducts() {
     const handleDelete = async (id) => {
         if (!window.confirm('¿Estás seguro de eliminar este juego?')) return;
 
+        const productoABorrar = productos.find(p => p._id === id);
+
         try {
+            // 1. Intentar borrar la imagen de Firebase si existe
+            if (productoABorrar && productoABorrar.imagenUrl) {
+                try {
+                    // Solo intentar borrar si la URL es de Firebase (contiene firebasestorage)
+                    if (productoABorrar.imagenUrl.includes('firebasestorage.googleapis.com')) {
+                        const imageRef = ref(storage, productoABorrar.imagenUrl);
+                        await deleteObject(imageRef);
+                    }
+                } catch (storageError) {
+                    console.error("Error al borrar imagen de Storage:", storageError);
+                    // Continuamos para borrar el registro de la DB
+                }
+            }
+
+            // 2. Borrar el registro de la DB
             const res = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
                 method: 'DELETE',
                 headers: {
@@ -187,9 +207,12 @@ function AdminProducts() {
 
             if (res.ok) {
                 fetchProductos();
+            } else {
+                const data = await res.json();
+                setError(data.error || 'Error al eliminar');
             }
         } catch (err) {
-            setError('Error al eliminar');
+            setError('Error de conexión al eliminar');
         }
     };
 
@@ -198,7 +221,7 @@ function AdminProducts() {
     return (
         <div className="admin-container">
             <h1 className="section-title">Gestión de Productos</h1>
-            
+
             <div className="admin-menu card-glass" style={{ margin: '20px 0', padding: '15px' }}>
                 <div className="admin-nav-group">
                     <button className="btn-nav" onClick={() => navigate('/gp-admin-panel')}>Órdenes</button>
@@ -231,11 +254,11 @@ function AdminProducts() {
                         <form onSubmit={handleSubmit} className="auth-form">
                             <div className="form-group">
                                 <label>Nombre del Juego</label>
-                                <input 
-                                    type="text" 
-                                    value={formData.juego} 
-                                    onChange={(e) => setFormData({...formData, juego: e.target.value})} 
-                                    required 
+                                <input
+                                    type="text"
+                                    value={formData.juego}
+                                    onChange={(e) => setFormData({ ...formData, juego: e.target.value })}
+                                    required
                                 />
                             </div>
                             <div className="packages-header" style={{ marginTop: '1rem' }}>
@@ -288,9 +311,9 @@ function AdminProducts() {
                             ))}
                             <div className="form-group">
                                 <label>Categoría</label>
-                                <select 
-                                    value={formData.categoria} 
-                                    onChange={(e) => setFormData({...formData, categoria: e.target.value})}
+                                <select
+                                    value={formData.categoria}
+                                    onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
                                     className="admin-form-textarea"
                                     style={{ minHeight: 'auto', padding: '10px' }}
                                 >
@@ -300,31 +323,41 @@ function AdminProducts() {
                                     <option value="Consolas">Consolas</option>
                                 </select>
                             </div>
+                            <div className="form-group" style={{ display: 'flex', gap: '20px', marginTop: '10px', marginBottom: '15px' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '8px' }}>
+                                    <input type="checkbox" checked={formData.isBestSeller} onChange={(e) => setFormData({ ...formData, isBestSeller: e.target.checked })} />
+                                    ⭐ Más Vendido
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '8px' }}>
+                                    <input type="checkbox" checked={formData.isNewRelease} onChange={(e) => setFormData({ ...formData, isNewRelease: e.target.checked })} />
+                                    🔥 Nuevo Lanzamiento
+                                </label>
+                            </div>
                             <div className="form-group">
                                 <label>Descripción general</label>
-                                <textarea 
+                                <textarea
                                     className="admin-form-textarea"
                                     value={formData.descripcion}
-                                    onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                                 />
                             </div>
                             <div className="form-group">
                                 <label>Mensaje / Info Extra (Ej: Notas de la región)</label>
-                                <textarea 
+                                <textarea
                                     className="admin-form-textarea"
                                     placeholder="⚠️ Este juego tiene restricciones en ciertos países..."
                                     value={formData.infoExtra}
-                                    onChange={(e) => setFormData({...formData, infoExtra: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, infoExtra: e.target.value })}
                                 />
                             </div>
                             <div className="form-group">
                                 <label>Imagen (Firebase)</label>
                                 <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     placeholder="O ingresa URL manual"
-                                    value={formData.imagenUrl} 
-                                    onChange={(e) => setFormData({...formData, imagenUrl: e.target.value})} 
+                                    value={formData.imagenUrl}
+                                    onChange={(e) => setFormData({ ...formData, imagenUrl: e.target.value })}
                                 />
                                 {formData.imagenUrl && (
                                     <div className="preview-container">
@@ -333,11 +366,11 @@ function AdminProducts() {
                                 )}
                             </div>
 
-                             <div className="packages-header" style={{ marginTop: '20px' }}>
-                                 <h3>Descripciones por Región</h3>
-                                 <div className="region-tabs" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '10px' }}>
+                            <div className="packages-header" style={{ marginTop: '20px' }}>
+                                <h3>Descripciones por Región</h3>
+                                <div className="region-tabs" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '10px' }}>
                                     {['Todas', ...new Set(formData.paquetes.map(p => p.region || 'Global'))].map(reg => (
-                                        <button 
+                                        <button
                                             key={reg}
                                             type="button"
                                             className={`btn-nav ${regionFilter === reg ? 'active-admin' : ''}`}
@@ -347,36 +380,36 @@ function AdminProducts() {
                                             {reg}
                                         </button>
                                     ))}
-                                 </div>
-                             </div>
-                             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px', marginTop: '5px' }}>
-                                 Información que verá el cliente al seleccionar la región.
-                             </p>
-                             {[...new Set(formData.paquetes.map(p => p.region || 'Global'))]
+                                </div>
+                            </div>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px', marginTop: '5px' }}>
+                                Información que verá el cliente al seleccionar la región.
+                            </p>
+                            {[...new Set(formData.paquetes.map(p => p.region || 'Global'))]
                                 .filter(reg => regionFilter === 'Todas' || regionFilter === reg)
                                 .map(reg => (
-                                 <div key={reg} className="form-group" style={{ marginBottom: '10px' }}>
-                                     <label style={{ fontSize: '0.85rem' }}>Descripción para Región: <strong>{reg}</strong></label>
-                                     <textarea
-                                         className="admin-form-textarea"
-                                         style={{ minHeight: '60px' }}
-                                         placeholder={`Información específica para ${reg}...`}
-                                         value={formData.descripcionesRegionales?.[reg] || ''}
-                                         onChange={(e) => setFormData({
-                                             ...formData,
-                                             descripcionesRegionales: {
-                                                 ...formData.descripcionesRegionales,
-                                                 [reg]: e.target.value
-                                             }
-                                         })}
-                                     />
-                                 </div>
-                             ))}
+                                    <div key={reg} className="form-group" style={{ marginBottom: '10px' }}>
+                                        <label style={{ fontSize: '0.85rem' }}>Descripción para Región: <strong>{reg}</strong></label>
+                                        <textarea
+                                            className="admin-form-textarea"
+                                            style={{ minHeight: '60px' }}
+                                            placeholder={`Información específica para ${reg}...`}
+                                            value={formData.descripcionesRegionales?.[reg] || ''}
+                                            onChange={(e) => setFormData({
+                                                ...formData,
+                                                descripcionesRegionales: {
+                                                    ...formData.descripcionesRegionales,
+                                                    [reg]: e.target.value
+                                                }
+                                            })}
+                                        />
+                                    </div>
+                                ))}
 
-                             <div className="packages-header">
-                                 <h3>Paquetes / Precios</h3>
-                                 <button type="button" className="btn-action" onClick={handleAddPackage}>+ Añadir</button>
-                             </div>
+                            <div className="packages-header">
+                                <h3>Paquetes / Precios</h3>
+                                <button type="button" className="btn-action" onClick={handleAddPackage}>+ Añadir</button>
+                            </div>
 
                             <div style={{ maxHeight: '400px', overflowY: 'auto', marginTop: '10px', paddingRight: '5px' }}>
                                 {formData.paquetes.map((pkg, idx) => {
@@ -384,16 +417,16 @@ function AdminProducts() {
                                     return (
                                         <div key={idx} className="package-input-row-block" style={{ marginBottom: '15px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', borderLeft: '3px solid var(--accent)' }}>
                                             <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                                                <input style={{flex: 1}} placeholder="Nombre" value={pkg.nombre} onChange={(e) => handlePackageChange(idx, 'nombre', e.target.value)} required />
+                                                <input style={{ flex: 1 }} placeholder="Nombre" value={pkg.nombre} onChange={(e) => handlePackageChange(idx, 'nombre', e.target.value)} required />
                                                 <button type="button" className="btn-action" style={{ background: 'var(--accent)', color: 'white' }} onClick={() => handleDuplicatePackage(idx)} title="Duplicar Paquete">📑</button>
                                                 <button type="button" className="btn-action btn-cancel" onClick={() => handleRemovePackage(idx)} title="Eliminar Paquete">X</button>
                                             </div>
                                             <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                                                <input style={{flex: 1}} placeholder="Bono" value={pkg.bonoDetalle} onChange={(e) => handlePackageChange(idx, 'bonoDetalle', e.target.value)} />
-                                                <input style={{width: '90px'}} placeholder="Región" value={pkg.region} onChange={(e) => handlePackageChange(idx, 'region', e.target.value)} />
-                                                <input style={{width: '70px'}} placeholder="Stock" type="number" value={pkg.stock} onChange={(e) => handlePackageChange(idx, 'stock', e.target.value === '' ? '' : Number(e.target.value))} title="Vacío = ilimitado" />
-                                                <input style={{width: '90px'}} placeholder="$ ARS" type="number" value={pkg.precioARS} onChange={(e) => handlePackageChange(idx, 'precioARS', e.target.value)} required />
-                                                <input style={{width: '90px'}} placeholder="U$D" type="number" step="0.01" value={pkg.precioUSD} onChange={(e) => handlePackageChange(idx, 'precioUSD', e.target.value)} required />
+                                                <input style={{ flex: 1 }} placeholder="Bono" value={pkg.bonoDetalle} onChange={(e) => handlePackageChange(idx, 'bonoDetalle', e.target.value)} />
+                                                <input style={{ width: '90px' }} placeholder="Región" value={pkg.region} onChange={(e) => handlePackageChange(idx, 'region', e.target.value)} />
+                                                <input style={{ width: '70px' }} placeholder="Stock" type="number" value={pkg.stock} onChange={(e) => handlePackageChange(idx, 'stock', e.target.value === '' ? '' : Number(e.target.value))} title="Vacío = ilimitado" />
+                                                <input style={{ width: '90px' }} placeholder="$ ARS" type="number" value={pkg.precioARS} onChange={(e) => handlePackageChange(idx, 'precioARS', e.target.value)} required />
+                                                <input style={{ width: '90px' }} placeholder="U$D" type="number" step="0.01" value={pkg.precioUSD} onChange={(e) => handlePackageChange(idx, 'precioUSD', e.target.value)} required />
                                             </div>
                                         </div>
                                     );

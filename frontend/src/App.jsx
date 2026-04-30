@@ -6,6 +6,7 @@ import WhatsappButton from './components/WhatsappButton';
 import ScrollToTop from './components/ScrollToTop';
 import AdminRoute from './components/AdminRoute';
 import Home from './pages/Home';
+import Catalog from './pages/Catalog';
 import Login from './pages/Login';
 import GameDetail from './pages/GameDetail';
 import Cart from './pages/Cart';
@@ -21,7 +22,6 @@ import AboutUs from './pages/AboutUs';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import './index.css';
-import './App.css';
 
 function App() {
   const [usuario, setUsuario] = useState(null);
@@ -47,6 +47,7 @@ function App() {
         <div className="content-wrapper">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/catalogo" element={<Catalog />} />
             <Route path="/login" element={<Login onLoginSuccess={(u) => setUsuario(u)} />} />
             <Route path="/game/:id" element={<GameDetail />} />
             <Route path="/cart" element={<Cart />} />

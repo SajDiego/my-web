@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { storage } from '../firebase';
 import './AdminProducts.css';
 
@@ -73,14 +73,35 @@ function AdminBanners() {
 
     const handleDelete = async (id) => {
         if (!window.confirm('¿Eliminar este banner?')) return;
+        
+        const bannerABorrar = banners.find(b => b._id === id);
+        
         try {
+            // 1. Intentar borrar la imagen de Firebase si existe
+            if (bannerABorrar && bannerABorrar.image) {
+                try {
+                    const imageRef = ref(storage, bannerABorrar.image);
+                    await deleteObject(imageRef);
+                } catch (storageError) {
+                    console.error("Error al borrar imagen de Storage (posiblemente ya no existe):", storageError);
+                    // Continuamos para borrar el registro de la DB aunque la imagen falle
+                }
+            }
+
+            // 2. Borrar el registro de la base de datos
             const res = await fetch(`${import.meta.env.VITE_API_URL}/banners/${id}`, {
                 method: 'DELETE',
                 headers: { 'x-auth-token': localStorage.getItem('token') }
             });
-            if (res.ok) fetchBanners();
+
+            if (res.ok) {
+                fetchBanners();
+            } else {
+                const data = await res.json();
+                setError(data.error || 'Error al eliminar registro');
+            }
         } catch (err) {
-            setError('Error al eliminar');
+            setError('Error de conexión al eliminar');
         }
     };
 

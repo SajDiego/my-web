@@ -58,43 +58,31 @@
     margin: 0;
 }
 
-.categories-bar {
+.games-horizontal-scroll {
     display: flex;
-    gap: 12px;
-    margin-bottom: 30px;
-    padding: 5px 0;
+    gap: 20px;
     overflow-x: auto;
-    scrollbar-width: none;
+    padding-bottom: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) rgba(255, 255, 255, 0.05);
 }
 
-.categories-bar::-webkit-scrollbar {
-    display: none;
+.games-horizontal-scroll::-webkit-scrollbar {
+    height: 8px;
 }
 
-.category-chip {
-    padding: 10px 24px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 99px;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.games-horizontal-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
 }
 
-.category-chip:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #fff;
-}
-
-.category-chip.active {
+.games-horizontal-scroll::-webkit-scrollbar-thumb {
     background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-    box-shadow: 0 0 20px rgba(109, 40, 217, 0.3);
+    border-radius: 4px;
+}
+
+.games-horizontal-scroll .game-card {
+    flex: 0 0 160px;
 }
 
 @media (max-width: 768px) {
@@ -106,13 +94,7 @@
         padding: 0.6rem;
         font-size: 0.75rem;
     }
-    .categories-bar {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 6px;
-    }
-    .category-chip {
-        padding: 6px 14px;
-        font-size: 0.75rem;
+    .games-horizontal-scroll .game-card {
+        flex: 0 0 110px;
     }
 }

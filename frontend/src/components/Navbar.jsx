@@ -38,6 +38,7 @@ function Navbar({ usuario, onLogout }) {
                 <div className={`navbar-collapse ${isMobileMenuOpen ? 'open' : ''}`}>
                     <nav className="navbar-links">
                         <Link to="/" onClick={closeMenu}>Inicio</Link>
+                        <Link to="/catalogo" onClick={closeMenu}>Catálogo</Link>
                         <Link to="/cart" className="navbar-cart-link desktop-only" onClick={closeMenu}>
                             <FiShoppingCart size={22} />
                             {carrito.length > 0 && (

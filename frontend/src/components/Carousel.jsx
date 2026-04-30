@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './Carousel.css';
 
 function Carousel() {
   const [slides, setSlides] = useState([]);
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(true);
+  const trackRef = useRef(null);
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -31,7 +32,6 @@ function Carousel() {
 
   if (loading) return null;
 
-  // Si no hay banners, mostramos uno por defecto (CSS puro, cero datos de imagen)
   const displaySlides = slides.length > 0 ? slides : [{
     _id: 'fallback',
     title: 'BIENVENIDOS A GAMEPIN',
@@ -40,34 +40,50 @@ function Carousel() {
     isFallback: true
   }];
 
+  // Calculamos el offset para centrar el slide activo
+  // Cada slide ocupa el 85% del ancho del contenedor (definido en CSS)
+  // El espacio lateral sobrante es (100% - 85%) / 2 = 7.5%
+  const slideWidth = 85; 
+  const offset = 7.5 - (current * slideWidth);
+
   return (
     <div className="carousel">
-      {displaySlides.map((slide, index) => (
-        <div
-          key={slide._id || slide.id}
-          className={`carousel-slide ${index === current ? 'active' : ''}`}
-          style={{
-            backgroundImage: slide.isFallback
-              ? `linear-gradient(135deg, #18181b 0%, #6d28d9 100%)`
-              : `linear-gradient(45deg, rgba(9, 9, 11, 0.9), rgba(9, 9, 11, 0.2)), url(${slide.image})`,
-            borderColor: slide.color || '#6d28d9'
-          }}
-        >
-          <div className="carousel-content">
-            {slide.title && <h2 className="carousel-title">{slide.title}</h2>}
-            {slide.subtitle && <p className="carousel-subtitle">{slide.subtitle}</p>}
-            {slide.link && (
-              <button
-                className="btn-select"
-                style={{ width: 'auto', padding: '10px 24px' }}
-                onClick={() => window.location.href = slide.link}
-              >
-                Ver más
-              </button>
-            )}
+      <div 
+        className="carousel-track" 
+        style={{ transform: `translateX(${offset}%)` }}
+      >
+        {displaySlides.map((slide, index) => (
+          <div
+            key={slide._id || slide.id}
+            className={`carousel-slide ${index === current ? 'active' : ''}`}
+            onClick={() => setCurrent(index)}
+            style={{
+              backgroundImage: slide.isFallback
+                ? `linear-gradient(135deg, #18181b 0%, #6d28d9 100%)`
+                : `linear-gradient(45deg, rgba(9, 9, 11, 0.8), rgba(9, 9, 11, 0.2)), url(${slide.image})`,
+              borderColor: slide.color || '#6d28d9'
+            }}
+          >
+            <div className="carousel-content">
+              {slide.title && <h2 className="carousel-title">{slide.title}</h2>}
+              {slide.subtitle && <p className="carousel-subtitle">{slide.subtitle}</p>}
+              {slide.link && (
+                <button
+                  className="btn-select"
+                  style={{ width: 'auto', padding: '10px 24px' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = slide.link;
+                  }}
+                >
+                  Ver más
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      
       {slides.length > 1 && (
         <div className="carousel-dots">
           {slides.map((_, index) => (

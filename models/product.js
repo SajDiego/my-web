@@ -31,6 +31,8 @@ const productSchema = new mongoose.Schema({
         enum: ['TopUp', 'Pines', 'PC', 'Consolas'],
         default: 'TopUp'
     },
+    isBestSeller: { type: Boolean, default: false },
+    isNewRelease: { type: Boolean, default: false },
     fechaCreacion: { type: Date, default: Date.now }
 });
 

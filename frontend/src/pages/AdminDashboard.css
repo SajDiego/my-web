@@ -8,11 +8,6 @@
     gap: 20px;
 }
 
-.order-number {
-    font-weight: bold;
-    color: var(--accent);
-}
-
 .order-actions-cell {
     display: flex;
     gap: 8px;
@@ -43,33 +38,6 @@
     background-color: rgba(255, 255, 255, 0.02);
 }
 
-.status-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-align: center;
-    display: inline-block;
-}
-
-.status-pendiente {
-    background-color: rgba(245, 158, 11, 0.2);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.5);
-}
-
-.status-completada {
-    background-color: rgba(16, 185, 129, 0.2);
-    color: #34d399;
-    border: 1px solid rgba(16, 185, 129, 0.5);
-}
-
-.status-cancelada {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.5);
-}
-
 @media (max-width: 768px) {
     .admin-menu-tabs {
         flex-direction: column;
@@ -87,11 +55,6 @@
 
     .admin-table th {
         font-size: 0.75rem;
-    }
-
-    .status-badge {
-        font-size: 0.7rem;
-        padding: 4px 8px;
     }
 
     .order-actions-cell {

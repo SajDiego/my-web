@@ -9,8 +9,6 @@ function Home() {
     const [cargando, setCargando] = useState(true);
     const navigate = useNavigate();
 
-    const categoriasVisibles = ['TopUp', 'Pines', 'PC', 'Consolas'];
-
     useEffect(() => {
         const obtenerCatalogo = async () => {
             try {
@@ -26,10 +24,6 @@ function Home() {
         obtenerCatalogo();
     }, []);
 
-    const getProductosPorCategoria = (nombreCategoria) => {
-        return productos.filter(p => p.categoria === nombreCategoria);
-    };
-
     if (cargando) {
         return (
             <div className="main-content">
@@ -38,14 +32,8 @@ function Home() {
         );
     }
 
-    const scrollToSection = (cat) => {
-        const el = document.getElementById(`section-${cat}`);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-
-    const categoriasConProductos = categoriasVisibles.filter(
-        cat => getProductosPorCategoria(cat).length > 0
-    );
+    const masVendidos = productos.filter(p => p.isBestSeller);
+    const nuevosLanzamientos = productos.filter(p => p.isNewRelease);
 
     return (
         <div className="home-container">
@@ -55,59 +43,50 @@ function Home() {
             </Helmet>
             <Carousel />
 
-            {categoriasConProductos.length > 0 && (
-                <div className="categories-bar">
-                    {categoriasConProductos.map(cat => (
-                        <button
-                            key={cat}
-                            className="category-chip"
-                            onClick={() => scrollToSection(cat)}
-                        >
-                            {cat}
-                        </button>
-                    ))}
-                </div>
-            )}
-
-            <div className="home-sections">
-                {categoriasVisibles.map(cat => {
-                    const productosSeccion = getProductosPorCategoria(cat);
-                    
-                    if (productosSeccion.length === 0) return null;
-
-                    return (
-                        <section key={cat} id={`section-${cat}`} className="category-section" style={{ marginBottom: '60px' }}>
-                            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-                                <h2 className="section-title" style={{ margin: 0 }}>{cat}</h2>
-                                <span className="cat-count" style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                                    {productosSeccion.length} {productosSeccion.length === 1 ? 'Producto' : 'Productos'}
-                                </span>
-                            </div>
-
-                            <div className="games-grid">
-                                {productosSeccion.map((juego) => (
-                                    <div
-                                        key={juego._id}
-                                        className="game-card"
-                                        onClick={() => navigate(`/game/${juego._id}`)}
-                                    >
-                                        <div className="game-card-img">
-                                            {juego.imagenUrl ? (
-                                                <img src={juego.imagenUrl} alt={juego.juego} loading="lazy" />
-                                            ) : (
-                                                <span className="game-card-placeholder">{juego.juego[0]}</span>
-                                            )}
-                                        </div>
-                                        <p className="game-card-name">{juego.juego}</p>
+            <div className="home-sections" style={{ marginTop: '40px' }}>
+                {masVendidos.length > 0 && (
+                    <section className="category-section" style={{ marginBottom: '60px' }}>
+                        <div className="section-header" style={{ marginBottom: '25px' }}>
+                            <h2 className="section-title" style={{ margin: 0, color: 'var(--accent)' }}>⭐ Más Vendidos</h2>
+                        </div>
+                        <div className="games-horizontal-scroll">
+                            {masVendidos.map((juego) => (
+                                <div key={juego._id} className="game-card" onClick={() => navigate(`/game/${juego._id}`)}>
+                                    <div className="game-card-img">
+                                        {juego.imagenUrl ? <img src={juego.imagenUrl} alt={juego.juego} loading="lazy" /> : <span className="game-card-placeholder">{juego.juego[0]}</span>}
                                     </div>
-                                ))}
-                            </div>
-                        </section>
-                    );
-                })}
+                                    <p className="game-card-name">{juego.juego}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
 
-                {productos.length === 0 && !cargando && (
-                    <p className="loading-text">No hay productos disponibles actualmente.</p>
+                {nuevosLanzamientos.length > 0 && (
+                    <section className="category-section" style={{ marginBottom: '60px' }}>
+                        <div className="section-header" style={{ marginBottom: '25px' }}>
+                            <h2 className="section-title" style={{ margin: 0, color: '#38bdf8' }}>🔥 Nuevos Lanzamientos</h2>
+                        </div>
+                        <div className="games-horizontal-scroll">
+                            {nuevosLanzamientos.map((juego) => (
+                                <div key={juego._id} className="game-card" onClick={() => navigate(`/game/${juego._id}`)}>
+                                    <div className="game-card-img">
+                                        {juego.imagenUrl ? <img src={juego.imagenUrl} alt={juego.juego} loading="lazy" /> : <span className="game-card-placeholder">{juego.juego[0]}</span>}
+                                    </div>
+                                    <p className="game-card-name">{juego.juego}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {masVendidos.length === 0 && nuevosLanzamientos.length === 0 && !cargando && (
+                    <div style={{ textAlign: 'center', padding: '40px' }}>
+                        <p className="loading-text">Explora nuestro catálogo completo.</p>
+                        <button className="btn-select" style={{ marginTop: '20px', width: 'auto', padding: '12px 30px' }} onClick={() => navigate('/catalogo')}>
+                            Ver Catálogo
+                        </button>
+                    </div>
                 )}
             </div>
         </div>

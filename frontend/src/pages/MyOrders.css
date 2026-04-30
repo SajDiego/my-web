@@ -21,11 +21,6 @@
     font-size: 1.2rem;
 }
 
-.order-status-wrapper {
-    margin-top: 10px;
-    font-size: 0.9rem;
-}
-
 .order-divider {
     opacity: 0.1;
     margin: 1.2rem 0;
@@ -40,9 +35,4 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 15px;
-}
-
-.order-detail-item {
-    display: flex;
-    gap: 5px;
 }

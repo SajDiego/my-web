@@ -4,7 +4,7 @@ import { FiTrash2 } from 'react-icons/fi';
 import './Cart.css';
 
 function Cart() {
-    const { carrito, eliminarDelCarrito, convertirPrecio, totalCarrito, moneda } = useCart();
+    const { carrito, eliminarDelCarrito, totalCarrito, moneda } = useCart();
     const navigate = useNavigate();
 
     if (carrito.length === 0) {
