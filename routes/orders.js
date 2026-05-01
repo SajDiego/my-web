@@ -7,12 +7,13 @@ const Product = require('../models/product');
 const Counter = require('../models/counter');
 const User = require('../models/user');
 const { enviarEmailAdmin, enviarEmailCliente, enviarEmailOrdenCompletada } = require('../utils/emailService');
+const { enviarNotificacionTelegram } = require('../utils/telegram');
 
 async function getNextSequenceValue(sequenceName) {
     const sequenceDocument = await Counter.findOneAndUpdate(
         { id: sequenceName },
         { $inc: { seq: 1 } },
-        { new: true, upsert: true }
+        { returnDocument: 'after', upsert: true }
     );
     return sequenceDocument.seq;
 }
@@ -87,6 +88,16 @@ async function procesarCreacionOrden(datos, usuarioReq = null) {
             if (emailCliente) promesas.push(enviarEmailCliente(nuevaOrden, emailCliente));
             await Promise.all(promesas);
         }
+
+        const nombreCliente = infoUsuarioAdmin.nombre || 'Desconocido';
+        
+        let detallesJuego = '';
+        if (configOrden.uidJugador) detallesJuego += `\n🆔 <b>ID Jugador:</b> ${configOrden.uidJugador}`;
+        if (configOrden.regionJugador) detallesJuego += `\n🌍 <b>Servidor:</b> ${configOrden.regionJugador}`;
+
+        const msgTelegram = `🔔 <b>¡Nueva Orden #${numeroOrden}!</b>\n\n🎮 <b>Juego:</b> ${configOrden.juegoNombre}\n📦 <b>Paquete:</b> ${configOrden.paqueteElegido}${detallesJuego}\n💰 <b>Monto:</b> $${configOrden.precioFinal} ${configOrden.moneda}\n👤 <b>Cliente:</b> ${nombreCliente}\n💳 <b>Pago:</b> ${configOrden.metodoPago}`;
+        enviarNotificacionTelegram(msgTelegram);
+
     } catch (mailErr) {
         console.error("Error envío correos:", mailErr);
     }

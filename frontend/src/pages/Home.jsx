@@ -32,8 +32,8 @@ function Home() {
         );
     }
 
-    const masVendidos = productos.filter(p => p.isBestSeller);
-    const nuevosLanzamientos = productos.filter(p => p.isNewRelease);
+    const masVendidos = productos.filter(p => p.isBestSeller).slice(0, 4);
+    const nuevosLanzamientos = productos.filter(p => p.isNewRelease).slice(0, 4);
 
     return (
         <div className="home-container">
@@ -58,6 +58,13 @@ function Home() {
                                     <p className="game-card-name">{juego.juego}</p>
                                 </div>
                             ))}
+                            {/* 5ta tarjeta: Ver catálogo */}
+                            <div className="game-card view-all-card" onClick={() => navigate('/catalogo')}>
+                                <div className="game-card-img view-all-img">
+                                    <span className="view-all-icon">→</span>
+                                </div>
+                                <p className="game-card-name" style={{ color: 'var(--accent)' }}>Ver Catálogo</p>
+                            </div>
                         </div>
                     </section>
                 )}
@@ -76,18 +83,17 @@ function Home() {
                                     <p className="game-card-name">{juego.juego}</p>
                                 </div>
                             ))}
+                            {/*  tarjeta: Ver catálogo */}
+                            <div className="game-card view-all-card" onClick={() => navigate('/catalogo')}>
+                                <div className="game-card-img view-all-img">
+                                    <span className="view-all-icon">→</span>
+                                </div>
+                                <p className="game-card-name" style={{ color: '#38bdf8' }}>Ver Catálogo</p>
+                            </div>
                         </div>
                     </section>
                 )}
 
-                {masVendidos.length === 0 && nuevosLanzamientos.length === 0 && !cargando && (
-                    <div style={{ textAlign: 'center', padding: '40px' }}>
-                        <p className="loading-text">Explora nuestro catálogo completo.</p>
-                        <button className="btn-select" style={{ marginTop: '20px', width: 'auto', padding: '12px 30px' }} onClick={() => navigate('/catalogo')}>
-                            Ver Catálogo
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
     );

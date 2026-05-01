@@ -9,7 +9,7 @@ export const bankAccounts = [
         banco: 'AstroPay',
         numero: '0000177500092064038112',
         tipo: 'CVU',
-        alias: 'integralpro.cr',
+        alias: 'gamepin.ar',
         titular: 'Diego Fernando Saj'
     },
     {

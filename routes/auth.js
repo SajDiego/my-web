@@ -92,7 +92,7 @@ router.put('/perfil', auth, async (req, res) => {
         const usuario = await User.findByIdAndUpdate(
             req.usuario.id,
             { $set: updates },
-            { new: true, runValidators: true }
+            { returnDocument: 'after', runValidators: true }
         ).select('-password');
 
         res.json(usuario);

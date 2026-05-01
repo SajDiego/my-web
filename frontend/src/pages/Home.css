@@ -85,6 +85,33 @@
     flex: 0 0 160px;
 }
 
+.view-all-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(109, 40, 217, 0.05);
+}
+
+.view-all-img {
+    background: transparent;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    margin: auto;
+    margin-top: 30px;
+}
+
+.view-all-icon {
+    font-size: 2rem;
+    color: var(--accent);
+}
+
+.game-card.view-all-card:hover .view-all-img {
+    border-color: var(--accent);
+    background: rgba(109, 40, 217, 0.2);
+}
+
 @media (max-width: 768px) {
     .games-grid {
         grid-template-columns: repeat(4, 1fr);
