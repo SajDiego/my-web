@@ -3,7 +3,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
 const { apiLimiter } = require('./middleware/rateLimit');
 
 const app = express();
@@ -27,7 +26,6 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
-app.use(mongoSanitize());
 app.use('/api/', apiLimiter);
 
 mongoose.connect(process.env.MONGO_URI, {
