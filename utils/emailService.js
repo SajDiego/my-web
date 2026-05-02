@@ -22,7 +22,10 @@ const enviarEmailAdmin = async (orden, clienteInfo) => {
                 <hr style="border: 0; border-top: 1px solid #eee;">
                 <p><strong>Juego:</strong> ${orden.juegoNombre}</p>
                 <p><strong>Paquete:</strong> ${orden.paqueteElegido}</p>
-                <p><strong>ID Jugador:</strong> ${orden.uidJugador}</p>
+                ${orden.datosEntrega && Object.keys(orden.datosEntrega).length > 0
+                ? Object.entries(orden.datosEntrega).map(([key, val]) => `<p><strong>${key}:</strong> ${val}</p>`).join('')
+                : `<p><strong>ID Jugador:</strong> ${orden.uidJugador || 'No aplica'}</p>`
+            }
                 <p><strong>Método de Pago:</strong> ${orden.metodoPago}</p>
                 <p><strong>Total:</strong> ${orden.moneda} ${orden.precioFinal}</p>
                 <br>
@@ -52,7 +55,10 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
                 <p><strong>Detalles de tu compra:</strong></p>
                 <ul>
                     <li>Pack: ${orden.paqueteElegido}</li>
-                    <li>ID Jugador: ${orden.uidJugador}</li>
+                    ${orden.datosEntrega && Object.keys(orden.datosEntrega).length > 0
+                ? Object.entries(orden.datosEntrega).map(([key, val]) => `<li>${key}: ${val}</li>`).join('')
+                : `<li>ID Jugador: ${orden.uidJugador || 'No aplica'}</li>`
+            }
                     <li>Total: ${orden.moneda} ${orden.precioFinal}</li>
                     <li>Método elegido: ${orden.metodoPago}</li>
                 </ul>
@@ -64,7 +70,7 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
                     <div style="margin-bottom: 15px;">
                         <strong>Banca: AstroPay</strong><br>
                         CVU: 0000177500092064038112<br>
-                        Alias: integralpro.cr
+                        Alias: gamepin.ar
                     </div>
 
                     <div style="margin-bottom: 15px;">
@@ -116,7 +122,7 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
                     <h3 style="color: #009ee3; margin-top: 0;">Pago mediante QR</h3>
                     <p>Podés escanear el código QR que apareció al finalizar tu compra o utilizar los siguientes datos de transferencia si te resulta más cómodo:</p>
                     <div style="margin-top: 10px;">
-                        <strong>Alias:</strong> integralpro.cr<br>
+                        <strong>Alias:</strong> gamepin.ar<br>
                         <strong>CVU:</strong> 0000177500092064038112
                     </div>
                 </div>

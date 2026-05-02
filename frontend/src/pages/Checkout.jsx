@@ -117,8 +117,8 @@ function Checkout() {
 
                     <div className="form-group">
                         <label>WhatsApp</label>
-                        <input type="text" placeholder="+54 9 11 1234-5678" value={whatsapp}
-                            onChange={(e) => setWhatsapp(e.target.value)} required />
+                        <input type="tel" placeholder="+54 9 11 1234-5678" value={whatsapp}
+                            onChange={(e) => setWhatsapp(e.target.value.replace(/[^0-9+\s]/g, ''))} required />
                     </div>
 
                     <div className="form-group">

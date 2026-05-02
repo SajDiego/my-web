@@ -64,7 +64,6 @@ function GameDetail() {
         });
         setMensaje('¡Agregado al carrito!');
         setDatosEntrega({});
-        setPaqueteSeleccionado(null);
     };
 
     if (cargando) return <div className="main-content"><p className="loading-text">Cargando...</p></div>;
@@ -187,12 +186,21 @@ function GameDetail() {
                             )}
 
                             {mensaje && (
-                                <p className={mensaje.includes('!') ? 'order-success fade-in' : 'error-msg fade-in'}>{mensaje}</p>
+                                <div className={mensaje.includes('!') ? 'order-success fade-in' : 'error-msg fade-in'} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+                                    <span>{mensaje}</span>
+                                    {mensaje.includes('!') && (
+                                        <button type="button" className="btn-select" style={{ background: '#22c55e', color: '#fff', width: 'auto', padding: '10px 25px', fontSize: '1rem', fontWeight: 'bold' }} onClick={() => navigate('/cart')}>
+                                            Ir al Carrito 🛒
+                                        </button>
+                                    )}
+                                </div>
                             )}
 
-                            <button type="submit" className="btn-select btn-minimal-submit">
-                                Agregar • {moneda === 'USD' ? `U$D ${Number(paqueteSeleccionado.precioUSD).toFixed(2)}` : `$ ${paqueteSeleccionado.precioARS}`}
-                            </button>
+                            {(!mensaje || !mensaje.includes('!')) && (
+                                <button type="submit" className="btn-select btn-minimal-submit">
+                                    Agregar • {moneda === 'USD' ? `U$D ${Number(paqueteSeleccionado.precioUSD).toFixed(2)}` : `$ ${paqueteSeleccionado.precioARS}`}
+                                </button>
+                            )}
 
                             {paqueteSeleccionado.bonoDetalle && (
                                 <div className="pack-badge fade-in" style={{ width: 'fit-content', margin: '15px auto 10px', fontSize: '0.85rem' }}>

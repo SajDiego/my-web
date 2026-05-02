@@ -92,8 +92,14 @@ async function procesarCreacionOrden(datos, usuarioReq = null) {
         const nombreCliente = infoUsuarioAdmin.nombre || 'Desconocido';
         
         let detallesJuego = '';
-        if (configOrden.uidJugador) detallesJuego += `\n🆔 <b>ID Jugador:</b> ${configOrden.uidJugador}`;
-        if (configOrden.regionJugador) detallesJuego += `\n🌍 <b>Servidor:</b> ${configOrden.regionJugador}`;
+        if (configOrden.datosEntrega && Object.keys(configOrden.datosEntrega).length > 0) {
+            for (const [key, value] of Object.entries(configOrden.datosEntrega)) {
+                detallesJuego += `\n🔹 <b>${key}:</b> ${value}`;
+            }
+        } else {
+            if (configOrden.uidJugador) detallesJuego += `\n🆔 <b>ID Jugador:</b> ${configOrden.uidJugador}`;
+            if (configOrden.regionJugador) detallesJuego += `\n🌍 <b>Servidor:</b> ${configOrden.regionJugador}`;
+        }
 
         const msgTelegram = `🔔 <b>¡Nueva Orden #${numeroOrden}!</b>\n\n🎮 <b>Juego:</b> ${configOrden.juegoNombre}\n📦 <b>Paquete:</b> ${configOrden.paqueteElegido}${detallesJuego}\n💰 <b>Monto:</b> $${configOrden.precioFinal} ${configOrden.moneda}\n👤 <b>Cliente:</b> ${nombreCliente}\n💳 <b>Pago:</b> ${configOrden.metodoPago}`;
         enviarNotificacionTelegram(msgTelegram);
