@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 
@@ -47,6 +48,9 @@ function AdminDashboard() {
 
     return (
         <div className="admin-dashboard-container">
+            <Helmet>
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <h1 className="home-title">Panel de Administración</h1>
 
             <div className="admin-menu-tabs card-glass" style={{ margin: '20px 0', padding: '15px' }}>

@@ -4,6 +4,7 @@ Allow: /
 # Bloquear rutas de administración
 Disallow: /gp-admin-panel
 Disallow: /gp-admin-panel/*
+Disallow: /checkout
 
 # Sitemap (opcional pero recomendado)
 Sitemap: https://gamepin.top/sitemap.xml

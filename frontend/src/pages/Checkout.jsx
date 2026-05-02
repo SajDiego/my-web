@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useCart } from '../context/CartContext';
 import { metodosPorMoneda } from '../data/paymentConfig';
 import CheckoutSuccess from '../components/CheckoutSuccess';
@@ -80,6 +81,9 @@ function Checkout() {
 
     return (
         <div className="main-content">
+            <Helmet>
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <button className="btn-back" onClick={() => navigate('/cart')}>← Volver al Carrito</button>
             <h1 className="section-title">Finalizar Compra</h1>
 
