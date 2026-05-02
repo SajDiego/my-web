@@ -40,7 +40,7 @@ function Home() {
             <Helmet>
                 <title>GamePin Store - Recargas de Juegos y Gift Cards</title>
                 <meta name="description" content="La tienda más rápida para recargar diamantes, robux y pavos con entrega automática. ¡Explora nuestro catálogo!" />
-                <meta name="keywords" content="recargas free fire, diamantes free fire baratos, robux argentina, pavos fortnite, recargas de juegos, comprar gift cards, gamepin store" />
+                <meta name="keywords" content="recargas free fire, diamantes free fire baratos, robux argentina, recargas de juegos, free fire topup latam, gamepin store" />
             </Helmet>
             <Carousel />
 
