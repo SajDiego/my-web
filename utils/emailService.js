@@ -22,10 +22,14 @@ const enviarEmailAdmin = async (orden, clienteInfo) => {
                 <hr style="border: 0; border-top: 1px solid #eee;">
                 <p><strong>Juego:</strong> ${orden.juegoNombre}</p>
                 <p><strong>Paquete:</strong> ${orden.paqueteElegido}</p>
-                ${orden.datosEntrega && Object.keys(orden.datosEntrega).length > 0
-                ? Object.entries(orden.datosEntrega).map(([key, val]) => `<p><strong>${key}:</strong> ${val}</p>`).join('')
-                : `<p><strong>ID Jugador:</strong> ${orden.uidJugador || 'No aplica'}</p>`
-            }
+                ${(() => {
+                    const datos = orden.datosEntrega && typeof orden.datosEntrega.toJSON === 'function' 
+                        ? orden.datosEntrega.toJSON() 
+                        : orden.datosEntrega;
+                    return datos && Object.keys(datos).length > 0 
+                        ? Object.entries(datos).filter(([k]) => !k.startsWith('$')).map(([key, val]) => `<p><strong>${key}:</strong> ${val}</p>`).join('')
+                        : `<p><strong>ID Jugador:</strong> ${orden.uidJugador || 'No aplica'}</p>`;
+                })()}
                 <p><strong>Método de Pago:</strong> ${orden.metodoPago}</p>
                 <p><strong>Total:</strong> ${orden.moneda} ${orden.precioFinal}</p>
                 <br>
@@ -55,10 +59,14 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
                 <p><strong>Detalles de tu compra:</strong></p>
                 <ul>
                     <li>Pack: ${orden.paqueteElegido}</li>
-                    ${orden.datosEntrega && Object.keys(orden.datosEntrega).length > 0
-                ? Object.entries(orden.datosEntrega).map(([key, val]) => `<li>${key}: ${val}</li>`).join('')
-                : `<li>ID Jugador: ${orden.uidJugador || 'No aplica'}</li>`
-            }
+                    ${(() => {
+                        const datos = orden.datosEntrega && typeof orden.datosEntrega.toJSON === 'function' 
+                            ? orden.datosEntrega.toJSON() 
+                            : orden.datosEntrega;
+                        return datos && Object.keys(datos).length > 0 
+                            ? Object.entries(datos).filter(([k]) => !k.startsWith('$')).map(([key, val]) => `<li>${key}: ${val}</li>`).join('')
+                            : `<li>ID Jugador: ${orden.uidJugador || 'No aplica'}</li>`;
+                    })()}
                     <li>Total: ${orden.moneda} ${orden.precioFinal}</li>
                     <li>Método elegido: ${orden.metodoPago}</li>
                 </ul>
