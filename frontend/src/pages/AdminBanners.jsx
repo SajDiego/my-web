@@ -10,6 +10,11 @@ function AdminBanners() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [uploadingImage, setUploadingImage] = useState(false);
+
+    const [cupones, setCupones] = useState([]);
+    const [nuevoCodigo, setNuevoCodigo] = useState('');
+    const [nuevoDescuento, setNuevoDescuento] = useState('');
+    const [nuevoLimite, setNuevoLimite] = useState('');
     const [formData, setFormData] = useState({
         title: '',
         subtitle: '',
@@ -20,7 +25,51 @@ function AdminBanners() {
 
     useEffect(() => {
         fetchBanners();
+        fetchCupones();
     }, []);
+
+    const fetchCupones = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/coupons`, {
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
+            if (res.ok) setCupones(await res.json());
+        } catch (err) { console.error(err); }
+    };
+
+    const handleCrearCupon = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/coupons`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('token') },
+                body: JSON.stringify({ codigo: nuevoCodigo, descuentoPorcentaje: nuevoDescuento, usoMaximo: nuevoLimite || null })
+            });
+            if (res.ok) { setNuevoCodigo(''); setNuevoDescuento(''); setNuevoLimite(''); fetchCupones(); }
+            else { const d = await res.json(); alert(d.error || 'Error al crear'); }
+        } catch { alert('Error de conexión'); }
+    };
+
+    const handleEliminarCupon = async (id) => {
+        if (!window.confirm('¿Eliminar cupón?')) return;
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/coupons/${id}`, {
+                method: 'DELETE',
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
+            if (res.ok) fetchCupones();
+        } catch { alert('Error al eliminar'); }
+    };
+
+    const handleResetarCupon = async (id) => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/coupons/${id}/reset`, {
+                method: 'PATCH',
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
+            if (res.ok) fetchCupones();
+        } catch { alert('Error al resetear'); }
+    };
 
     const fetchBanners = async () => {
         try {
@@ -144,6 +193,48 @@ function AdminBanners() {
             </div>
 
             {error && <p className="error-msg">{error}</p>}
+
+
+            <div className="card-glass" style={{ padding: '20px', marginBottom: '30px' }}>
+                <h2 className="modal-title">Cupones de Descuento</h2>
+                <form onSubmit={handleCrearCupon} style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '20px' }}>
+                    <div className="form-group" style={{ flex: '1 1 160px', marginBottom: 0 }}>
+                        <label>Código</label>
+                        <input type="text" className="admin-form-input" placeholder="Ej: VERANO26" value={nuevoCodigo} onChange={(e) => setNuevoCodigo(e.target.value.toUpperCase().replace(/\s+/g, ''))} required />
+                    </div>
+                    <div className="form-group" style={{ flex: '0 1 100px', marginBottom: 0 }}>
+                        <label>% Descuento</label>
+                        <input type="number" className="admin-form-input" placeholder="15" min="1" max="100" value={nuevoDescuento} onChange={(e) => setNuevoDescuento(e.target.value)} required />
+                    </div>
+                    <div className="form-group" style={{ flex: '0 1 120px', marginBottom: 0 }}>
+                        <label>Límite de usos</label>
+                        <input type="number" className="admin-form-input" placeholder="20 (0 = ∞)" min="0" value={nuevoLimite} onChange={(e) => setNuevoLimite(e.target.value)} />
+                    </div>
+                    <button type="submit" className="btn-select" style={{ width: 'auto', padding: '10px 20px' }}>+ Crear</button>
+                </form>
+
+                <table className="admin-table">
+                    <thead><tr><th>Código</th><th>Descuento</th><th>Usos</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <tbody>
+                        {cupones.map(c => (
+                            <tr key={c._id}>
+                                <td><strong style={{ letterSpacing: '1px' }}>{c.codigo}</strong></td>
+                                <td>{c.descuentoPorcentaje}%</td>
+                                <td>
+                                    <span style={{ fontWeight: 'bold' }}>{c.usoActual || 0}</span>
+                                    <span style={{ opacity: 0.6 }}> / {c.usoMaximo ?? '∞'}</span>
+                                </td>
+                                <td>{c.activo ? <span style={{ color: '#22c55e', fontWeight: 'bold' }}>Activo</span> : <span style={{ color: '#ef4444' }}>Agotado</span>}</td>
+                                <td style={{ display: 'flex', gap: '8px' }}>
+                                    <button onClick={() => handleResetarCupon(c._id)} className="btn-action" style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '5px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem' }}>↺ Reset</button>
+                                    <button onClick={() => handleEliminarCupon(c._id)} className="btn-action btn-cancel">Eliminar</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                {cupones.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '15px' }}>No hay cupones creados.</p>}
+            </div>
 
             <div className="admin-products-grid">
                 {banners.map(b => (
