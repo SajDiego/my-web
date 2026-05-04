@@ -183,21 +183,17 @@ function AdminProducts() {
         const productoABorrar = productos.find(p => p._id === id);
 
         try {
-            // 1. Intentar borrar la imagen de Firebase si existe
             if (productoABorrar && productoABorrar.imagenUrl) {
                 try {
-                    // Solo intentar borrar si la URL es de Firebase (contiene firebasestorage)
                     if (productoABorrar.imagenUrl.includes('firebasestorage.googleapis.com')) {
                         const imageRef = ref(storage, productoABorrar.imagenUrl);
                         await deleteObject(imageRef);
                     }
                 } catch (storageError) {
                     console.error("Error al borrar imagen de Storage:", storageError);
-                    // Continuamos para borrar el registro de la DB
                 }
             }
 
-            // 2. Borrar el registro de la DB
             const res = await fetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
                 method: 'DELETE',
                 headers: {
