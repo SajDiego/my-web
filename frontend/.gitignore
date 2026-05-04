@@ -24,4 +24,3 @@ dist-ssr
 *.sw?
 node_modules
 node_modules_*
-node_modules_corrupt
