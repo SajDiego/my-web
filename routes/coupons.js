@@ -15,7 +15,12 @@ router.get('/validate/:codigo', async (req, res) => {
             return res.status(400).json({ error: "Este cupón ya alcanzó su límite de usos." });
         }
         
-        res.json({ descuentoPorcentaje: cupon.descuentoPorcentaje });
+        res.json({ 
+            descuentoPorcentaje: cupon.descuentoPorcentaje,
+            juegoRestringido: cupon.juegoRestringido,
+            regionRestringida: cupon.regionRestringida,
+            paqueteRestringido: cupon.paqueteRestringido
+        });
     } catch (error) {
         res.status(500).json({ error: "Error al validar el cupón." });
     }
@@ -51,7 +56,7 @@ router.get('/', auth, admin, async (req, res) => {
 
 router.post('/', auth, admin, async (req, res) => {
     try {
-        const { codigo, descuentoPorcentaje, usoMaximo } = req.body;
+        const { codigo, descuentoPorcentaje, usoMaximo, juegoRestringido, regionRestringida, paqueteRestringido } = req.body;
         
         if (!codigo || !descuentoPorcentaje) {
             return res.status(400).json({ error: "Código y porcentaje son obligatorios." });
@@ -65,7 +70,10 @@ router.post('/', auth, admin, async (req, res) => {
         const nuevoCupon = new Coupon({
             codigo,
             descuentoPorcentaje,
-            usoMaximo: usoMaximo ? Number(usoMaximo) : null
+            usoMaximo: usoMaximo ? Number(usoMaximo) : null,
+            juegoRestringido: juegoRestringido || null,
+            regionRestringida: regionRestringida || null,
+            paqueteRestringido: paqueteRestringido || null
         });
         await nuevoCupon.save();
         
