@@ -15,6 +15,7 @@ function AdminBanners() {
     const [nuevoCodigo, setNuevoCodigo] = useState('');
     const [nuevoDescuento, setNuevoDescuento] = useState('');
     const [nuevoLimite, setNuevoLimite] = useState('');
+    const [restricciones, setRestricciones] = useState({ juego: '', region: '', paquete: '' });
     const [formData, setFormData] = useState({
         title: '',
         subtitle: '',
@@ -43,9 +44,22 @@ function AdminBanners() {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/coupons`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('token') },
-                body: JSON.stringify({ codigo: nuevoCodigo, descuentoPorcentaje: nuevoDescuento, usoMaximo: nuevoLimite || null })
+                body: JSON.stringify({ 
+                    codigo: nuevoCodigo, 
+                    descuentoPorcentaje: nuevoDescuento, 
+                    usoMaximo: nuevoLimite || null,
+                    juegoRestringido: restricciones.juego || null,
+                    regionRestringida: restricciones.region || null,
+                    paqueteRestringido: restricciones.paquete || null
+                })
             });
-            if (res.ok) { setNuevoCodigo(''); setNuevoDescuento(''); setNuevoLimite(''); fetchCupones(); }
+            if (res.ok) { 
+                setNuevoCodigo(''); 
+                setNuevoDescuento(''); 
+                setNuevoLimite(''); 
+                setRestricciones({ juego: '', region: '', paquete: '' });
+                fetchCupones(); 
+            }
             else { const d = await res.json(); alert(d.error || 'Error al crear'); }
         } catch { alert('Error de conexión'); }
     };
@@ -198,28 +212,52 @@ function AdminBanners() {
             <div className="card-glass" style={{ padding: '20px', marginBottom: '30px' }}>
                 <h2 className="modal-title">Cupones de Descuento</h2>
                 <form onSubmit={handleCrearCupon} style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '20px' }}>
-                    <div className="form-group" style={{ flex: '1 1 160px', marginBottom: 0 }}>
+                    <div className="form-group" style={{ flex: '1 1 150px', marginBottom: 0 }}>
                         <label>Código</label>
                         <input type="text" className="admin-form-input" placeholder="Ej: VERANO26" value={nuevoCodigo} onChange={(e) => setNuevoCodigo(e.target.value.toUpperCase().replace(/\s+/g, ''))} required />
                     </div>
-                    <div className="form-group" style={{ flex: '0 1 100px', marginBottom: 0 }}>
-                        <label>% Descuento</label>
+                    <div className="form-group" style={{ flex: '0 1 80px', marginBottom: 0 }}>
+                        <label>% OFF</label>
                         <input type="number" className="admin-form-input" placeholder="15" min="1" max="100" value={nuevoDescuento} onChange={(e) => setNuevoDescuento(e.target.value)} required />
                     </div>
-                    <div className="form-group" style={{ flex: '0 1 120px', marginBottom: 0 }}>
-                        <label>Límite de usos</label>
-                        <input type="number" className="admin-form-input" placeholder="20 (0 = ∞)" min="0" value={nuevoLimite} onChange={(e) => setNuevoLimite(e.target.value)} />
+                    <div className="form-group" style={{ flex: '0 1 100px', marginBottom: 0 }}>
+                        <label>Usos</label>
+                        <input type="number" className="admin-form-input" placeholder="Límite" min="0" value={nuevoLimite} onChange={(e) => setNuevoLimite(e.target.value)} />
                     </div>
+                    
+                    {/* Restricciones */}
+                    <div className="form-group" style={{ flex: '1 1 120px', marginBottom: 0 }}>
+                        <label>Juego (Opcional)</label>
+                        <input type="text" className="admin-form-input" placeholder="Ej: Free Fire" value={restricciones.juego} onChange={(e) => setRestricciones({ ...restricciones, juego: e.target.value })} />
+                    </div>
+                    <div className="form-group" style={{ flex: '1 1 100px', marginBottom: 0 }}>
+                        <label>Región (Opc.)</label>
+                        <input type="text" className="admin-form-input" placeholder="Ej: LATAM" value={restricciones.region} onChange={(e) => setRestricciones({ ...restricciones, region: e.target.value })} />
+                    </div>
+                    <div className="form-group" style={{ flex: '1 1 120px', marginBottom: 0 }}>
+                        <label>Paquete (Opc.)</label>
+                        <input type="text" className="admin-form-input" placeholder="Ej: 520 Diamantes" value={restricciones.paquete} onChange={(e) => setRestricciones({ ...restricciones, paquete: e.target.value })} />
+                    </div>
+
                     <button type="submit" className="btn-select" style={{ width: 'auto', padding: '10px 20px' }}>+ Crear</button>
                 </form>
 
                 <table className="admin-table">
-                    <thead><tr><th>Código</th><th>Descuento</th><th>Usos</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <thead><tr><th>Código</th><th>OFF</th><th>Restricción</th><th>Usos</th><th>Estado</th><th>Acciones</th></tr></thead>
                     <tbody>
                         {cupones.map(c => (
                             <tr key={c._id}>
                                 <td><strong style={{ letterSpacing: '1px' }}>{c.codigo}</strong></td>
                                 <td>{c.descuentoPorcentaje}%</td>
+                                <td style={{ fontSize: '0.8rem' }}>
+                                    {c.juegoRestringido || c.regionRestringida || c.paqueteRestringido ? (
+                                        <div style={{ color: 'var(--accent)' }}>
+                                            {c.juegoRestringido && <div>🎮 {c.juegoRestringido}</div>}
+                                            {c.regionRestringida && <div>🌍 {c.regionRestringida}</div>}
+                                            {c.paqueteRestringido && <div>📦 {c.paqueteRestringido}</div>}
+                                        </div>
+                                    ) : <span style={{ opacity: 0.5 }}>Global</span>}
+                                </td>
                                 <td>
                                     <span style={{ fontWeight: 'bold' }}>{c.usoActual || 0}</span>
                                     <span style={{ opacity: 0.6 }}> / {c.usoMaximo ?? '∞'}</span>

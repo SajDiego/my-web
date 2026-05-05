@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useCart } from '../context/CartContext';
@@ -21,11 +21,52 @@ function Checkout() {
 
     const [codigoCupon, setCodigoCupon] = useState('');
     const [descuentoPorcentaje, setDescuentoPorcentaje] = useState(0);
+    const [restriccionesCupon, setRestriccionesCupon] = useState(null);
     const [mensajeCupon, setMensajeCupon] = useState('');
     const [validandoCupon, setValidandoCupon] = useState(false);
 
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const resp = await fetch(`${import.meta.env.VITE_API_URL}/auth/perfil`, {
+                    headers: { 'x-auth-token': token }
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    setNombre(data.nombre || '');
+                    setEmail(data.email || '');
+                    setWhatsapp(data.whatsapp || '');
+                }
+            } catch (err) {
+                console.error("Error al precargar datos del perfil:", err);
+            }
+        };
+
+        fetchUserProfile();
+    }, []);
+
     const metodos = metodosPorMoneda[moneda] || [];
-    const totalFinal = descuentoPorcentaje > 0 ? (totalCarrito * (1 - descuentoPorcentaje / 100)) : totalCarrito;
+    
+    // Cálculo inteligente del total final aplicando el cupón solo a los ítems que califican
+    let totalFinalCalc = carrito.reduce((acc, item) => {
+        let precioItem = moneda === 'USD' ? Number(item.precioUSD) : Number(item.precioARS);
+        
+        if (descuentoPorcentaje > 0 && restriccionesCupon) {
+            const cumpleJuego = !restriccionesCupon.juegoRestringido || item.juegoNombre.toLowerCase() === restriccionesCupon.juegoRestringido.toLowerCase();
+            const cumpleRegion = !restriccionesCupon.regionRestringida || (item.regionJugador || '').toLowerCase() === restriccionesCupon.regionRestringida.toLowerCase();
+            const cumplePaquete = !restriccionesCupon.paqueteRestringido || item.paqueteElegido.toLowerCase() === restriccionesCupon.paqueteRestringido.toLowerCase();
+
+            if (cumpleJuego && cumpleRegion && cumplePaquete) {
+                return acc + (precioItem * (1 - descuentoPorcentaje / 100));
+            }
+        }
+        return acc + precioItem;
+    }, 0);
+
+    const totalFinal = moneda === 'USD' ? Number(totalFinalCalc.toFixed(2)) : Math.round(totalFinalCalc);
 
     const handleAplicarCupon = async () => {
         if (!codigoCupon.trim()) return;
@@ -35,10 +76,26 @@ function Checkout() {
             const resp = await fetch(`${import.meta.env.VITE_API_URL}/coupons/validate/${codigoCupon}`);
             const data = await resp.json();
             if (resp.ok) {
-                setDescuentoPorcentaje(data.descuentoPorcentaje);
-                setMensajeCupon(`¡Éxito! ${data.descuentoPorcentaje}% OFF aplicado.`);
+                // Verificar si al menos un ítem en el carrito califica
+                const calificaAlguno = carrito.some(item => {
+                    const cumpleJuego = !data.juegoRestringido || item.juegoNombre.toLowerCase() === data.juegoRestringido.toLowerCase();
+                    const cumpleRegion = !data.regionRestringida || (item.regionJugador || '').toLowerCase() === data.regionRestringida.toLowerCase();
+                    const cumplePaquete = !data.paqueteRestringido || item.paqueteElegido.toLowerCase() === data.paqueteRestringido.toLowerCase();
+                    return cumpleJuego && cumpleRegion && cumplePaquete;
+                });
+
+                if (calificaAlguno) {
+                    setDescuentoPorcentaje(data.descuentoPorcentaje);
+                    setRestriccionesCupon(data);
+                    setMensajeCupon(`¡Éxito! ${data.descuentoPorcentaje}% OFF aplicado.`);
+                } else {
+                    setDescuentoPorcentaje(0);
+                    setRestriccionesCupon(null);
+                    setMensajeCupon('El cupón es válido, pero no aplica a los productos en tu carrito.');
+                }
             } else {
                 setDescuentoPorcentaje(0);
+                setRestriccionesCupon(null);
                 setMensajeCupon(data.error || 'Cupón inválido');
             }
         } catch (err) {

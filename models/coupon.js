@@ -25,7 +25,11 @@ const couponSchema = new mongoose.Schema({
     activo: {
         type: Boolean,
         default: true
-    }
+    },
+    // Restricciones opcionales
+    juegoRestringido: { type: String, default: null },
+    regionRestringida: { type: String, default: null },
+    paqueteRestringido: { type: String, default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Coupon', couponSchema);
