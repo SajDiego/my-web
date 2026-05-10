@@ -1,96 +1,107 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import './Auth.css';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 function ResetPassword() {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const token = searchParams.get('token');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+
+    const [newPassword, setNewPassword] = useState('');
+    const [confirm, setConfirm] = useState('');
     const [mensaje, setMensaje] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    const [enviando, setEnviando] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (password !== confirmPassword) {
-            return setError('Las contraseñas no coinciden');
+        setError('');
+        setMensaje('');
+
+        if (newPassword !== confirm) {
+            setError('Las contraseñas no coinciden.');
+            return;
         }
 
-        setLoading(true);
-        setError('');
+        if (newPassword.length < 6) {
+            setError('La contraseña debe tener al menos 6 caracteres.');
+            return;
+        }
 
+        setEnviando(true);
         try {
             const resp = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, newPassword: password })
+                body: JSON.stringify({ token, newPassword })
             });
-
             const data = await resp.json();
-            if (!resp.ok) throw new Error(data.error || 'Error al restablecer contraseña');
 
-            setMensaje('¡Contraseña actualizada con éxito! Ya podés iniciar sesión.');
-            setTimeout(() => navigate('/login'), 3000);
-        } catch (err) {
-            setError(err.message);
+            if (resp.ok) {
+                setMensaje('✅ Contraseña actualizada con éxito. Redirigiendo...');
+                setTimeout(() => navigate('/login'), 2500);
+            } else {
+                setError(data.error || 'El enlace es inválido o ha expirado.');
+            }
+        } catch {
+            setError('Error al conectar con el servidor.');
         } finally {
-            setLoading(false);
+            setEnviando(false);
         }
     };
 
-    if (!token) {
-        return (
-            <div className="auth-container">
-                <div className="auth-card card-glass">
-                    <p className="error-msg">Token de recuperación no encontrado o inválido.</p>
-                    <Link to="/login" className="auth-link">Volver al inicio</Link>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="auth-container">
-            <Helmet>
-                <title>Nueva Contraseña - GamePin Store</title>
-            </Helmet>
-            <div className="auth-card card-glass fade-in">
-                <h2 className="auth-title">Nueva Contraseña</h2>
-                
-                {error && <p className="error-msg">{error}</p>}
-                {mensaje && <p className="success-msg" style={{ color: '#22c55e', textAlign: 'center' }}>{mensaje}</p>}
+        <div className="main-content">
+            <div style={{ maxWidth: '420px', margin: '60px auto', padding: '0 20px' }}>
+                <h1 className="section-title" style={{ textAlign: 'center', marginBottom: '30px' }}>
+                    Nueva Contraseña
+                </h1>
 
-                {!mensaje && (
-                    <form className="auth-form" onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label>Nueva Contraseña</label>
-                            <input 
-                                type="password" 
-                                placeholder="Mínimo 6 caracteres" 
-                                value={password} 
-                                onChange={(e) => setPassword(e.target.value)} 
-                                required 
-                                minLength="6"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Confirmar Contraseña</label>
-                            <input 
-                                type="password" 
-                                placeholder="Repetí tu nueva contraseña" 
-                                value={confirmPassword} 
-                                onChange={(e) => setConfirmPassword(e.target.value)} 
-                                required 
-                            />
-                        </div>
-                        <button type="submit" className="btn-select" disabled={loading}>
-                            {loading ? 'Actualizando...' : 'Cambiar Contraseña'}
-                        </button>
-                    </form>
-                )}
+                <div className="card-glass" style={{ padding: '2rem' }}>
+                    {!token ? (
+                        <p style={{ color: '#ef4444', textAlign: 'center' }}>
+                            El enlace de recuperación es inválido o ha expirado.
+                        </p>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="auth-form">
+                            {mensaje && (
+                                <p style={{ color: '#22c55e', textAlign: 'center', marginBottom: '15px', fontWeight: '500' }}>
+                                    {mensaje}
+                                </p>
+                            )}
+                            {error && (
+                                <p className="error-msg" style={{ marginBottom: '15px' }}>
+                                    {error}
+                                </p>
+                            )}
+
+                            <div className="form-group">
+                                <label>Nueva Contraseña</label>
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={e => setNewPassword(e.target.value)}
+                                    placeholder="Mínimo 6 caracteres"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Confirmar Contraseña</label>
+                                <input
+                                    type="password"
+                                    value={confirm}
+                                    onChange={e => setConfirm(e.target.value)}
+                                    placeholder="Repetí la nueva clave"
+                                    required
+                                />
+                            </div>
+
+                            <button type="submit" className="btn-select" disabled={enviando} style={{ marginTop: '10px' }}>
+                                {enviando ? 'Guardando...' : 'Cambiar Contraseña'}
+                            </button>
+                        </form>
+                    )}
+                </div>
             </div>
         </div>
     );
