@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useCart } from '../context/CartContext';
+import { TrustBar } from '../components/TrustBar';
 import './GameDetail.css';
 
 function GameDetail() {
@@ -118,11 +119,11 @@ function GameDetail() {
                     <div className="package-grid">
                         {juego.paquetes
                             .filter(p => (p.region || 'Global') === regionSeleccionada)
-                            .map((paquete) => {
+                            .map((paquete, index) => {
                                 const sinStock = paquete.stock !== null && paquete.stock !== undefined && paquete.stock <= 0;
                                 return (
                                     <div
-                                        key={paquete._id}
+                                        key={`${paquete._id}-${index}`}
                                         className={`package-minimal-item ${paqueteSeleccionado?._id === paquete._id ? 'active' : ''} ${sinStock ? 'out-of-stock' : ''}`}
                                         onClick={() => { if (!sinStock) { setPaqueteSeleccionado(paquete); setMensaje(''); } }}
                                         style={sinStock ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
@@ -223,6 +224,8 @@ function GameDetail() {
                     {juego.infoExtra}
                 </div>
             )}
+
+            <TrustBar />
         </div>
     );
 }

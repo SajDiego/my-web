@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { TrustBar } from '../components/TrustBar';
 import './Catalog.css';
 
 function Catalog() {
@@ -99,6 +100,8 @@ function Catalog() {
                     <button className="btn-action" onClick={() => {setSearchTerm(''); setSelectedCategory('Todas');}}>Limpiar Filtros</button>
                 </div>
             )}
+
+            <TrustBar />
         </div>
     );
 }
