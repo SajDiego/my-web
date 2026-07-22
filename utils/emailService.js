@@ -145,7 +145,21 @@ const enviarEmailCliente = async (orden, clienteEmail, mensajePersonalizado = ""
                 </div>
                 ` : ''}
 
-                ${!['Transferencia Bancaria', 'Mercado Pago', 'PagoFacil / Rapipago', 'QR', 'Binance Pay'].includes(orden.metodoPago) ? '<p>Si aún no realizaste el pago, por favor hazlo para que podamos procesar tu recarga.</p>' : ''}
+                ${orden.metodoPago === 'AstroPay QR' ? `
+                <div style="background-color: #fee2e2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin-top: 20px;">
+                    <h3 style="color: #dc2626; margin-top: 0;">Pago mediante AstroPay QR</h3>
+                    <p>Podés escanear el código QR que apareció al finalizar tu compra para realizar el pago.</p>
+                    <p><strong>IMPORTANTE:</strong> Debes enviar únicamente <strong>USD</strong>.</p>
+                    <p><em>Si no llegaste a escanear el QR o te desapareció de la pantalla, por favor solicitanos un nuevo QR a través de nuestro WhatsApp.</em></p>
+                    <div style="margin-top: 20px; border-top: 1px solid #fca5a5; padding-top: 15px; text-align: center;">
+                        <a href="https://wa.me/5491133148649" style="background-color: #25d366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                            Solicitar QR por WhatsApp
+                        </a>
+                    </div>
+                </div>
+                ` : ''}
+
+                ${!['Transferencia Bancaria', 'Mercado Pago', 'PagoFacil / Rapipago', 'QR', 'Binance Pay', 'AstroPay QR'].includes(orden.metodoPago) ? '<p>Si aún no realizaste el pago, por favor hazlo para que podamos procesar tu recarga.</p>' : ''}
                 
                 <br>
                 <p>¡Gracias por elegir GamePin Store!</p>

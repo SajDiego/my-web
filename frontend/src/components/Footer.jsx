@@ -22,8 +22,17 @@ function Footer() {
           <p>Email: soporte@gamepin.top</p>
           <p>WhatsApp: +54 9 11 3314-8649</p>
           <div className="footer-socials">
-            <a href="https://instagram.com/gamepin.top" target="_blank" rel="noopener noreferrer" className="social-icon" title="Síguenos en Instagram">
-              <FaInstagram size={24} />
+            <svg width="0" height="0">
+              <radialGradient id="ig-gradient" r="150%" cx="30%" cy="107%">
+                <stop stopColor="#fdf497" offset="0" />
+                <stop stopColor="#fdf497" offset="0.05" />
+                <stop stopColor="#fd5949" offset="0.45" />
+                <stop stopColor="#d6249f" offset="0.6" />
+                <stop stopColor="#285AEB" offset="0.9" />
+              </radialGradient>
+            </svg>
+            <a href="https://instagram.com/gamepin.top" target="_blank" rel="noopener noreferrer" className="social-icon ig-icon" title="Síguenos en Instagram">
+              <FaInstagram size={24} style={{ fill: "url(#ig-gradient)" }} />
             </a>
           </div>
         </div>

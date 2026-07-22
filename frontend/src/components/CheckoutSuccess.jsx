@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { bankAccounts, cashInstructions, qr, binancePay } from '../data/paymentConfig';
+import { bankAccounts, cashInstructions, qr, binancePay, astroPayQR } from '../data/paymentConfig';
 
 function CheckoutSuccess({ metodoPago, montoFinal, moneda }) {
     const navigate = useNavigate();
@@ -13,6 +13,7 @@ function CheckoutSuccess({ metodoPago, montoFinal, moneda }) {
     const isCash = metodoPago === 'PagoFacil / Rapipago';
     const isQR = metodoPago === 'QR';
     const isBinancePay = metodoPago === 'Binance Pay';
+    const isAstroPayQR = metodoPago === 'AstroPay QR';
 
     return (
         <div className="main-content auth-container" style={{ textAlign: 'center' }}>
@@ -20,7 +21,7 @@ function CheckoutSuccess({ metodoPago, montoFinal, moneda }) {
                 <h2 className="success-title">¡Pedido Confirmado!</h2>
                 
                 <p className="success-msg">
-                    {isTransfer || isCash || isQR || isBinancePay
+                    {isTransfer || isCash || isQR || isBinancePay || isAstroPayQR
                         ? (
                             <>
                                 Realizá tu pago de <strong style={{ color: '#22c55e', fontSize: '1.4rem' }}>{moneda === 'USD' ? 'U$D' : '$'} {montoFinal}</strong> siguiendo estas instrucciones:
@@ -81,6 +82,30 @@ function CheckoutSuccess({ metodoPago, montoFinal, moneda }) {
                                 </div>
                                 <p style={{ marginTop: '20px', fontSize: '1rem' }}>
                                     Total to pay: <strong style={{ color: '#22c55e' }}>U$D {montoFinal}</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Bloque de AstroPay QR */}
+                {isAstroPayQR && (
+                    <div className="qr-container" style={{ marginBottom: '40px' }}>
+                        <div className="bank-card" style={{ borderTop: `4px solid ${astroPayQR.color}`, textAlign: 'center' }}>
+                            <div className="bank-card-header">
+                                <strong style={{ color: astroPayQR.color }}>📍 {astroPayQR.nombre}</strong>
+                            </div>
+                            <div className="bank-card-body" style={{ alignItems: 'center' }}>
+                                <p style={{ fontSize: '0.95rem', marginBottom: '20px', fontWeight: 'bold' }}>
+                                    {astroPayQR.instruccion}
+                                </p>
+                                <img 
+                                    src={astroPayQR.imagen} 
+                                    alt="AstroPay QR" 
+                                    style={{ maxWidth: '250px', borderRadius: '12px', border: '5px solid white' }} 
+                                />
+                                <p style={{ marginTop: '20px', fontSize: '1rem' }}>
+                                    Total a pagar: <strong style={{ color: '#22c55e' }}>U$D {montoFinal}</strong>
                                 </p>
                             </div>
                         </div>

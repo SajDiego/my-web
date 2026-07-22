@@ -1,7 +1,7 @@
 // Configuración de Métodos de Pago e Instrucciones
 export const metodosPorMoneda = {
     ARS: ['Mercado Pago', 'Transferencia Bancaria', 'PagoFacil / Rapipago', 'QR'],
-    USD: ['AstroPay', 'Binance Pay']
+    USD: ['AstroPay QR', 'Binance Pay']
 };
 
 export const bankAccounts = [
@@ -56,4 +56,11 @@ export const binancePay = {
     payId: '199828457',
     imagen: '/binance-pay.png',
     color: '#F0B90B'
+};
+
+export const astroPayQR = {
+    nombre: 'AstroPay QR',
+    instruccion: 'Escaneá el código QR con tu app de AstroPay. IMPORTANTE: Enviar únicamente USD.',
+    imagen: '/Astropay.png',
+    color: '#E42825'
 };
