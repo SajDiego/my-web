@@ -124,7 +124,7 @@ function GameDetail() {
                                 return (
                                     <div
                                         key={`${paquete._id}-${index}`}
-                                        className={`package-minimal-item ${paqueteSeleccionado?._id === paquete._id ? 'active' : ''} ${sinStock ? 'out-of-stock' : ''}`}
+                                        className={`package-minimal-item ${paqueteSeleccionado === paquete ? 'active' : ''} ${sinStock ? 'out-of-stock' : ''}`}
                                         onClick={() => { if (!sinStock) { setPaqueteSeleccionado(paquete); setMensaje(''); } }}
                                         style={sinStock ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
                                     >

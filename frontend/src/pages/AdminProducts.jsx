@@ -131,6 +131,7 @@ function AdminProducts() {
 
     const handleDuplicatePackage = (index) => {
         const pkgToDuplicate = { ...formData.paquetes[index] };
+        delete pkgToDuplicate._id;
         const newPaquetes = [...formData.paquetes];
         newPaquetes.splice(index + 1, 0, pkgToDuplicate);
         setFormData({
