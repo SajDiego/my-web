@@ -16,6 +16,8 @@ function GameDetail() {
     const [regionSeleccionada, setRegionSeleccionada] = useState('');
     const [datosEntrega, setDatosEntrega] = useState({});
     const [mensaje, setMensaje] = useState('');
+    const [validando, setValidando] = useState(false);
+    const [nicknameValidado, setNicknameValidado] = useState('');
 
     useEffect(() => {
         const cargarJuego = async () => {
@@ -36,6 +38,56 @@ function GameDetail() {
         };
         cargarJuego();
     }, [id]);
+
+    const nombreJuego = juego?.juego?.toLowerCase() || '';
+    const isMobileLegends = nombreJuego.includes('mobile legends');
+    const isFreeFire = nombreJuego.includes('free fire') || nombreJuego.includes('freefire');
+    const mostrarVerificar = (isMobileLegends || isFreeFire) && regionSeleccionada !== 'Indonesia';
+
+    const handleValidarJugador = async () => {
+        // Free Fire solo necesita ID, Mobile Legends necesita ID y Server
+        if (!datosEntrega['ID']) {
+            setMensaje('Por favor ingresa tu ID para validar.');
+            return;
+        }
+        if (isMobileLegends && !datosEntrega['Server']) {
+            setMensaje('Por favor ingresa ID y Server para validar.');
+            return;
+        }
+
+        setValidando(true);
+        setMensaje('');
+        setNicknameValidado('');
+
+        try {
+            const body = {
+                code: isFreeFire ? 'freefire' : 'mlbb',
+                playerId: datosEntrega['ID'],
+            };
+            if (!isFreeFire) {
+                body.serverId = datosEntrega['Server'];
+            }
+
+            const resp = await fetch(`${import.meta.env.VITE_API_URL}/games/validate-player`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await resp.json();
+            
+            if (resp.ok && data.nickname) {
+                setNicknameValidado(data.nickname);
+                setMensaje(''); // Solo se muestra el ✓ Nickname arriba, sin texto extra
+            } else {
+                setMensaje(data.error || 'ID incorrecto o jugador no encontrado.');
+            }
+        } catch (error) {
+            console.error('Error al validar:', error);
+            setMensaje('Hubo un error al validar el jugador.');
+        } finally {
+            setValidando(false);
+        }
+    };
 
     const handleAgregarAlCarrito = (e) => {
         e.preventDefault();
@@ -186,10 +238,25 @@ function GameDetail() {
                                 </div>
                             )}
 
+                            {mostrarVerificar && paqueteSeleccionado && (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '15px', marginTop: '10px' }}>
+                                    <button 
+                                        type="button" 
+                                        className="btn-select" 
+                                        onClick={handleValidarJugador}
+                                        disabled={validando}
+                                        style={{ background: '#3b82f6', color: '#fff', width: 'auto', padding: '8px 20px', fontSize: '0.9rem', marginBottom: '5px' }}
+                                    >
+                                        {validando ? 'Verificando...' : 'Verificar ID'} <span style={{ fontSize: '0.75rem', opacity: 0.6, fontWeight: 'normal' }}>(opcional)</span>
+                                    </button>
+                                    {nicknameValidado && <span style={{ color: '#22c55e', fontSize: '0.9rem', fontWeight: 'bold' }}>✓ Nickname: {nicknameValidado}</span>}
+                                </div>
+                            )}
+
                             {mensaje && (
-                                <div className={mensaje.includes('!') ? 'order-success fade-in' : 'error-msg fade-in'} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-                                    <span>{mensaje}</span>
-                                    {mensaje.includes('!') && (
+                                <div className={mensaje === '¡Agregado al carrito!' ? 'order-success fade-in' : (mensaje.includes('Jugador') ? 'success-msg fade-in' : 'error-msg fade-in')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+                                    <span style={{ color: mensaje.includes('Jugador') ? '#22c55e' : 'inherit' }}>{mensaje}</span>
+                                    {mensaje === '¡Agregado al carrito!' && (
                                         <button type="button" className="btn-select" style={{ background: '#22c55e', color: '#fff', width: 'auto', padding: '10px 25px', fontSize: '1rem', fontWeight: 'bold' }} onClick={() => navigate('/cart')}>
                                             Ir al Carrito 🛒
                                         </button>
@@ -197,7 +264,7 @@ function GameDetail() {
                                 </div>
                             )}
 
-                            {(!mensaje || !mensaje.includes('!')) && (
+                            {mensaje !== '¡Agregado al carrito!' && (
                                 <button type="submit" className="btn-select btn-minimal-submit">
                                     Agregar • {moneda === 'USD' ? `U$D ${Number(paqueteSeleccionado.precioUSD).toFixed(2)}` : `$ ${paqueteSeleccionado.precioARS}`}
                                 </button>

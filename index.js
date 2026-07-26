@@ -40,6 +40,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/banners', require('./routes/banners'));
 app.use('/api/coupons', require('./routes/coupons'));
+app.use('/api/games', require('./routes/games'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
