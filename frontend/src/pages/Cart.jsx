@@ -24,34 +24,50 @@ function Cart() {
             <h1 className="section-title">Tu Carrito</h1>
 
             <div className="cart-list">
-                {carrito.map((item) => (
-                    <div key={item.id} className="cart-item card-glass">
-                        <div className="cart-item-info">
-                            <p className="cart-item-game">{item.juegoNombre}</p>
-                            <p className="cart-item-package">{item.paqueteElegido}</p>
-                            <p className="cart-item-uid">
-                                {item.tipoDatoEntrega || 'UID'}: <strong>{item.uidJugador}</strong>
-                            </p>
-                            {(item.tipoDatoEntrega === 'ID' || !item.tipoDatoEntrega) && item.regionJugador && (
-                                <p className="cart-item-uid">Región: {item.regionJugador}</p>
-                            )}
+                {carrito.map((item) => {
+                    const tieneDescuento = moneda === 'USD'
+                        ? (item.precioUSDDescuento != null && item.precioUSDDescuento > 0)
+                        : (item.precioARSDescuento != null && item.precioARSDescuento > 0);
+                    const precioNormal = moneda === 'USD'
+                        ? `U$D ${Number(item.precioUSD).toFixed(2)}`
+                        : `$ ${Math.round(Number(item.precioARS))}`;
+                    const precioDesc = moneda === 'USD'
+                        ? `U$D ${Number(item.precioUSDDescuento).toFixed(2)}`
+                        : `$ ${Math.round(Number(item.precioARSDescuento))}`;
+                    return (
+                        <div key={item.id} className="cart-item card-glass">
+                            <div className="cart-item-info">
+                                <p className="cart-item-game">{item.juegoNombre}</p>
+                                <p className="cart-item-package">{item.paqueteElegido}</p>
+                                <p className="cart-item-uid">
+                                    {item.tipoDatoEntrega || 'UID'}: <strong>{item.uidJugador}</strong>
+                                </p>
+                                {(item.tipoDatoEntrega === 'ID' || !item.tipoDatoEntrega) && item.regionJugador && (
+                                    <p className="cart-item-uid">Región: {item.regionJugador}</p>
+                                )}
+                            </div>
+                            <div className="cart-item-right">
+                                <p className="cart-item-price">
+                                    {tieneDescuento ? (
+                                        <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                                            <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.8rem' }}>{precioNormal}</span>
+                                            <span style={{ color: '#facc15', fontWeight: 700 }}>{precioDesc}</span>
+                                        </span>
+                                    ) : precioNormal}
+                                </p>
+                                <button className="cart-item-delete" onClick={() => eliminarDelCarrito(item.id)}>
+                                    <FiTrash2 size={18} />
+                                </button>
+                            </div>
                         </div>
-                        <div className="cart-item-right">
-                            <p className="cart-item-price">
-                                {moneda === 'USD' ? `U$D ${Number(item.precioUSD).toFixed(2)}` : `$ ${item.precioARS}`}
-                            </p>
-                            <button className="cart-item-delete" onClick={() => eliminarDelCarrito(item.id)}>
-                                <FiTrash2 size={18} />
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             <div className="cart-summary card-glass">
                 <div className="cart-total">
                     <span>Total</span>
-                    <strong>{moneda === 'USD' ? `U$D ${Number(totalCarrito).toFixed(2)}` : `$ ${totalCarrito}`}</strong>
+                    <strong>{moneda === 'USD' ? `U$D ${Number(totalCarrito).toFixed(2)}` : `$ ${Math.round(Number(totalCarrito))}`}</strong>
                 </div>
                 <p style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '15px', textAlign: 'center' }}>
                     * Los precios en pesos argentinos son finales.

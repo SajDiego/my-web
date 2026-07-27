@@ -110,6 +110,8 @@ function GameDetail() {
             paqueteElegido: paqueteSeleccionado.nombre,
             precioARS: paqueteSeleccionado.precioARS,
             precioUSD: paqueteSeleccionado.precioUSD,
+            precioARSDescuento: paqueteSeleccionado.precioARSDescuento ?? null,
+            precioUSDDescuento: paqueteSeleccionado.precioUSDDescuento ?? null,
             uidJugador: datosEntrega[primerCampo] || '',
             regionJugador: regionSeleccionada,
             datosEntrega: { ...datosEntrega },
@@ -173,6 +175,27 @@ function GameDetail() {
                             .filter(p => (p.region || 'Global') === regionSeleccionada)
                             .map((paquete, index) => {
                                 const sinStock = paquete.stock !== null && paquete.stock !== undefined && paquete.stock <= 0;
+
+                                // Determinar precios normales y con descuento
+                                const precioNormal = moneda === 'USD'
+                                    ? `U$D ${Number(paquete.precioUSD).toFixed(2)}`
+                                    : `$ ${Math.round(Number(paquete.precioARS))}`;
+
+                                const tieneDescuento = moneda === 'USD'
+                                    ? (paquete.precioUSDDescuento != null && paquete.precioUSDDescuento > 0)
+                                    : (paquete.precioARSDescuento != null && paquete.precioARSDescuento > 0);
+
+                                const precioDescuento = moneda === 'USD'
+                                    ? `U$D ${Number(paquete.precioUSDDescuento).toFixed(2)}`
+                                    : `$ ${Math.round(Number(paquete.precioARSDescuento))}`;
+
+                                // Calcular porcentaje de descuento
+                                const pctDescuento = tieneDescuento
+                                    ? Math.round((1 - (moneda === 'USD'
+                                        ? Number(paquete.precioUSDDescuento) / Number(paquete.precioUSD)
+                                        : Number(paquete.precioARSDescuento) / Number(paquete.precioARS))) * 100)
+                                    : 0;
+
                                 return (
                                     <div
                                         key={`${paquete._id}-${index}`}
@@ -180,16 +203,27 @@ function GameDetail() {
                                         onClick={() => { if (!sinStock) { setPaqueteSeleccionado(paquete); setMensaje(''); } }}
                                         style={sinStock ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
                                     >
+                                        {tieneDescuento && (
+                                            <span className="discount-badge">-{pctDescuento}% OFF</span>
+                                        )}
                                         <div className="pack-info">
                                             <span className="pack-name">{paquete.nombre}</span>
                                             {sinStock && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600 }}>Sin stock</span>}
                                         </div>
                                         <div className="pack-price">
-                                            {moneda === 'USD' ? `U$D ${Number(paquete.precioUSD).toFixed(2)}` : `$ ${paquete.precioARS}`}
+                                            {tieneDescuento ? (
+                                                <>
+                                                    <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.8rem', display: 'block', lineHeight: 1 }}>{precioNormal}</span>
+                                                    <span>{precioDescuento}</span>
+                                                </>
+                                            ) : (
+                                                precioNormal
+                                            )}
                                         </div>
                                     </div>
                                 );
                             })}
+
                     </div>
                     <p style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '10px', textAlign: 'center' }}>
                         * Los precios en pesos argentinos son finales, no tenés que sumarle nada.
@@ -266,7 +300,15 @@ function GameDetail() {
 
                             {mensaje !== '¡Agregado al carrito!' && (
                                 <button type="submit" className="btn-select btn-minimal-submit">
-                                    Agregar • {moneda === 'USD' ? `U$D ${Number(paqueteSeleccionado.precioUSD).toFixed(2)}` : `$ ${paqueteSeleccionado.precioARS}`}
+                                    {(() => {
+                                        const tieneDescuento = moneda === 'USD'
+                                            ? (paqueteSeleccionado.precioUSDDescuento != null && paqueteSeleccionado.precioUSDDescuento > 0)
+                                            : (paqueteSeleccionado.precioARSDescuento != null && paqueteSeleccionado.precioARSDescuento > 0);
+                                        const precio = tieneDescuento
+                                            ? (moneda === 'USD' ? `U$D ${Number(paqueteSeleccionado.precioUSDDescuento).toFixed(2)}` : `$ ${Math.round(Number(paqueteSeleccionado.precioARSDescuento))}`)
+                                            : (moneda === 'USD' ? `U$D ${Number(paqueteSeleccionado.precioUSD).toFixed(2)}` : `$ ${Math.round(Number(paqueteSeleccionado.precioARS))}`);
+                                        return `Agregar • ${precio}`;
+                                    })()}
                                 </button>
                             )}
 

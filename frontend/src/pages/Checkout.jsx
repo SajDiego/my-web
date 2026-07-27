@@ -52,7 +52,17 @@ function Checkout() {
     
     // Cálculo inteligente del total final aplicando el cupón solo a los ítems que califican
     let totalFinalCalc = carrito.reduce((acc, item) => {
-        let precioItem = moneda === 'USD' ? Number(item.precioUSD) : Number(item.precioARS);
+        // Usar precio de descuento del paquete si existe, sino precio normal
+        let precioItem;
+        if (moneda === 'USD') {
+            precioItem = (item.precioUSDDescuento != null && item.precioUSDDescuento > 0)
+                ? Number(item.precioUSDDescuento)
+                : Number(item.precioUSD);
+        } else {
+            precioItem = (item.precioARSDescuento != null && item.precioARSDescuento > 0)
+                ? Number(item.precioARSDescuento)
+                : Number(item.precioARS);
+        }
         
         if (descuentoPorcentaje > 0 && restriccionesCupon) {
             const cumpleJuego = !restriccionesCupon.juegoRestringido || item.juegoNombre.toLowerCase() === restriccionesCupon.juegoRestringido.toLowerCase();
@@ -181,12 +191,30 @@ function Checkout() {
                 {/* Resumen del pedido */}
                 <div className="card-glass checkout-summary">
                     <h3 className="checkout-section-title">Resumen</h3>
-                    {carrito.map((item) => (
-                        <div key={item.id} className="checkout-item">
-                            <span>{item.juegoNombre} — {item.paqueteElegido}</span>
-                            <strong>{moneda === 'USD' ? `U$D ${Number(item.precioUSD).toFixed(2)}` : `$ ${item.precioARS}`}</strong>
-                        </div>
-                    ))}
+                    {carrito.map((item) => {
+                        const tieneDescuento = moneda === 'USD'
+                            ? (item.precioUSDDescuento != null && item.precioUSDDescuento > 0)
+                            : (item.precioARSDescuento != null && item.precioARSDescuento > 0);
+                        const precioNormal = moneda === 'USD'
+                            ? `U$D ${Number(item.precioUSD).toFixed(2)}`
+                            : `$ ${Math.round(Number(item.precioARS))}`;
+                        const precioDesc = moneda === 'USD'
+                            ? `U$D ${Number(item.precioUSDDescuento).toFixed(2)}`
+                            : `$ ${Math.round(Number(item.precioARSDescuento))}`;
+                        return (
+                            <div key={item.id} className="checkout-item">
+                                <span>{item.juegoNombre} — {item.paqueteElegido}</span>
+                                <strong>
+                                    {tieneDescuento ? (
+                                        <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                                            <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.8rem', fontWeight: 400 }}>{precioNormal}</span>
+                                            <span style={{ color: '#facc15' }}>{precioDesc}</span>
+                                        </span>
+                                    ) : precioNormal}
+                                </strong>
+                            </div>
+                        );
+                    })}
                     <div className="checkout-total">
                         <span>Total</span>
                         <div style={{ textAlign: 'right' }}>

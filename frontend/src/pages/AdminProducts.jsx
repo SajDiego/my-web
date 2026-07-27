@@ -100,7 +100,7 @@ function AdminProducts() {
 
     const handleAddPackage = () => {
         const newRegion = regionFilter !== 'Todas' ? regionFilter : 'Global';
-        setFormData({ ...formData, paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', region: newRegion, stock: '', bonoDetalle: '', descripcion: '' }] });
+        setFormData({ ...formData, paquetes: [...formData.paquetes, { nombre: '', precioARS: '', precioUSD: '', precioARSDescuento: '', precioUSDDescuento: '', region: newRegion, stock: '', bonoDetalle: '', descripcion: '' }] });
     };
 
     const handleCampoChange = (index, field, value) => {
@@ -418,12 +418,21 @@ function AdminProducts() {
                                                 <button type="button" className="btn-action" style={{ background: 'var(--accent)', color: 'white' }} onClick={() => handleDuplicatePackage(idx)} title="Duplicar Paquete">📑</button>
                                                 <button type="button" className="btn-action btn-cancel" onClick={() => handleRemovePackage(idx)} title="Eliminar Paquete">X</button>
                                             </div>
-                                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                                                <input style={{ flex: 1 }} placeholder="Bono" value={pkg.bonoDetalle} onChange={(e) => handlePackageChange(idx, 'bonoDetalle', e.target.value)} />
+                                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                                                <input style={{ flex: 1, minWidth: '100px' }} placeholder="Bono" value={pkg.bonoDetalle} onChange={(e) => handlePackageChange(idx, 'bonoDetalle', e.target.value)} />
                                                 <input style={{ width: '90px' }} placeholder="Región" value={pkg.region} onChange={(e) => handlePackageChange(idx, 'region', e.target.value)} />
                                                 <input style={{ width: '70px' }} placeholder="Stock" type="number" value={pkg.stock} onChange={(e) => handlePackageChange(idx, 'stock', e.target.value === '' ? '' : Number(e.target.value))} title="Vacío = ilimitado" />
-                                                <input style={{ width: '90px' }} placeholder="$ ARS" type="number" value={pkg.precioARS} onChange={(e) => handlePackageChange(idx, 'precioARS', e.target.value)} required />
-                                                <input style={{ width: '90px' }} placeholder="U$D" type="number" step="0.01" value={pkg.precioUSD} onChange={(e) => handlePackageChange(idx, 'precioUSD', e.target.value)} required />
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '8px', marginBottom: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', minWidth: '60px' }}>Precio:</span>
+                                                <input style={{ width: '100px' }} placeholder="$ ARS" type="number" value={pkg.precioARS} onChange={(e) => handlePackageChange(idx, 'precioARS', e.target.value)} required title="Precio ARS" />
+                                                <input style={{ width: '100px' }} placeholder="U$D" type="number" step="0.01" value={pkg.precioUSD} onChange={(e) => handlePackageChange(idx, 'precioUSD', e.target.value)} required title="Precio USD" />
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '8px', marginBottom: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '0.75rem', color: '#facc15', minWidth: '60px' }}>🏷️ Dcto:</span>
+                                                <input style={{ width: '100px', borderColor: 'rgba(250,204,21,0.4)' }} placeholder="$ ARS desc." type="number" value={pkg.precioARSDescuento ?? ''} onChange={(e) => handlePackageChange(idx, 'precioARSDescuento', e.target.value === '' ? null : Number(e.target.value))} title="Precio ARS con descuento (dejar vacío si no hay descuento)" />
+                                                <input style={{ width: '100px', borderColor: 'rgba(250,204,21,0.4)' }} placeholder="U$D desc." type="number" step="0.01" value={pkg.precioUSDDescuento ?? ''} onChange={(e) => handlePackageChange(idx, 'precioUSDDescuento', e.target.value === '' ? null : Number(e.target.value))} title="Precio USD con descuento (dejar vacío si no hay descuento)" />
+                                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Dejar vacío = sin descuento</span>
                                             </div>
                                         </div>
                                     );

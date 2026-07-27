@@ -17,7 +17,16 @@ export function CartProvider({ children }) {
   const vaciarCarrito = () => setCarrito([]);
 
   const totalCarrito = carrito.reduce((acc, item) => {
-    const precio = moneda === 'USD' ? item.precioUSD : item.precioARS;
+    let precio;
+    if (moneda === 'USD') {
+      precio = (item.precioUSDDescuento != null && item.precioUSDDescuento > 0)
+        ? item.precioUSDDescuento
+        : item.precioUSD;
+    } else {
+      precio = (item.precioARSDescuento != null && item.precioARSDescuento > 0)
+        ? item.precioARSDescuento
+        : item.precioARS;
+    }
     return acc + (Number(precio) || 0);
   }, 0);
 
