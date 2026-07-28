@@ -38,12 +38,24 @@ async function procesarCreacionOrden(datos, usuarioReq = null) {
 
     const numeroOrden = await getNextSequenceValue('ordenes');
 
+    // Usar precio con descuento si existe, sino precio normal
+    let precioFinal;
+    if (datos.moneda === 'USD') {
+        precioFinal = (paquete.precioUSDDescuento != null && paquete.precioUSDDescuento > 0)
+            ? paquete.precioUSDDescuento
+            : paquete.precioUSD;
+    } else {
+        precioFinal = (paquete.precioARSDescuento != null && paquete.precioARSDescuento > 0)
+            ? paquete.precioARSDescuento
+            : paquete.precioARS;
+    }
+
     const configOrden = {
         numeroOrden,
         juegoNombre: producto.juego,
         paqueteElegido: paquete.nombre,
         moneda: datos.moneda || 'ARS',
-        precioFinal: datos.moneda === 'USD' ? paquete.precioUSD : paquete.precioARS,
+        precioFinal,
         uidJugador: datos.uidJugador || '',
         regionJugador: datos.regionJugador || '',
         tipoDatoEntrega: datos.tipoDatoEntrega || '',
