@@ -224,6 +224,8 @@ function AdminProducts() {
                     <button className="btn-nav" onClick={() => navigate('/gp-admin-panel')}>Órdenes</button>
                     <button className="btn-nav active-admin">Productos</button>
                     <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/banners')}>Banners</button>
+                    <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/users')}>Usuarios / Billetera</button>
+                    <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/exchange-rates')}>Monedas</button>
                 </div>
                 <button className="btn-select btn-new-game" onClick={() => handleOpenModal()}>+ Nuevo Juego</button>
             </div>

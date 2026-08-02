@@ -9,7 +9,7 @@ const { authLimiter } = require('../middleware/rateLimit');
 // Ruta de Registro
 router.post('/register', authLimiter, async (req, res) => {
     try {
-        const { nombre, email, password } = req.body;
+        const { nombre, email, password, wallet_currency } = req.body;
 
         // Encriptar contraseña
         const salt = await bcrypt.genSalt(10);
@@ -18,7 +18,8 @@ router.post('/register', authLimiter, async (req, res) => {
         const nuevoUsuario = new User({
             nombre,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            wallet_currency: wallet_currency || ''
         });
 
         await nuevoUsuario.save();
@@ -58,7 +59,9 @@ router.post('/login', authLimiter, async (req, res) => {
                 id: usuario._id,
                 nombre: usuario.nombre,
                 email: usuario.email,
-                rol: usuario.rol
+                rol: usuario.rol,
+                wallet_currency: usuario.wallet_currency,
+                wallet_balance: usuario.wallet_balance
             }
         });
 
@@ -81,8 +84,11 @@ router.get('/perfil', auth, async (req, res) => {
 // Actualizar Perfil
 router.put('/perfil', auth, async (req, res) => {
     try {
-        const { nombre, whatsapp, password } = req.body;
+        const { nombre, whatsapp, password, wallet_currency } = req.body;
         const updates = { nombre, whatsapp };
+        if (wallet_currency) {
+            updates.wallet_currency = wallet_currency;
+        }
 
         if (password) {
             const salt = await bcrypt.genSalt(10);

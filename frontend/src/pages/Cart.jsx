@@ -4,7 +4,7 @@ import { FiTrash2 } from 'react-icons/fi';
 import './Cart.css';
 
 function Cart() {
-    const { carrito, eliminarDelCarrito, totalCarrito, moneda } = useCart();
+    const { carrito, eliminarDelCarrito, totalCarrito, moneda, getPrecioNormal, getPrecioCalculado, formatPrice } = useCart();
     const navigate = useNavigate();
 
     if (carrito.length === 0) {
@@ -25,15 +25,11 @@ function Cart() {
 
             <div className="cart-list">
                 {carrito.map((item) => {
-                    const tieneDescuento = moneda === 'USD'
-                        ? (item.precioUSDDescuento != null && item.precioUSDDescuento > 0)
-                        : (item.precioARSDescuento != null && item.precioARSDescuento > 0);
-                    const precioNormal = moneda === 'USD'
-                        ? `U$D ${Number(item.precioUSD).toFixed(2)}`
-                        : `$ ${Math.round(Number(item.precioARS))}`;
-                    const precioDesc = moneda === 'USD'
-                        ? `U$D ${Number(item.precioUSDDescuento).toFixed(2)}`
-                        : `$ ${Math.round(Number(item.precioARSDescuento))}`;
+                    const precioNormalValue = getPrecioNormal(item);
+                    const precioNormal = formatPrice(precioNormalValue);
+                    const precioCalculadoValue = getPrecioCalculado(item);
+                    const tieneDescuento = precioNormalValue > precioCalculadoValue;
+                    const precioDesc = formatPrice(precioCalculadoValue);
                     return (
                         <div key={item.id} className="cart-item card-glass">
                             <div className="cart-item-info">
@@ -67,7 +63,7 @@ function Cart() {
             <div className="cart-summary card-glass">
                 <div className="cart-total">
                     <span>Total</span>
-                    <strong>{moneda === 'USD' ? `U$D ${Number(totalCarrito).toFixed(2)}` : `$ ${Math.round(Number(totalCarrito))}`}</strong>
+                    <strong>{formatPrice(totalCarrito)}</strong>
                 </div>
                 <p style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '15px', textAlign: 'center' }}>
                     * Los precios en pesos argentinos son finales.

@@ -14,6 +14,8 @@ import Checkout from './pages/Checkout';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
 import AdminBanners from './pages/AdminBanners';
+import AdminUsers from './pages/AdminUsers';
+import AdminExchangeRates from './pages/AdminExchangeRates';
 import Perfil from './pages/Perfil';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -62,6 +64,8 @@ function App() {
             <Route path="/gp-admin-panel" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             <Route path="/gp-admin-panel/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
             <Route path="/gp-admin-panel/banners" element={<AdminRoute><AdminBanners /></AdminRoute>} />
+            <Route path="/gp-admin-panel/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+            <Route path="/gp-admin-panel/exchange-rates" element={<AdminRoute><AdminExchangeRates /></AdminRoute>} />
           </Routes>
         </div>
         <Footer />

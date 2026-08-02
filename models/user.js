@@ -6,6 +6,8 @@ const UserSchema = new mongoose.Schema({
     password: { type: String, required: true },
     whatsapp: { type: String, default: '' },
     rol: { type: String, default: 'cliente' },
+    wallet_currency: { type: String, default: '' },
+    wallet_balance: { type: Number, default: 0 },
     fechaCreacion: { type: Date, default: Date.now }
 });
 

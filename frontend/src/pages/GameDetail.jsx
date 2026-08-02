@@ -8,7 +8,7 @@ import './GameDetail.css';
 function GameDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { agregarAlCarrito, moneda } = useCart();
+    const { agregarAlCarrito, moneda, getPrecioNormal, getPrecioCalculado, formatPrice } = useCart();
 
     const [juego, setJuego] = useState(null);
     const [cargando, setCargando] = useState(true);
@@ -177,23 +177,17 @@ function GameDetail() {
                                 const sinStock = paquete.stock !== null && paquete.stock !== undefined && paquete.stock <= 0;
 
                                 // Determinar precios normales y con descuento
-                                const precioNormal = moneda === 'USD'
-                                    ? `U$D ${Number(paquete.precioUSD).toFixed(2)}`
-                                    : `$ ${Math.round(Number(paquete.precioARS))}`;
+                                const precioNormalValue = getPrecioNormal(paquete);
+                                const precioNormal = formatPrice(precioNormalValue);
 
-                                const tieneDescuento = moneda === 'USD'
-                                    ? (paquete.precioUSDDescuento != null && paquete.precioUSDDescuento > 0)
-                                    : (paquete.precioARSDescuento != null && paquete.precioARSDescuento > 0);
+                                const precioCalculadoValue = getPrecioCalculado(paquete);
+                                const tieneDescuento = precioNormalValue > precioCalculadoValue;
 
-                                const precioDescuento = moneda === 'USD'
-                                    ? `U$D ${Number(paquete.precioUSDDescuento).toFixed(2)}`
-                                    : `$ ${Math.round(Number(paquete.precioARSDescuento))}`;
+                                const precioDescuento = formatPrice(precioCalculadoValue);
 
                                 // Calcular porcentaje de descuento
                                 const pctDescuento = tieneDescuento
-                                    ? Math.round((1 - (moneda === 'USD'
-                                        ? Number(paquete.precioUSDDescuento) / Number(paquete.precioUSD)
-                                        : Number(paquete.precioARSDescuento) / Number(paquete.precioARS))) * 100)
+                                    ? Math.round((1 - (precioCalculadoValue / precioNormalValue)) * 100)
                                     : 0;
 
                                 return (
@@ -301,13 +295,8 @@ function GameDetail() {
                             {mensaje !== '¡Agregado al carrito!' && (
                                 <button type="submit" className="btn-select btn-minimal-submit">
                                     {(() => {
-                                        const tieneDescuento = moneda === 'USD'
-                                            ? (paqueteSeleccionado.precioUSDDescuento != null && paqueteSeleccionado.precioUSDDescuento > 0)
-                                            : (paqueteSeleccionado.precioARSDescuento != null && paqueteSeleccionado.precioARSDescuento > 0);
-                                        const precio = tieneDescuento
-                                            ? (moneda === 'USD' ? `U$D ${Number(paqueteSeleccionado.precioUSDDescuento).toFixed(2)}` : `$ ${Math.round(Number(paqueteSeleccionado.precioARSDescuento))}`)
-                                            : (moneda === 'USD' ? `U$D ${Number(paqueteSeleccionado.precioUSD).toFixed(2)}` : `$ ${Math.round(Number(paqueteSeleccionado.precioARS))}`);
-                                        return `Agregar • ${precio}`;
+                                        const finalPriceValue = getPrecioCalculado(paqueteSeleccionado);
+                                        return `Agregar • ${formatPrice(finalPriceValue)}`;
                                     })()}
                                 </button>
                             )}

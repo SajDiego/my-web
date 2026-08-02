@@ -41,6 +41,11 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/banners', require('./routes/banners'));
 app.use('/api/coupons', require('./routes/coupons'));
 app.use('/api/games', require('./routes/games'));
+app.use('/api/exchange-rates', require('./routes/exchangeRates'));
+app.use('/api/users', require('./routes/users'));
+
+const { loadRates } = require('./utils/exchangeCache');
+loadRates(); // Carga las tasas en caché al iniciar el servidor
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

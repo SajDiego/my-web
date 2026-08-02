@@ -177,6 +177,8 @@ function AdminBanners() {
                     <button className="btn-nav" onClick={() => navigate('/gp-admin-panel')}>Órdenes</button>
                     <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/products')}>Productos</button>
                     <button className="btn-nav active-admin">Banners</button>
+                    <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/users')}>Usuarios / Billetera</button>
+                    <button className="btn-nav" onClick={() => navigate('/gp-admin-panel/exchange-rates')}>Monedas</button>
                 </div>
             </div>
 

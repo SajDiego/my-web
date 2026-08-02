@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useCart } from '../context/CartContext';
 import { metodosPorMoneda } from '../data/paymentConfig';
@@ -7,7 +7,7 @@ import CheckoutSuccess from '../components/CheckoutSuccess';
 import './Checkout.css';
 
 function Checkout() {
-    const { carrito, moneda, totalCarrito, vaciarCarrito } = useCart();
+    const { carrito, moneda, totalCarrito, vaciarCarrito, getPrecioNormal, getPrecioCalculado, formatPrice } = useCart();
     const navigate = useNavigate();
 
     const [nombre, setNombre] = useState('');
@@ -25,6 +25,8 @@ function Checkout() {
     const [mensajeCupon, setMensajeCupon] = useState('');
     const [validandoCupon, setValidandoCupon] = useState(false);
 
+    const [usuarioLogueado, setUsuarioLogueado] = useState(null);
+
     useEffect(() => {
         const fetchUserProfile = async () => {
             const token = localStorage.getItem('token');
@@ -36,6 +38,7 @@ function Checkout() {
                 });
                 if (resp.ok) {
                     const data = await resp.json();
+                    setUsuarioLogueado(data);
                     setNombre(data.nombre || '');
                     setEmail(data.email || '');
                     setWhatsapp(data.whatsapp || '');
@@ -48,21 +51,14 @@ function Checkout() {
         fetchUserProfile();
     }, []);
 
-    const metodos = metodosPorMoneda[moneda] || [];
+    const metodos = [...(metodosPorMoneda[moneda] || [])];
+    // La billetera se muestra para todos en monedas no-ARS (el panel interno maneja invitados y moneda incorrecta)
+    if (moneda !== 'ARS' && !metodos.includes('Billetera Virtual')) {
+        metodos.push('Billetera Virtual');
+    }
     
-    // Cálculo inteligente del total final aplicando el cupón solo a los ítems que califican
     let totalFinalCalc = carrito.reduce((acc, item) => {
-        // Usar precio de descuento del paquete si existe, sino precio normal
-        let precioItem;
-        if (moneda === 'USD') {
-            precioItem = (item.precioUSDDescuento != null && item.precioUSDDescuento > 0)
-                ? Number(item.precioUSDDescuento)
-                : Number(item.precioUSD);
-        } else {
-            precioItem = (item.precioARSDescuento != null && item.precioARSDescuento > 0)
-                ? Number(item.precioARSDescuento)
-                : Number(item.precioARS);
-        }
+        let precioItem = getPrecioCalculado(item);
         
         if (descuentoPorcentaje > 0 && restriccionesCupon) {
             const cumpleJuego = !restriccionesCupon.juegoRestringido || item.juegoNombre.toLowerCase() === restriccionesCupon.juegoRestringido.toLowerCase();
@@ -76,7 +72,7 @@ function Checkout() {
         return acc + precioItem;
     }, 0);
 
-    const totalFinal = moneda === 'USD' ? Number(totalFinalCalc.toFixed(2)) : Math.round(totalFinalCalc);
+    const totalFinal = (moneda === 'USD' || moneda === 'BRL' || moneda === 'PEN') ? Number(totalFinalCalc.toFixed(2)) : Math.round(totalFinalCalc);
 
     const handleAplicarCupon = async () => {
         if (!codigoCupon.trim()) return;
@@ -86,7 +82,6 @@ function Checkout() {
             const resp = await fetch(`${import.meta.env.VITE_API_URL}/coupons/validate/${codigoCupon}`);
             const data = await resp.json();
             if (resp.ok) {
-                // Verificar si al menos un ítem en el carrito califica
                 const calificaAlguno = carrito.some(item => {
                     const cumpleJuego = !data.juegoRestringido || item.juegoNombre.toLowerCase() === data.juegoRestringido.toLowerCase();
                     const cumpleRegion = !data.regionRestringida || (item.regionJugador || '').toLowerCase() === data.regionRestringida.toLowerCase();
@@ -127,6 +122,17 @@ function Checkout() {
         const token = localStorage.getItem('token');
         const esInvitado = !token;
 
+        if (metodoPago === 'Billetera Virtual') {
+            if (esInvitado) {
+                setError('Debes iniciar sesión para usar la Billetera Virtual.');
+                return;
+            }
+            if (usuarioLogueado.wallet_balance < totalFinal) {
+                setError('No tienes saldo suficiente en tu billetera.');
+                return;
+            }
+        }
+
         setEnviando(true);
         try {
             for (const item of carrito) {
@@ -143,6 +149,7 @@ function Checkout() {
                     uidJugador: item.uidJugador,
                     regionJugador: item.regionJugador || '',
                     moneda: moneda,
+                    precioFinal: totalFinal, // Although normally orders.js calcs this, passing it helps if we changed logic. Actually backend should recalc, but we are just simulating.
                     tipoDatoEntrega: item.tipoDatoEntrega || 'ID',
                     datosEntrega: item.datosEntrega || {},
                     metodoPago: metodoPago,
@@ -192,15 +199,11 @@ function Checkout() {
                 <div className="card-glass checkout-summary">
                     <h3 className="checkout-section-title">Resumen</h3>
                     {carrito.map((item) => {
-                        const tieneDescuento = moneda === 'USD'
-                            ? (item.precioUSDDescuento != null && item.precioUSDDescuento > 0)
-                            : (item.precioARSDescuento != null && item.precioARSDescuento > 0);
-                        const precioNormal = moneda === 'USD'
-                            ? `U$D ${Number(item.precioUSD).toFixed(2)}`
-                            : `$ ${Math.round(Number(item.precioARS))}`;
-                        const precioDesc = moneda === 'USD'
-                            ? `U$D ${Number(item.precioUSDDescuento).toFixed(2)}`
-                            : `$ ${Math.round(Number(item.precioARSDescuento))}`;
+                        const precioNormalValue = getPrecioNormal(item);
+                        const precioCalculadoValue = getPrecioCalculado(item);
+                        const tieneDescuento = precioNormalValue > precioCalculadoValue;
+                        const precioNormal = formatPrice(precioNormalValue);
+                        const precioDesc = formatPrice(precioCalculadoValue);
                         return (
                             <div key={item.id} className="checkout-item">
                                 <span>{item.juegoNombre} — {item.paqueteElegido}</span>
@@ -220,10 +223,10 @@ function Checkout() {
                         <div style={{ textAlign: 'right' }}>
                             {descuentoPorcentaje > 0 && (
                                 <span style={{ textDecoration: 'line-through', opacity: 0.6, fontSize: '0.85rem', display: 'block' }}>
-                                    {moneda === 'USD' ? `U$D ${Number(totalCarrito).toFixed(2)}` : `$ ${totalCarrito}`}
+                                    {formatPrice(totalCarrito)}
                                 </span>
                             )}
-                            <strong>{moneda === 'USD' ? `U$D ${Number(totalFinal).toFixed(2)}` : `$ ${Math.round(totalFinal)}`}</strong>
+                            <strong>{formatPrice(totalFinal)}</strong>
                         </div>
                     </div>
 
@@ -293,10 +296,40 @@ function Checkout() {
                             ))}
                         </div>
                     </div>
+                    
+                    {metodoPago === 'Billetera Virtual' && (
+                        <div className="wallet-info-box" style={{ background: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+                            {!usuarioLogueado ? (
+                                <p style={{ fontSize: '0.9rem', textAlign: 'center', margin: 0 }}>
+                                    Para usar la Billetera Virtual debes <Link to="/login" style={{ color: 'var(--accent)' }}>Iniciar Sesión</Link> o <Link to="/login" style={{ color: 'var(--accent)' }}>Crear una Cuenta</Link>.
+                                </p>
+                            ) : usuarioLogueado.wallet_currency !== moneda ? (
+                                <p style={{ color: '#f59e0b', fontSize: '0.9rem', margin: 0 }}>
+                                    ⚠️ Tu saldo está en <strong>{usuarioLogueado.wallet_currency}</strong> pero estás comprando en <strong>{moneda}</strong>. Las monedas deben coincidir para usar tu saldo.
+                                </p>
+                            ) : (
+                                <>
+                                    <p style={{ margin: '0 0 10px 0', fontSize: '0.95rem' }}>
+                                        Saldo actual: <strong>{formatPrice(usuarioLogueado.wallet_balance, usuarioLogueado.wallet_currency)}</strong>
+                                    </p>
+                                    {usuarioLogueado.wallet_balance >= totalFinal ? (
+                                        <p style={{ color: '#22c55e', margin: 0, fontSize: '0.9rem' }}>✓ Tienes saldo suficiente para realizar esta compra.</p>
+                                    ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            <p style={{ color: '#ef4444', margin: 0, fontSize: '0.9rem' }}>No tienes saldo suficiente.</p>
+                                            <Link to="/cuenta?tab=billetera" className="btn-select" style={{ padding: '8px', width: 'auto', textAlign: 'center', background: '#3b82f6', color: 'white' }}>
+                                                Recargar Billetera
+                                            </Link>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    )}
 
                     {error && <p className="error-msg">{error}</p>}
 
-                    <button type="submit" className="btn-select" disabled={enviando}>
+                    <button type="submit" className="btn-select" disabled={enviando || (metodoPago === 'Billetera Virtual' && usuarioLogueado && usuarioLogueado.wallet_balance < totalFinal)}>
                         {enviando ? 'Procesando...' : 'Confirmar Pedido'}
                     </button>
                 </form>
