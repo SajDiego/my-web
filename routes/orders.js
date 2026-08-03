@@ -6,6 +6,7 @@ const admin = require('../middleware/adminMiddleware');
 const Product = require('../models/product');
 const Counter = require('../models/counter');
 const User = require('../models/user');
+const Coupon = require('../models/coupon');
 const { enviarEmailAdmin, enviarEmailCliente, enviarEmailOrdenCompletada } = require('../utils/emailService');
 const { enviarNotificacionTelegram } = require('../utils/telegram');
 const { getRates } = require('../utils/exchangeCache');
@@ -67,7 +68,38 @@ async function procesarCreacionOrden(datos, usuarioReq = null) {
         }
     }
 
-    if (datos.metodoPago === 'Billetera Virtual') {
+    // APLICAR CUPÓN SI EXISTE
+    let cuponAplicado = null;
+    if (datos.codigoCupon) {
+        cuponAplicado = await Coupon.findOne({ codigo: datos.codigoCupon.toUpperCase(), activo: true });
+        if (cuponAplicado) {
+            // Verificar limites
+            const limiteValido = cuponAplicado.usoMaximo === null || cuponAplicado.usoActual < cuponAplicado.usoMaximo;
+            
+            // Verificar restricciones
+            const cumpleJuego = !cuponAplicado.juegoRestringido || datos.juegoNombre.toLowerCase() === cuponAplicado.juegoRestringido.toLowerCase();
+            const cumpleRegion = !cuponAplicado.regionRestringida || (datos.regionJugador || '').toLowerCase() === cuponAplicado.regionRestringida.toLowerCase();
+            const cumplePaquete = !cuponAplicado.paqueteRestringido || datos.paqueteElegido.toLowerCase() === cuponAplicado.paqueteRestringido.toLowerCase();
+            
+            if (limiteValido && cumpleJuego && cumpleRegion && cumplePaquete) {
+                precioFinal = precioFinal - (precioFinal * (cuponAplicado.descuentoPorcentaje / 100));
+            } else {
+                cuponAplicado = null; // No aplica a este item o caducó
+            }
+        }
+    }
+
+    // Redondear a decimales seguros para comparaciones
+    precioFinal = (datos.moneda === 'USD' || datos.moneda === 'BRL' || datos.moneda === 'PEN') ? Number(precioFinal.toFixed(2)) : Math.round(precioFinal);
+
+    // PROTECCIÓN CONTRA CACHÉ: Verificamos si el precio que el usuario vio en pantalla coincide con el del servidor
+    if (datos.precioEsperado !== undefined) {
+        if (Math.abs(precioFinal - datos.precioEsperado) > 0.05) {
+            throw new Error("Los precios han cambiado debido a una actualización reciente. Por favor, recarga la página e inténtalo de nuevo.");
+        }
+    }
+
+    if (datos.metodoPago === 'Mi Saldo' || datos.metodoPago === 'Billetera Virtual') {
         if (!usuarioReq) throw new Error("Debes iniciar sesión para usar tu billetera.");
         const usuarioDb = await User.findById(usuarioReq.id);
         if (!usuarioDb) throw new Error("Usuario no encontrado.");
@@ -116,6 +148,11 @@ async function procesarCreacionOrden(datos, usuarioReq = null) {
 
     const nuevaOrden = new Order(configOrden);
     await nuevaOrden.save();
+
+    if (cuponAplicado) {
+        cuponAplicado.usoActual += 1;
+        await cuponAplicado.save();
+    }
 
     try {
         let emailCliente = '';

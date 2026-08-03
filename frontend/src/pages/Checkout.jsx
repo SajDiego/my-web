@@ -53,8 +53,8 @@ function Checkout() {
 
     const metodos = [...(metodosPorMoneda[moneda] || [])];
     // La billetera se muestra para todos en monedas no-ARS (el panel interno maneja invitados y moneda incorrecta)
-    if (moneda !== 'ARS' && !metodos.includes('Billetera Virtual')) {
-        metodos.push('Billetera Virtual');
+    if (moneda !== 'ARS' && !metodos.includes('Mi Saldo')) {
+        metodos.push('Mi Saldo');
     }
     
     let totalFinalCalc = carrito.reduce((acc, item) => {
@@ -114,6 +114,16 @@ function Checkout() {
         e.preventDefault();
         setError('');
 
+        if (!nombre.trim() || !email.trim() || !whatsapp.trim()) {
+            setError('Por favor, completa tus datos personales correctamente sin dejar espacios en blanco.');
+            return;
+        }
+
+        if (whatsapp.trim().length < 6) {
+            setError('Por favor, ingresa un número de teléfono/WhatsApp válido.');
+            return;
+        }
+
         if (!metodoPago) {
             setError('Selecciona un método de pago.');
             return;
@@ -122,9 +132,9 @@ function Checkout() {
         const token = localStorage.getItem('token');
         const esInvitado = !token;
 
-        if (metodoPago === 'Billetera Virtual') {
+        if (metodoPago === 'Mi Saldo') {
             if (esInvitado) {
-                setError('Debes iniciar sesión para usar la Billetera Virtual.');
+                setError('Debes iniciar sesión para usar tu Saldo.');
                 return;
             }
             if (usuarioLogueado.wallet_balance < totalFinal) {
@@ -143,13 +153,25 @@ function Checkout() {
                 const headers = { 'Content-Type': 'application/json' };
                 if (!esInvitado) headers['x-auth-token'] = token;
 
+                let precioUnidad = getPrecioCalculado(item);
+                if (descuentoPorcentaje > 0 && restriccionesCupon) {
+                    const cumpleJuego = !restriccionesCupon.juegoRestringido || item.juegoNombre.toLowerCase() === restriccionesCupon.juegoRestringido.toLowerCase();
+                    const cumpleRegion = !restriccionesCupon.regionRestringida || (item.regionJugador || '').toLowerCase() === restriccionesCupon.regionRestringida.toLowerCase();
+                    const cumplePaquete = !restriccionesCupon.paqueteRestringido || item.paqueteElegido.toLowerCase() === restriccionesCupon.paqueteRestringido.toLowerCase();
+                    if (cumpleJuego && cumpleRegion && cumplePaquete) {
+                        precioUnidad = precioUnidad - (precioUnidad * (descuentoPorcentaje / 100));
+                    }
+                }
+                const precioEsperado = (moneda === 'USD' || moneda === 'BRL' || moneda === 'PEN') ? Number(precioUnidad.toFixed(2)) : Math.round(precioUnidad);
+
                 const body = {
                     juegoNombre: item.juegoNombre,
                     paqueteElegido: item.paqueteElegido,
                     uidJugador: item.uidJugador,
                     regionJugador: item.regionJugador || '',
                     moneda: moneda,
-                    precioFinal: totalFinal, // Although normally orders.js calcs this, passing it helps if we changed logic. Actually backend should recalc, but we are just simulating.
+                    precioEsperado: precioEsperado,
+                    codigoCupon: descuentoPorcentaje > 0 ? codigoCupon : '',
                     tipoDatoEntrega: item.tipoDatoEntrega || 'ID',
                     datosEntrega: item.datosEntrega || {},
                     metodoPago: metodoPago,
@@ -297,11 +319,11 @@ function Checkout() {
                         </div>
                     </div>
                     
-                    {metodoPago === 'Billetera Virtual' && (
+                    {metodoPago === 'Mi Saldo' && (
                         <div className="wallet-info-box" style={{ background: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
                             {!usuarioLogueado ? (
                                 <p style={{ fontSize: '0.9rem', textAlign: 'center', margin: 0 }}>
-                                    Para usar la Billetera Virtual debes <Link to="/login" style={{ color: 'var(--accent)' }}>Iniciar Sesión</Link> o <Link to="/login" style={{ color: 'var(--accent)' }}>Crear una Cuenta</Link>.
+                                    Para usar tu Saldo debes <Link to="/login" style={{ color: 'var(--accent)' }}>Iniciar Sesión</Link> o <Link to="/login" style={{ color: 'var(--accent)' }}>Crear una Cuenta</Link>.
                                 </p>
                             ) : usuarioLogueado.wallet_currency !== moneda ? (
                                 <p style={{ color: '#f59e0b', fontSize: '0.9rem', margin: 0 }}>

@@ -88,7 +88,7 @@ router.patch('/:id/reset', auth, admin, async (req, res) => {
         const cupon = await Coupon.findByIdAndUpdate(
             req.params.id,
             { usoActual: 0, activo: true },
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!cupon) return res.status(404).json({ error: "Cupón no encontrado." });
         res.json({ mensaje: "Contador reseteado.", cupon });

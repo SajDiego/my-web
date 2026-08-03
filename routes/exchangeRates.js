@@ -26,7 +26,7 @@ router.put('/', auth, admin, async (req, res) => {
             await ExchangeRate.findOneAndUpdate(
                 { moneda: rate.moneda },
                 { tasa: rate.tasa, factor_redondeo: rate.factor_redondeo },
-                { upsert: true, new: true }
+                { upsert: true, returnDocument: 'after' }
             );
         }
         
