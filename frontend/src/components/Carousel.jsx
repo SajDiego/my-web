@@ -25,7 +25,7 @@ function Carousel() {
     if (slides.length <= 1) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 10000);
     return () => clearInterval(timer);
   }, [slides]);
 
@@ -57,23 +57,21 @@ function Carousel() {
             <div className="carousel-content">
               {slide.title && <h2 className="carousel-title">{slide.title}</h2>}
               {slide.subtitle && <p className="carousel-subtitle">{slide.subtitle}</p>}
-              {slide.link && (
-                <button
-                  className="btn-select"
-                  style={{ width: 'auto', padding: '10px 24px' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.location.href = slide.link;
-                  }}
-                >
-                  Ver más
-                </button>
-              )}
+
             </div>
           </div>
         ))}
       </div>
       
+      {displaySlides[current]?.link && (
+        <button
+          className="btn-select carousel-link-btn"
+          onClick={() => { window.location.href = displaySlides[current].link; }}
+        >
+          Ver más
+        </button>
+      )}
+
       {slides.length > 1 && (
         <div className="carousel-dots">
           {slides.map((_, index) => (
