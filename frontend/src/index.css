@@ -86,12 +86,13 @@ select {
 
 .section-title,
 .home-title {
-    font-family: var(--font-heading);
-    font-size: clamp(1.3rem, 2.5vw, 1.7rem);
-    font-weight: 700;
+    font-family: var(--font-body);
+    font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+    font-weight: 600;
+    text-transform: uppercase;
     color: #fff;
     margin-bottom: 1.2rem;
-    letter-spacing: -0.02em;
+    letter-spacing: 1px;
 }
 
 .home-subtitle {
