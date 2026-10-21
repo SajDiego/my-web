@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useCart } from '../context/CartContext';
 import { TrustBar } from '../components/TrustBar';
@@ -8,6 +8,7 @@ import './GameDetail.css';
 function GameDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { agregarAlCarrito, moneda, getPrecioNormal, getPrecioCalculado, formatPrice } = useCart();
 
     const [juego, setJuego] = useState(null);
@@ -28,7 +29,18 @@ function GameDetail() {
 
                 if (data.paquetes && data.paquetes.length > 0) {
                     const uniqueRegions = [...new Set(data.paquetes.map(p => p.region || 'Global'))];
-                    setRegionSeleccionada(uniqueRegions[0]);
+                    const targetRegion = location.state?.region;
+                    const targetPaqueteId = location.state?.paqueteId;
+
+                    const initialRegion = targetRegion && uniqueRegions.includes(targetRegion) ? targetRegion : uniqueRegions[0];
+                    setRegionSeleccionada(initialRegion);
+
+                    if (targetPaqueteId) {
+                        const pack = data.paquetes.find(p => p._id === targetPaqueteId);
+                        if (pack) {
+                            setPaqueteSeleccionado(pack);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error("Error cargando el juego:", error);
@@ -37,7 +49,7 @@ function GameDetail() {
             }
         };
         cargarJuego();
-    }, [id]);
+    }, [id, location.state]);
 
     const nombreJuego = juego?.juego?.toLowerCase() || '';
     const isMobileLegends = nombreJuego.includes('mobile legends');

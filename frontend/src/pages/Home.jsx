@@ -31,10 +31,10 @@ function Home() {
         if (!productos || productos.length === 0) return [];
         
         const conf = [
-            { juegoKey: ['free fire'], paqueteKey: '1166', titulo: '1166 Diamantes' },
-            { juegoKey: ['mobile legends', 'mlbb'], paqueteKey: '575', titulo: '575 Diamantes' },
-            { juegoKey: ['call of duty', 'cod', 'codm'], paqueteKey: '420', titulo: '420 CP' },
-            { juegoKey: ['stumble guys', 'stumble'], paqueteKey: '', titulo: 'Recarga Stumble Guys' }
+            { juegoKey: ['free fire'], paqueteKeys: ['1060', '1166'], titulo: '1166 Diamantes' },
+            { juegoKey: ['mobile legends', 'mlbb'], paqueteKeys: ['500+75', '500+70', '575', '500'], titulo: '575 Diamantes' },
+            { juegoKey: ['call of duty', 'cod', 'codm'], paqueteKeys: ['420'], titulo: '420 CP' },
+            { juegoKey: ['stumble guys', 'stumble'], paqueteKeys: ['1600', 'gems'], titulo: '1600 Gemas' }
         ];
 
         const destacados = [];
@@ -43,9 +43,13 @@ function Home() {
             const juego = productos.find(p => c.juegoKey.some(key => p.juego.toLowerCase().includes(key)));
             if (juego) {
                 let paquete = null;
-                if (c.paqueteKey) {
-                    paquete = juego.paquetes?.find(p => p.nombre.toLowerCase().includes(c.paqueteKey));
+                const keys = c.paqueteKeys || (c.paqueteKey ? [c.paqueteKey] : []);
+                for (const k of keys) {
+                    paquete = juego.paquetes?.find(p => p.nombre.toLowerCase().includes(k.toLowerCase()));
+                    if (paquete) break;
                 }
+
+                const fallbackUsado = !paquete;
                 if (!paquete && juego.paquetes?.length > 0) {
                     paquete = juego.paquetes[0];
                 }
@@ -53,7 +57,7 @@ function Home() {
                     destacados.push({
                         juego: juego,
                         paquete: paquete,
-                        titulo: c.titulo
+                        titulo: fallbackUsado ? paquete.nombre : (c.titulo || paquete.nombre)
                     });
                 }
             }
@@ -96,7 +100,13 @@ function Home() {
                                 const precioFinal = formatPrice(precioCalculadoValue);
 
                                 return (
-                                    <div key={index} className="featured-product-card" onClick={() => navigate(`/game/${item.juego._id}`)}>
+                                    <div
+                                        key={index}
+                                        className="featured-product-card"
+                                        onClick={() => navigate(`/game/${item.juego._id}`, {
+                                            state: { paqueteId: item.paquete._id, region: item.paquete.region }
+                                        })}
+                                    >
                                         <div className="fp-image-container">
                                             {item.juego.imagenUrl ? <img src={item.juego.imagenUrl} alt={item.juego.juego} loading="lazy" /> : <div className="fp-placeholder">{item.juego.juego[0]}</div>}
                                         </div>
