@@ -13,6 +13,7 @@ const apiLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     skip: isLocalhost,
+    validate: { trustProxy: false },
 });
 
 // Límite estricto para rutas sensibles como Login/Registro 
@@ -23,6 +24,7 @@ const authLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     skip: isLocalhost,
+    validate: { trustProxy: false },
 });
 
 module.exports = { apiLimiter, authLimiter };

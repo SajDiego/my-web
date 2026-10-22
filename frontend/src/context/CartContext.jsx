@@ -2,10 +2,18 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 const CartContext = createContext();
 
+const DEFAULT_RATES = {
+  COP: { tasa: 3100, factor_redondeo: 100 },
+  MXN: { tasa: 17.50, factor_redondeo: 10 },
+  CLP: { tasa: 950, factor_redondeo: 10 },
+  BRL: { tasa: 5.60, factor_redondeo: 1 },
+  PEN: { tasa: 3.75, factor_redondeo: 1 }
+};
+
 export function CartProvider({ children }) {
   const [carrito, setCarrito] = useState([]);
   const [moneda, setMoneda] = useState('ARS');
-  const [exchangeRates, setExchangeRates] = useState(null);
+  const [exchangeRates, setExchangeRates] = useState(DEFAULT_RATES);
   const [walletBalance, setWalletBalance] = useState(0);
   const [walletCurrency, setWalletCurrency] = useState('USD');
 
@@ -18,7 +26,9 @@ export function CartProvider({ children }) {
         const response = await fetch(endpoint);
         if (response.ok) {
            const data = await response.json();
-           setExchangeRates(data);
+           if (data && typeof data === 'object') {
+             setExchangeRates(prev => ({ ...prev, ...data }));
+           }
         }
       } catch (err) {
         console.error('Error fetching exchange rates', err);

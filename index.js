@@ -8,7 +8,7 @@ const { apiLimiter } = require('./middleware/rateLimit');
 const app = express();
 
 // cloud run proxy inverso
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 const origenesPermitidos = [
     'https://gamepin.top',
