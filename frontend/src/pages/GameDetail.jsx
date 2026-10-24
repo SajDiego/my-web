@@ -5,6 +5,56 @@ import { useCart } from '../context/CartContext';
 import { TrustBar } from '../components/TrustBar';
 import './GameDetail.css';
 
+// Renderiza texto permitiendo links con formato [palabra](url) de forma segura (sin riesgo XSS)
+function renderTextoConLinks(texto) {
+    if (!texto || typeof texto !== 'string') return texto;
+
+    const linkRegex = /\[([^\]]+)\]\(([^)\s]+)\)/g;
+    const elements = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = linkRegex.exec(texto)) !== null) {
+        if (match.index > lastIndex) {
+            elements.push(texto.slice(lastIndex, match.index));
+        }
+
+        const label = match[1];
+        let url = match[2].trim();
+
+        // Validar seguridad de la URL
+        const isSafe = /^https?:\/\//i.test(url) || url.startsWith('/');
+        if (!isSafe && /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/.test(url)) {
+            url = `https://${url}`;
+        }
+
+        if (/^https?:\/\//i.test(url) || url.startsWith('/')) {
+            const isExternal = /^https?:\/\//i.test(url);
+            elements.push(
+                <a
+                    key={match.index}
+                    href={url}
+                    target={isExternal ? '_blank' : '_self'}
+                    rel={isExternal ? 'noopener noreferrer' : undefined}
+                    className="disclaimer-link"
+                >
+                    {label}
+                </a>
+            );
+        } else {
+            elements.push(match[0]);
+        }
+
+        lastIndex = linkRegex.lastIndex;
+    }
+
+    if (lastIndex < texto.length) {
+        elements.push(texto.slice(lastIndex));
+    }
+
+    return elements;
+}
+
 function GameDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -86,10 +136,10 @@ function GameDetail() {
                 body: JSON.stringify(body)
             });
             const data = await resp.json();
-            
+
             if (resp.ok && data.nickname) {
                 setNicknameValidado(data.nickname);
-                setMensaje(''); // Solo se muestra el ✓ Nickname arriba, sin texto extra
+                setMensaje(''); // ✓ Nickname arriba, sin texto extra
             } else {
                 setMensaje(data.error || 'ID incorrecto o jugador no encontrado.');
             }
@@ -254,7 +304,7 @@ function GameDetail() {
                                                     required={campo.requerido !== false}
                                                     style={{ appearance: 'auto', background: 'rgba(255,255,255,0.05)' }}
                                                 >
-                                                    <option value="">Selecciona {campo.label}</option>
+                                                    <option value="">Select {campo.label}</option>
                                                     {campo.opciones && campo.opciones.map((opt, i) => (
                                                         <option key={i} value={opt} style={{ background: '#1a1a1a' }}>{opt}</option>
                                                     ))}
@@ -280,9 +330,9 @@ function GameDetail() {
 
                             {mostrarVerificar && paqueteSeleccionado && (
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '15px', marginTop: '10px' }}>
-                                    <button 
-                                        type="button" 
-                                        className="btn-select" 
+                                    <button
+                                        type="button"
+                                        className="btn-select"
                                         onClick={handleValidarJugador}
                                         disabled={validando}
                                         style={{ background: '#3b82f6', color: '#fff', width: 'auto', padding: '8px 20px', fontSize: '0.9rem', marginBottom: '5px' }}
@@ -321,7 +371,7 @@ function GameDetail() {
 
                             {juego.descripcionesRegionales?.[regionSeleccionada] && (
                                 <div className="package-description-note fade-in">
-                                    {juego.descripcionesRegionales[regionSeleccionada]}
+                                    {renderTextoConLinks(juego.descripcionesRegionales[regionSeleccionada])}
                                 </div>
                             )}
                         </form>
@@ -331,7 +381,7 @@ function GameDetail() {
 
             {juego.infoExtra && (
                 <div className="region-disclaimer fade-in">
-                    {juego.infoExtra}
+                    {renderTextoConLinks(juego.infoExtra)}
                 </div>
             )}
 

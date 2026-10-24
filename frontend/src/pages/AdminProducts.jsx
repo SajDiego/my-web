@@ -341,10 +341,15 @@ function AdminProducts() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Mensaje / Info Extra (Ej: Notas de la región)</label>
+                                <label>
+                                    Mensaje / Info Extra (Ej: Notas de la región)
+                                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginLeft: '8px' }}>
+                                        (Tip: usa <code>[texto](https://link.com)</code> para links)
+                                    </span>
+                                </label>
                                 <textarea
                                     className="admin-form-textarea"
-                                    placeholder="⚠️ Este juego tiene restricciones en ciertos países..."
+                                    placeholder="⚠️ Este juego tiene restricciones... Usa [palabra](https://link.com) para links"
                                     value={formData.infoExtra}
                                     onChange={(e) => setFormData({ ...formData, infoExtra: e.target.value })}
                                 />
@@ -382,7 +387,7 @@ function AdminProducts() {
                                 </div>
                             </div>
                             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px', marginTop: '5px' }}>
-                                Información que verá el cliente al seleccionar la región.
+                                Información que verá el cliente al seleccionar la región. (Puedes usar <code>[texto](url)</code> para links)
                             </p>
                             {[...new Set(formData.paquetes.map(p => p.region || 'Global'))]
                                 .filter(reg => regionFilter === 'Todas' || regionFilter === reg)
@@ -392,7 +397,7 @@ function AdminProducts() {
                                         <textarea
                                             className="admin-form-textarea"
                                             style={{ minHeight: '60px' }}
-                                            placeholder={`Información específica para ${reg}...`}
+                                            placeholder={`Información específica para ${reg}... (admite [texto](url))`}
                                             value={formData.descripcionesRegionales?.[reg] || ''}
                                             onChange={(e) => setFormData({
                                                 ...formData,

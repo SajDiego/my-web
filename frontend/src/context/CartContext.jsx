@@ -21,14 +21,14 @@ export function CartProvider({ children }) {
     const fetchRates = async () => {
       try {
         const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-        // VITE_API_URL suele incluir el /api, así que construimos la URL correctamente
+
         const endpoint = API_URL.endsWith('/api') ? `${API_URL}/exchange-rates` : `${API_URL}/api/exchange-rates`;
         const response = await fetch(endpoint);
         if (response.ok) {
-           const data = await response.json();
-           if (data && typeof data === 'object') {
-             setExchangeRates(prev => ({ ...prev, ...data }));
-           }
+          const data = await response.json();
+          if (data && typeof data === 'object') {
+            setExchangeRates(prev => ({ ...prev, ...data }));
+          }
         }
       } catch (err) {
         console.error('Error fetching exchange rates', err);
@@ -102,25 +102,25 @@ export function CartProvider({ children }) {
   };
 
   const getPrecioNormal = (item, tempMoneda = moneda) => {
-     if (tempMoneda === 'USD') return Number(item.precioUSD);
-     if (tempMoneda === 'ARS') return Number(item.precioARS);
-     
-     const baseUSD = Number(item.precioUSD);
-     if (!exchangeRates || !exchangeRates[tempMoneda]) return baseUSD;
-     const { tasa, factor_redondeo } = exchangeRates[tempMoneda];
-     const precioConvertido = baseUSD * tasa;
-     
-     if (precioConvertido < 10) return Math.ceil(precioConvertido * 100) / 100;
-     if (precioConvertido < 100) return Math.ceil(precioConvertido);
-     if (precioConvertido < 1000) return Math.ceil(precioConvertido / 10) * 10;
-     return Math.ceil(precioConvertido / factor_redondeo) * factor_redondeo;
+    if (tempMoneda === 'USD') return Number(item.precioUSD);
+    if (tempMoneda === 'ARS') return Number(item.precioARS);
+
+    const baseUSD = Number(item.precioUSD);
+    if (!exchangeRates || !exchangeRates[tempMoneda]) return baseUSD;
+    const { tasa, factor_redondeo } = exchangeRates[tempMoneda];
+    const precioConvertido = baseUSD * tasa;
+
+    if (precioConvertido < 10) return Math.ceil(precioConvertido * 100) / 100;
+    if (precioConvertido < 100) return Math.ceil(precioConvertido);
+    if (precioConvertido < 1000) return Math.ceil(precioConvertido / 10) * 10;
+    return Math.ceil(precioConvertido / factor_redondeo) * factor_redondeo;
   };
 
   const formatPrice = (value, tempMoneda = moneda) => {
-      if (tempMoneda === 'USD') return `U$D ${Number(value).toFixed(2)}`;
-      if (tempMoneda === 'BRL') return `R$ ${value}`;
-      if (tempMoneda === 'PEN') return `S/ ${value}`;
-      return `$ ${value}`;
+    if (tempMoneda === 'USD') return `U$D ${Number(value).toFixed(2)}`;
+    if (tempMoneda === 'BRL') return `R$ ${value}`;
+    if (tempMoneda === 'PEN') return `S/ ${value}`;
+    return `$ ${value}`;
   };
 
   const totalCarrito = carrito.reduce((acc, item) => acc + getPrecioCalculado(item), 0);

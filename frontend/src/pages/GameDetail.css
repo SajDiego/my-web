@@ -252,6 +252,7 @@
     padding: 12px;
     border-radius: 8px;
     border: 1px dashed rgba(255, 255, 255, 0.1);
+    white-space: pre-line;
 }
 
 /* REGION SELECTOR */
@@ -296,8 +297,26 @@
     font-size: 0.85rem;
     text-align: center;
     line-height: 1.5;
+    white-space: pre-line;
 }
 
 .region-disclaimer strong {
     color: var(--text-main);
+}
+
+.region-disclaimer a,
+.package-description-note a,
+.disclaimer-link {
+    color: var(--accent-light, #8b5cf6);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 600;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.region-disclaimer a:hover,
+.package-description-note a:hover,
+.disclaimer-link:hover {
+    color: #fff;
+    opacity: 0.9;
 }
