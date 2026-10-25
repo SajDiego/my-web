@@ -56,10 +56,10 @@ function Checkout() {
     if (moneda !== 'ARS' && !metodos.includes('Mi Saldo')) {
         metodos.push('Mi Saldo');
     }
-    
+
     let totalFinalCalc = carrito.reduce((acc, item) => {
         let precioItem = getPrecioCalculado(item);
-        
+
         if (descuentoPorcentaje > 0 && restriccionesCupon) {
             const cumpleJuego = !restriccionesCupon.juegoRestringido || item.juegoNombre.toLowerCase() === restriccionesCupon.juegoRestringido.toLowerCase();
             const cumpleRegion = !restriccionesCupon.regionRestringida || (item.regionJugador || '').toLowerCase() === restriccionesCupon.regionRestringida.toLowerCase();
@@ -191,7 +191,7 @@ function Checkout() {
 
             if (codigoCupon && descuentoPorcentaje > 0) {
                 fetch(`${import.meta.env.VITE_API_URL}/coupons/use/${codigoCupon}`, { method: 'POST' })
-                    .catch(() => {});
+                    .catch(() => { });
             }
 
             vaciarCarrito();
@@ -255,17 +255,17 @@ function Checkout() {
                     <div className="coupon-section" style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                         <h4 style={{ fontSize: '0.9rem', marginBottom: '10px', color: 'var(--text-muted)' }}>¿Tienes un cupón?</h4>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <input 
-                                type="text" 
-                                className="minimal-input" 
-                                placeholder="Código" 
+                            <input
+                                type="text"
+                                className="minimal-input"
+                                placeholder="Código"
                                 value={codigoCupon}
                                 onChange={(e) => setCodigoCupon(e.target.value.toUpperCase())}
                                 style={{ flex: 1, padding: '8px 12px' }}
                             />
-                            <button 
-                                type="button" 
-                                className="btn-select" 
+                            <button
+                                type="button"
+                                className="btn-select"
                                 onClick={handleAplicarCupon}
                                 disabled={validandoCupon || !codigoCupon}
                                 style={{ width: 'auto', padding: '8px 16px', fontSize: '0.9rem' }}
@@ -286,7 +286,7 @@ function Checkout() {
                     <h3 className="checkout-section-title">Tus Datos</h3>
 
                     <div className="form-group">
-                        <label>Nombre completo</label>
+                        <label>Nombre completo / NAME</label>
                         <input type="text" placeholder="Juan Pérez" value={nombre}
                             onChange={(e) => setNombre(e.target.value)} required />
                     </div>
@@ -298,7 +298,7 @@ function Checkout() {
                     </div>
 
                     <div className="form-group">
-                        <label>WhatsApp</label>
+                        <label>WhatsApp/ Phone Number</label>
                         <input type="tel" placeholder="+54 9 11 1234-5678" value={whatsapp}
                             onChange={(e) => setWhatsapp(e.target.value.replace(/[^0-9+\s]/g, ''))} required />
                     </div>
@@ -318,7 +318,7 @@ function Checkout() {
                             ))}
                         </div>
                     </div>
-                    
+
                     {metodoPago === 'Mi Saldo' && (
                         <div className="wallet-info-box" style={{ background: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
                             {!usuarioLogueado ? (

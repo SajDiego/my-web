@@ -205,9 +205,9 @@ function GameDetail() {
                     ) : (
                         <div className="game-detail-icon">{juego.juego[0]}</div>
                     )}
-                    <div>
+                    <div className="game-detail-header-info">
                         <h1 className="hero-title-detail">{juego.juego}</h1>
-                        <p className="home-subtitle">{juego.descripcion || 'Recarga directa a tu cuenta.'}</p>
+                        <p className="home-subtitle game-detail-desc">{juego.descripcion || 'Recarga directa a tu cuenta.'}</p>
                     </div>
                 </div>
 

@@ -66,6 +66,15 @@ function Home() {
         return destacados;
     }, [productos]);
 
+    const marqueeItems = useMemo(() => {
+        if (!productosDestacados || productosDestacados.length === 0) return [];
+        let items = [...productosDestacados];
+        while (items.length < 8) {
+            items = [...items, ...productosDestacados];
+        }
+        return [...items, ...items];
+    }, [productosDestacados]);
+
     if (cargando) {
         return (
             <div className="main-content">
@@ -90,34 +99,40 @@ function Home() {
 
             <div className="home-sections" style={{ marginTop: '40px' }}>
                 {productosDestacados.length > 0 && (
-                    <section className="category-section" style={{ marginBottom: '60px' }}>
-                        <div className="section-header" style={{ marginBottom: '25px' }}>
+                    <section className="category-section featured-marquee-section" style={{ marginBottom: '60px' }}>
+                        <div className="section-header" style={{ marginBottom: '20px' }}>
                             <h2 className="section-title" style={{ margin: 0, color: '#facc15' }}>Productos Destacados</h2>
                         </div>
-                        <div className="featured-products-grid">
-                            {productosDestacados.map((item, index) => {
-                                const precioCalculadoValue = getPrecioCalculado(item.paquete);
-                                const precioFinal = formatPrice(precioCalculadoValue);
+                        <div className="featured-marquee-wrapper">
+                            <div className="featured-marquee-track">
+                                {marqueeItems.map((item, index) => {
+                                    const precioCalculadoValue = getPrecioCalculado(item.paquete);
+                                    const precioFinal = formatPrice(precioCalculadoValue);
 
-                                return (
-                                    <div
-                                        key={index}
-                                        className="featured-product-card"
-                                        onClick={() => navigate(`/game/${item.juego._id}`, {
-                                            state: { paqueteId: item.paquete._id, region: item.paquete.region }
-                                        })}
-                                    >
-                                        <div className="fp-image-container">
-                                            {item.juego.imagenUrl ? <img src={item.juego.imagenUrl} alt={item.juego.juego} loading="lazy" /> : <div className="fp-placeholder">{item.juego.juego[0]}</div>}
+                                    return (
+                                        <div
+                                            key={`${item.juego._id}-${item.paquete._id}-${index}`}
+                                            className="featured-product-card"
+                                            onClick={() => navigate(`/game/${item.juego._id}`, {
+                                                state: { paqueteId: item.paquete._id, region: item.paquete.region }
+                                            })}
+                                        >
+                                            <div className="fp-image-container">
+                                                {item.juego.imagenUrl ? (
+                                                    <img src={item.juego.imagenUrl} alt={item.juego.juego} loading="lazy" />
+                                                ) : (
+                                                    <div className="fp-placeholder">{item.juego.juego[0]}</div>
+                                                )}
+                                            </div>
+                                            <div className="fp-info">
+                                                <h3 className="fp-title">{item.titulo}</h3>
+                                                <p className="fp-game">{item.juego.juego}</p>
+                                                <div className="fp-price">{precioFinal}</div>
+                                            </div>
                                         </div>
-                                        <div className="fp-info">
-                                            <h3 className="fp-title">{item.titulo}</h3>
-                                            <p className="fp-game">{item.juego.juego}</p>
-                                            <div className="fp-price">{precioFinal}</div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
                         </div>
                     </section>
                 )}
