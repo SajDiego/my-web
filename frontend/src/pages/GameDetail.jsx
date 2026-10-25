@@ -192,9 +192,9 @@ function GameDetail() {
                 <title>{`Recargar ${juego.juego} - Entrega Inmediata | GamePin Store`}</title>
                 <meta name="description" content={`Compra ${juego.juego} al mejor precio. ${juego.descripcion || 'Recargas rápidas y seguras con entrega automática en minutos.'}`} />
                 <meta name="keywords" content={`recargar ${juego.juego}, ${juego.juego} barato, topup ${juego.juego}, comprar ${juego.juego} online, gamepin`} />
-                <link rel="canonical" href={`https://gamepin.top/product/${id}`} />
+                <link rel="canonical" href={`https://gamepin.top/game/${id}`} />
                 <meta property="og:type" content="product" />
-                <meta property="og:url" content={`https://gamepin.top/product/${id}`} />
+                <meta property="og:url" content={`https://gamepin.top/game/${id}`} />
                 <meta property="og:title" content={`Recargas para ${juego.juego} - GamePin Store`} />
                 <meta property="og:description" content={`¡No te quedes sin jugar! Recarga ${juego.juego} de forma rápida y segura aquí.`} />
                 <meta property="og:image" content={juego.imagenUrl || 'https://gamepin.top/logo.png'} />

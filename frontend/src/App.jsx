@@ -52,6 +52,7 @@ function App() {
             <Route path="/catalogo" element={<Catalog />} />
             <Route path="/login" element={<Login onLoginSuccess={(u) => setUsuario(u)} />} />
             <Route path="/game/:id" element={<GameDetail />} />
+            <Route path="/product/:id" element={<GameDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/register" element={<Register />} />

@@ -1,0 +1,16 @@
+.gcloudignore
+.git
+.gitignore
+
+# No subir dependencias (Cloud Build las instala en la nube)
+node_modules/
+frontend/node_modules/
+
+# El frontend se despliega en Vercel, Cloud Run solo necesita el backend
+frontend/
+
+# Variables de entorno y logs
+.env*
+*.log
+.vscode/
+.idea/
