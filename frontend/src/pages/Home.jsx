@@ -29,7 +29,7 @@ function Home() {
 
     const productosDestacados = useMemo(() => {
         if (!productos || productos.length === 0) return [];
-        
+
         const conf = [
             { juegoKey: ['free fire'], paqueteKeys: ['1060', '1166'], titulo: '1166 Diamantes' },
             { juegoKey: ['mobile legends', 'mlbb'], paqueteKeys: ['500+75', '500+70', '575', '500'], titulo: '575 Diamantes' },

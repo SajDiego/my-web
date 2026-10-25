@@ -8,7 +8,7 @@ function Footer() {
       <div className="footer-inner">
         <div className="footer-section">
           <h3>GamePin</h3>
-          <p>Tu tienda de confianza para recargas de juegos. Rápido, seguro y al mejor precio.</p>
+          <p>Tu tienda de recargas para Free Fire, Mobile Legends, Roblox y más juegos. Entrega inmediata, segura y al mejor precio.</p>
         </div>
         <div className="footer-section">
           <h4>Navegación</h4>
