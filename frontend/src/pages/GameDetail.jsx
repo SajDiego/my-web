@@ -191,9 +191,17 @@ function GameDetail() {
             <Helmet>
                 <title>{`Recargar ${juego.juego} - Entrega Inmediata | GamePin Store`}</title>
                 <meta name="description" content={`Compra ${juego.juego} al mejor precio. ${juego.descripcion || 'Recargas rápidas y seguras con entrega automática en minutos.'}`} />
+                <meta name="keywords" content={`recargar ${juego.juego}, ${juego.juego} barato, topup ${juego.juego}, comprar ${juego.juego} online, gamepin`} />
+                <link rel="canonical" href={`https://gamepin.top/product/${id}`} />
+                <meta property="og:type" content="product" />
+                <meta property="og:url" content={`https://gamepin.top/product/${id}`} />
                 <meta property="og:title" content={`Recargas para ${juego.juego} - GamePin Store`} />
                 <meta property="og:description" content={`¡No te quedes sin jugar! Recarga ${juego.juego} de forma rápida y segura aquí.`} />
-                {juego.imagenUrl && <meta property="og:image" content={juego.imagenUrl} />}
+                <meta property="og:image" content={juego.imagenUrl || 'https://gamepin.top/logo.png'} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={`Recargar ${juego.juego} - GamePin Store`} />
+                <meta name="twitter:description" content={`¡No te quedes sin jugar! Recarga ${juego.juego} de forma rápida y segura aquí.`} />
+                <meta name="twitter:image" content={juego.imagenUrl || 'https://gamepin.top/logo.png'} />
             </Helmet>
 
             <button className="btn-back" onClick={() => navigate('/')}>← Volver</button>

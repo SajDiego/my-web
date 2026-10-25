@@ -91,7 +91,17 @@ function Home() {
             <Helmet>
                 <title>GamePin Store - Recargas de Juegos y Gift Cards</title>
                 <meta name="description" content="La tienda más rápida para recargar diamantes, robux y pavos con entrega automática. ¡Explora nuestro catálogo!" />
-                <meta name="keywords" content="recargas free fire, diamantes free fire baratos, robux argentina, recargas de juegos, free fire topup latam, gamepin store" />
+                <meta name="keywords" content="recargas free fire, diamantes free fire baratos, robux argentina, recargas de juegos, free fire topup latam, gamepin store, mobile legends diamantes" />
+                <link rel="canonical" href="https://gamepin.top/" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://gamepin.top/" />
+                <meta property="og:title" content="GamePin Store - Recargas de Juegos y Gift Cards" />
+                <meta property="og:description" content="La tienda más rápida para recargar diamantes, robux y pavos con entrega automática." />
+                <meta property="og:image" content="https://gamepin.top/logo.png" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="GamePin Store - Recargas de Juegos" />
+                <meta name="twitter:description" content="La tienda más rápida para recargar diamantes, robux y pavos con entrega automática." />
+                <meta name="twitter:image" content="https://gamepin.top/logo.png" />
             </Helmet>
             <Carousel />
 
