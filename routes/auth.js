@@ -4,7 +4,7 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/authMiddleware');
-const { authLimiter } = require('../middleware/rateLimit');
+const { authLimiter, forgotLimiter } = require('../middleware/rateLimit');
 
 // Ruta de Registro
 router.post('/register', authLimiter, async (req, res) => {
@@ -37,12 +37,12 @@ router.post('/login', authLimiter, async (req, res) => {
 
         const usuario = await User.findOne({ email });
         if (!usuario) {
-            return res.status(400).json({ error: "El usuario no existe" });
+            return res.status(400).json({ error: "Credenciales incorrectas" });
         }
 
         const constrasenaValida = await bcrypt.compare(password, usuario.password);
         if (!constrasenaValida) {
-            return res.status(400).json({ error: "Contraseña incorrecta" });
+            return res.status(400).json({ error: "Credenciales incorrectas" });
         }
 
         // 3. Crear el Token JWT 
@@ -86,7 +86,12 @@ router.put('/perfil', auth, async (req, res) => {
     try {
         const { nombre, whatsapp, password, wallet_currency } = req.body;
         const updates = { nombre, whatsapp };
+
         if (wallet_currency) {
+            const usuarioActual = await User.findById(req.usuario.id);
+            if (wallet_currency !== usuarioActual.wallet_currency && usuarioActual.wallet_balance > 0) {
+                return res.status(400).json({ error: "No puedes cambiar la moneda con saldo disponible. Contacta a soporte." });
+            }
             updates.wallet_currency = wallet_currency;
         }
 
@@ -110,13 +115,14 @@ router.put('/perfil', auth, async (req, res) => {
 const { enviarEmailResetPassword } = require('../utils/emailService');
 
 // Olvidé mi contraseña (genera link)
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', forgotLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         const usuario = await User.findOne({ email });
         
         if (!usuario) {
-            return res.status(404).json({ error: "No existe un usuario con ese correo electrónico" });
+            // Respuesta genérica para no revelar qué emails están registrados
+            return res.json({ mensaje: "Email de recuperación enviado" });
         }
 
         // Token válido por 15 minutos

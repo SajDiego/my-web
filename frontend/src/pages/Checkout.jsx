@@ -189,10 +189,6 @@ function Checkout() {
 
             setMontoFinal(totalFinal);
 
-            if (codigoCupon && descuentoPorcentaje > 0) {
-                fetch(`${import.meta.env.VITE_API_URL}/coupons/use/${codigoCupon}`, { method: 'POST' })
-                    .catch(() => { });
-            }
 
             vaciarCarrito();
             setExito(true);

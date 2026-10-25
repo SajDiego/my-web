@@ -11,6 +11,7 @@ const { enviarEmailAdmin, enviarEmailCliente, enviarEmailOrdenCompletada } = req
 const { enviarNotificacionTelegram } = require('../utils/telegram');
 const { getRates } = require('../utils/exchangeCache');
 const WalletTransaction = require('../models/walletTransaction');
+const { orderLimiter } = require('../middleware/rateLimit');
 
 async function getNextSequenceValue(sequenceName) {
     const sequenceDocument = await Counter.findOneAndUpdate(
@@ -33,10 +34,11 @@ async function procesarCreacionOrden(datos, usuarioReq = null) {
     }
 
     if (paquete.stock !== null && paquete.stock !== undefined && paquete.stock > 0) {
-        await Product.findOneAndUpdate(
-            { _id: producto._id, 'paquetes._id': paquete._id },
+        const stockResult = await Product.findOneAndUpdate(
+            { _id: producto._id, 'paquetes._id': paquete._id, 'paquetes.stock': { $gt: 0 } },
             { $inc: { 'paquetes.$.stock': -1 } }
         );
+        if (!stockResult) throw new Error("El stock se agotó justo ahora. Inténtalo de nuevo.");
     }
 
     const numeroOrden = await getNextSequenceValue('ordenes');
@@ -101,19 +103,26 @@ async function procesarCreacionOrden(datos, usuarioReq = null) {
 
     if (datos.metodoPago === 'Mi Saldo' || datos.metodoPago === 'Billetera Virtual') {
         if (!usuarioReq) throw new Error("Debes iniciar sesión para usar tu billetera.");
-        const usuarioDb = await User.findById(usuarioReq.id);
-        if (!usuarioDb) throw new Error("Usuario no encontrado.");
-        if (usuarioDb.wallet_currency !== datos.moneda) {
-            throw new Error(`Tu saldo está en ${usuarioDb.wallet_currency}, pero la compra es en ${datos.moneda}. Las monedas deben coincidir.`);
-        }
-        if (usuarioDb.wallet_balance < precioFinal) {
+
+        const usuarioActualizado = await User.findOneAndUpdate(
+            {
+                _id: usuarioReq.id,
+                wallet_currency: datos.moneda,
+                wallet_balance: { $gte: precioFinal }
+            },
+            { $inc: { wallet_balance: -precioFinal } },
+            { returnDocument: 'after' }
+        );
+
+        if (!usuarioActualizado) {
+            const usuarioDb = await User.findById(usuarioReq.id);
+            if (!usuarioDb) throw new Error("Usuario no encontrado.");
+            if (usuarioDb.wallet_currency !== datos.moneda) {
+                throw new Error(`Tu saldo está en ${usuarioDb.wallet_currency}, pero la compra es en ${datos.moneda}.`);
+            }
             throw new Error("No tienes saldo suficiente en tu billetera virtual.");
         }
-        // Usar Math.round para evitar errores de punto flotante
-        usuarioDb.wallet_balance = Math.round((usuarioDb.wallet_balance - precioFinal) * 100) / 100;
-        await usuarioDb.save();
 
-        // Registrar transacción de consumo
         await new WalletTransaction({
             usuario: usuarioReq.id,
             tipo: 'consumo',
@@ -179,19 +188,20 @@ async function procesarCreacionOrden(datos, usuarioReq = null) {
             await Promise.all(promesas);
         }
 
-        const nombreCliente = infoUsuarioAdmin.nombre || 'Desconocido';
+        const esc = (str) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const nombreCliente = esc(infoUsuarioAdmin.nombre || 'Desconocido');
         
         let detallesJuego = '';
         if (configOrden.datosEntrega && Object.keys(configOrden.datosEntrega).length > 0) {
             for (const [key, value] of Object.entries(configOrden.datosEntrega)) {
-                detallesJuego += `\n🔹 <b>${key}:</b> ${value}`;
+                detallesJuego += `\n🔹 <b>${esc(key)}:</b> ${esc(value)}`;
             }
         } else {
-            if (configOrden.uidJugador) detallesJuego += `\n🆔 <b>ID Jugador:</b> ${configOrden.uidJugador}`;
-            if (configOrden.regionJugador) detallesJuego += `\n🌍 <b>Servidor:</b> ${configOrden.regionJugador}`;
+            if (configOrden.uidJugador) detallesJuego += `\n🆔 <b>ID Jugador:</b> ${esc(configOrden.uidJugador)}`;
+            if (configOrden.regionJugador) detallesJuego += `\n🌍 <b>Servidor:</b> ${esc(configOrden.regionJugador)}`;
         }
 
-        const msgTelegram = `🔔 <b>¡Nueva Orden #${numeroOrden}!</b>\n\n🎮 <b>Juego:</b> ${configOrden.juegoNombre}\n📦 <b>Paquete:</b> ${configOrden.paqueteElegido}${detallesJuego}\n💰 <b>Monto:</b> $${configOrden.precioFinal} ${configOrden.moneda}\n👤 <b>Cliente:</b> ${nombreCliente}\n💳 <b>Pago:</b> ${configOrden.metodoPago}`;
+        const msgTelegram = `🔔 <b>¡Nueva Orden #${numeroOrden}!</b>\n\n🎮 <b>Juego:</b> ${esc(configOrden.juegoNombre)}\n📦 <b>Paquete:</b> ${esc(configOrden.paqueteElegido)}${detallesJuego}\n💰 <b>Monto:</b> $${configOrden.precioFinal} ${configOrden.moneda}\n👤 <b>Cliente:</b> ${nombreCliente}\n💳 <b>Pago:</b> ${esc(configOrden.metodoPago)}`;
         enviarNotificacionTelegram(msgTelegram);
 
     } catch (mailErr) {
@@ -210,7 +220,7 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-router.post('/guest', async (req, res) => {
+router.post('/guest', orderLimiter, async (req, res) => {
     try {
         const orden = await procesarCreacionOrden(req.body);
         res.status(201).json({ mensaje: "¡Pedido registrado con éxito!", orden });

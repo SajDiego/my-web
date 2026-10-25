@@ -27,4 +27,26 @@ const authLimiter = rateLimit({
     validate: { trustProxy: false },
 });
 
-module.exports = { apiLimiter, authLimiter };
+// Límite para pedidos de invitados
+const orderLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 15,
+    message: { error: 'Demasiados pedidos desde esta IP, por favor espera 15 minutos.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: isLocalhost,
+    validate: { trustProxy: false },
+});
+
+// Límite para recuperación de contraseña
+const forgotLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    message: { error: 'Demasiadas solicitudes de recuperación, intenta en 1 hora.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: isLocalhost,
+    validate: { trustProxy: false },
+});
+
+module.exports = { apiLimiter, authLimiter, orderLimiter, forgotLimiter };

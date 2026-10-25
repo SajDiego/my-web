@@ -26,25 +26,6 @@ router.get('/validate/:codigo', async (req, res) => {
     }
 });
 
-router.post('/use/:codigo', async (req, res) => {
-    try {
-        const codigo = req.params.codigo.toUpperCase().trim();
-        const cupon = await Coupon.findOne({ codigo });
-        if (!cupon) return res.status(404).json({ error: "Cupón no encontrado." });
-
-        cupon.usoActual = (cupon.usoActual || 0) + 1;
-
-        if (cupon.usoMaximo !== null && cupon.usoActual >= cupon.usoMaximo) {
-            cupon.activo = false;
-        }
-
-        await cupon.save();
-        res.json({ mensaje: "Uso registrado.", usoActual: cupon.usoActual });
-    } catch (error) {
-        res.status(500).json({ error: "Error al registrar uso." });
-    }
-});
-
 router.get('/', auth, admin, async (req, res) => {
     try {
         const cupones = await Coupon.find().sort({ createdAt: -1 });
