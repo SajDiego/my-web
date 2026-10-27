@@ -14,11 +14,25 @@ function Catalog() {
     const categoriasVisibles = ['Todas', 'TopUp', 'Pines', 'PC', 'Consolas'];
 
     useEffect(() => {
+        const CACHE_KEY = 'gp_products_cache';
+        const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
         const obtenerCatalogo = async () => {
             try {
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    const { data, ts } = JSON.parse(cached);
+                    if (Date.now() - ts < CACHE_TTL) {
+                        setProductos(data);
+                        setCargando(false);
+                        return;
+                    }
+                }
                 const respuesta = await fetch(`${import.meta.env.VITE_API_URL}/products`);
                 const datos = await respuesta.json();
-                setProductos(Array.isArray(datos) ? datos : []);
+                const lista = Array.isArray(datos) ? datos : [];
+                setProductos(lista);
+                localStorage.setItem(CACHE_KEY, JSON.stringify({ data: lista, ts: Date.now() }));
             } catch (error) {
                 console.error("Error en la comunicación:", error);
             } finally {

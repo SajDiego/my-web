@@ -7,11 +7,26 @@ function Carousel() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const CACHE_KEY = 'gp_banners_cache';
+    const CACHE_TTL = 10 * 60 * 1000; // 10 minutos
+
     const fetchBanners = async () => {
       try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { data, ts } = JSON.parse(cached);
+          if (Date.now() - ts < CACHE_TTL) {
+            if (Array.isArray(data)) setSlides(data);
+            setLoading(false);
+            return;
+          }
+        }
         const res = await fetch(`${import.meta.env.VITE_API_URL}/banners`);
         const data = await res.json();
-        if (Array.isArray(data)) setSlides(data);
+        if (Array.isArray(data)) {
+          setSlides(data);
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
+        }
       } catch (error) {
         console.error("Error cargando banners:", error);
       } finally {

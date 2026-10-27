@@ -18,16 +18,28 @@ export function CartProvider({ children }) {
   const [walletCurrency, setWalletCurrency] = useState('USD');
 
   useEffect(() => {
+    const CACHE_KEY = 'gp_exchange_rates_cache';
+    const CACHE_TTL = 15 * 60 * 1000; // 15 minutos
+
     const fetchRates = async () => {
       try {
+        // Usar cache si está vigente
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { data, ts } = JSON.parse(cached);
+          if (Date.now() - ts < CACHE_TTL) {
+            setExchangeRates(prev => ({ ...prev, ...data }));
+            return;
+          }
+        }
         const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-
         const endpoint = API_URL.endsWith('/api') ? `${API_URL}/exchange-rates` : `${API_URL}/api/exchange-rates`;
         const response = await fetch(endpoint);
         if (response.ok) {
           const data = await response.json();
           if (data && typeof data === 'object') {
             setExchangeRates(prev => ({ ...prev, ...data }));
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
           }
         }
       } catch (err) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Carousel from '../components/Carousel';
@@ -10,14 +10,57 @@ function Home() {
     const { getPrecioCalculado, formatPrice } = useCart();
     const [productos, setProductos] = useState([]);
     const [cargando, setCargando] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchOpen, setSearchOpen] = useState(false);
+    const searchRef = useRef(null);
     const navigate = useNavigate();
 
+    // Cerrar dropdown al hacer click fuera
     useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (searchRef.current && !searchRef.current.contains(e.target)) {
+                setSearchOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const searchResults = useMemo(() => {
+        if (!searchTerm.trim() || searchTerm.length < 2) return [];
+        return productos
+            .filter(p => p.juego.toLowerCase().includes(searchTerm.toLowerCase()))
+            .slice(0, 6);
+    }, [searchTerm, productos]);
+
+    const handleSearchSelect = useCallback((id) => {
+        setSearchTerm('');
+        setSearchOpen(false);
+        navigate(`/game/${id}`);
+    }, [navigate]);
+
+    useEffect(() => {
+        const CACHE_KEY = 'gp_products_cache';
+        const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
         const obtenerCatalogo = async () => {
             try {
+                // Intentar usar cache si está vigente
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    const { data, ts } = JSON.parse(cached);
+                    if (Date.now() - ts < CACHE_TTL) {
+                        setProductos(data);
+                        setCargando(false);
+                        return;
+                    }
+                }
+                // Sin cache válido: hacer fetch al backend
                 const respuesta = await fetch(`${import.meta.env.VITE_API_URL}/products`);
                 const datos = await respuesta.json();
-                setProductos(Array.isArray(datos) ? datos : []);
+                const lista = Array.isArray(datos) ? datos : [];
+                setProductos(lista);
+                localStorage.setItem(CACHE_KEY, JSON.stringify({ data: lista, ts: Date.now() }));
             } catch (error) {
                 console.error("Error en la comunicación:", error);
             } finally {
@@ -83,8 +126,17 @@ function Home() {
         );
     }
 
-    const masVendidos = productos.filter(p => p.isBestSeller).slice(0, 4);
-    const nuevosLanzamientos = productos.filter(p => p.isNewRelease).slice(0, 4);
+    const obtenerRegion = (juego) => {
+        if (juego.region) return juego.region;
+        if (juego.paquetes && juego.paquetes.length > 0) {
+            const unique = [...new Set(juego.paquetes.map(p => p.region).filter(Boolean))];
+            if (unique.length > 0) return unique.join(' / ');
+        }
+        return 'Global';
+    };
+
+    const masVendidos = productos.filter(p => p.isBestSeller).slice(0, 8);
+    const nuevosLanzamientos = productos.filter(p => p.isNewRelease).slice(0, 8);
 
     return (
         <div className="home-container">
@@ -105,7 +157,50 @@ function Home() {
             </Helmet>
             <Carousel />
 
-            <TrustBar />
+            {/* Buscador */}
+            <div className="home-search-wrapper" ref={searchRef}>
+                <div className="home-search-bar">
+                    <span className="home-search-icon">🔍</span>
+                    <input
+                        id="home-search-input"
+                        type="text"
+                        className="home-search-input"
+                        placeholder="Buscar juego o recarga..."
+                        value={searchTerm}
+                        onChange={e => { setSearchTerm(e.target.value); setSearchOpen(true); }}
+                        onFocus={() => setSearchOpen(true)}
+                        autoComplete="off"
+                    />
+                    {searchTerm && (
+                        <button className="home-search-clear" onClick={() => { setSearchTerm(''); setSearchOpen(false); }}>✕</button>
+                    )}
+                </div>
+                {searchOpen && searchResults.length > 0 && (
+                    <div className="home-search-dropdown">
+                        {searchResults.map(juego => (
+                            <div
+                                key={juego._id}
+                                className="home-search-result"
+                                onClick={() => handleSearchSelect(juego._id)}
+                            >
+                                {juego.imagenUrl && (
+                                    <img src={juego.imagenUrl} alt={juego.juego} className="home-search-result-img" />
+                                )}
+                                <span className="home-search-result-name">{juego.juego}</span>
+                                <span className="home-search-result-arrow">→</span>
+                            </div>
+                        ))}
+                        <div className="home-search-see-all" onClick={() => { navigate('/catalogo'); setSearchOpen(false); }}>
+                            Ver todos los resultados en el catálogo →
+                        </div>
+                    </div>
+                )}
+                {searchOpen && searchTerm.length >= 2 && searchResults.length === 0 && (
+                    <div className="home-search-dropdown">
+                        <div className="home-search-empty">No se encontraron juegos para "{searchTerm}"</div>
+                    </div>
+                )}
+            </div>
 
             <div className="home-sections" style={{ marginTop: '40px' }}>
                 {productosDestacados.length > 0 && (
@@ -147,56 +242,90 @@ function Home() {
                     </section>
                 )}
                 {masVendidos.length > 0 && (
-                    <section className="category-section" style={{ marginBottom: '60px' }}>
+                    <section className="category-section section-best-sellers" style={{ marginBottom: '60px' }}>
                         <div className="section-header" style={{ marginBottom: '25px' }}>
                             <h2 className="section-title" style={{ margin: 0, color: 'var(--accent)' }}>Más Vendidos</h2>
                         </div>
-                        <div className="games-horizontal-scroll">
-                            {masVendidos.map((juego) => (
-                                <div key={juego._id} className="game-card" onClick={() => navigate(`/game/${juego._id}`)}>
-                                    <div className="game-card-img">
-                                        {juego.imagenUrl ? <img src={juego.imagenUrl} alt={juego.juego} loading="lazy" /> : <span className="game-card-placeholder">{juego.juego[0]}</span>}
+                        <div className="products-horizontal-grid">
+                            {masVendidos.map((juego) => {
+                                const region = obtenerRegion(juego);
+                                return (
+                                    <div
+                                        key={juego._id}
+                                        className="product-horizontal-card"
+                                        onClick={() => navigate(`/game/${juego._id}`)}
+                                    >
+                                        <div className="ph-image-container">
+                                            {juego.imagenUrl ? (
+                                                <img src={juego.imagenUrl} alt={juego.juego} loading="lazy" />
+                                            ) : (
+                                                <div className="ph-placeholder">{juego.juego[0]}</div>
+                                            )}
+                                        </div>
+                                        <div className="ph-info">
+                                            <h3 className="ph-name" title={juego.juego}>{juego.juego}</h3>
+                                            <p className="ph-region" title={region}>{region}</p>
+                                        </div>
                                     </div>
-                                    <p className="game-card-name">{juego.juego}</p>
-                                </div>
-                            ))}
-                            {/* 5ta tarjeta: Ver catálogo */}
-                            <div className="game-card view-all-card" onClick={() => navigate('/catalogo')}>
-                                <div className="game-card-img view-all-img">
-                                    <span className="view-all-icon">→</span>
-                                </div>
-                                <p className="game-card-name" style={{ color: 'var(--accent)' }}>Ver Catálogo</p>
-                            </div>
+                                );
+                            })}
+                        </div>
+                        <div className="section-view-all-container">
+                            <button
+                                className="btn-view-all-catalog"
+                                onClick={() => navigate('/catalogo')}
+                            >
+                                <span>Ver Catálogo Completo</span>
+                                <span className="view-all-arrow">→</span>
+                            </button>
                         </div>
                     </section>
                 )}
 
                 {nuevosLanzamientos.length > 0 && (
-                    <section className="category-section" style={{ marginBottom: '60px' }}>
+                    <section className="category-section section-new-releases" style={{ marginBottom: '60px' }}>
                         <div className="section-header" style={{ marginBottom: '25px' }}>
                             <h2 className="section-title" style={{ margin: 0, color: '#38bdf8' }}>Nuevos Lanzamientos</h2>
                         </div>
-                        <div className="games-horizontal-scroll">
-                            {nuevosLanzamientos.map((juego) => (
-                                <div key={juego._id} className="game-card" onClick={() => navigate(`/game/${juego._id}`)}>
-                                    <div className="game-card-img">
-                                        {juego.imagenUrl ? <img src={juego.imagenUrl} alt={juego.juego} loading="lazy" /> : <span className="game-card-placeholder">{juego.juego[0]}</span>}
+                        <div className="products-horizontal-grid">
+                            {nuevosLanzamientos.map((juego) => {
+                                const region = obtenerRegion(juego);
+                                return (
+                                    <div
+                                        key={juego._id}
+                                        className="product-horizontal-card"
+                                        onClick={() => navigate(`/game/${juego._id}`)}
+                                    >
+                                        <div className="ph-image-container">
+                                            {juego.imagenUrl ? (
+                                                <img src={juego.imagenUrl} alt={juego.juego} loading="lazy" />
+                                            ) : (
+                                                <div className="ph-placeholder">{juego.juego[0]}</div>
+                                            )}
+                                        </div>
+                                        <div className="ph-info">
+                                            <h3 className="ph-name" title={juego.juego}>{juego.juego}</h3>
+                                            <p className="ph-region" title={region}>{region}</p>
+                                        </div>
                                     </div>
-                                    <p className="game-card-name">{juego.juego}</p>
-                                </div>
-                            ))}
-                            {/*  tarjeta: Ver catálogo */}
-                            <div className="game-card view-all-card" onClick={() => navigate('/catalogo')}>
-                                <div className="game-card-img view-all-img">
-                                    <span className="view-all-icon">→</span>
-                                </div>
-                                <p className="game-card-name" style={{ color: '#38bdf8' }}>Ver Catálogo</p>
-                            </div>
+                                );
+                            })}
+                        </div>
+                        <div className="section-view-all-container">
+                            <button
+                                className="btn-view-all-catalog"
+                                onClick={() => navigate('/catalogo')}
+                            >
+                                <span>Ver Catálogo Completo</span>
+                                <span className="view-all-arrow">→</span>
+                            </button>
                         </div>
                     </section>
                 )}
 
             </div>
+
+            <TrustBar />
         </div>
     );
 }
